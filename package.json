@@ -1,0 +1,32 @@
+{
+  "name": "muskstreamin",
+  "version": "1.0.0",
+  "description": "The backend server for our music streaming service",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/index.ts",
+    "start": "ts-node src/index.ts"
+  },
+  "author": "Zeann3th",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "appwrite": "^14.0.1",
+    "aws-sdk": "^2.1691.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.7.5",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.6.3"
+  }
+}

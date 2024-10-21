@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import supabase from "configs/supabase";
+import supabase from "services/supabase";
 import { Tables } from "models/types";
 
 const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, gender, avatarurl, role")
+    .select("*")
     .returns<Tables<"profiles">>();
 
   if (error) {
@@ -15,28 +15,19 @@ const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
 };
 
 const signUp = async (req: Request, res: Response): Promise<Response> => {
-  const { email, phone, password, metadata } = req.body;
+  const { email, password, metadata } = req.body;
 
   try {
     let data, error;
 
-    if (email && !phone) {
+    if (email) {
       ({ data, error } = await supabase.auth.signUp({
         email: email,
         password: password,
         ...(metadata && { options: { data: metadata } }),
       }));
-    } else if (phone && !email) {
-      ({ data, error } = await supabase.auth.signUp({
-        phone: phone,
-        password: password,
-        options: {
-          channel: "sms",
-          ...(metadata && { data: metadata }),
-        },
-      }));
     } else {
-      return res.status(400).json({ error: "Email or phone is required" });
+      return res.status(400).json({ error: "Email is required" });
     }
 
     if (error) {
@@ -110,7 +101,7 @@ const getUserByID = async (req: Request, res: Response): Promise<Response> => {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, gender, avatarurl, role")
+    .select("id, username, avatarurl, role")
     .eq("id", id)
     .returns<Tables<"profiles">>();
 

@@ -5,7 +5,7 @@ import {
   signIn,
   signUp,
   signInWithGoogle,
-} from "./user.controller";
+} from "./controller";
 
 const router = express.Router();
 

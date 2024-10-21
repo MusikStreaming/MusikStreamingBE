@@ -14,27 +14,35 @@ export type Database = {
           avatarurl: string | null
           country: string | null
           description: string | null
-          gender: Database["public"]["Enums"]["genders"] | null
           id: string
+          managerid: string
           name: string
         }
         Insert: {
           avatarurl?: string | null
           country?: string | null
           description?: string | null
-          gender?: Database["public"]["Enums"]["genders"] | null
-          id: string
+          id?: string
+          managerid: string
           name: string
         }
         Update: {
           avatarurl?: string | null
           country?: string | null
           description?: string | null
-          gender?: Database["public"]["Enums"]["genders"] | null
           id?: string
+          managerid?: string
           name?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "artists_managerid_fkey"
+            columns: ["managerid"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       artistssongs: {
         Row: {
@@ -66,32 +74,98 @@ export type Database = {
           },
         ]
       }
-      playlists: {
+      likedsongs: {
         Row: {
-          description: string | null
           songid: string
-          thumbnailurl: string | null
-          title: string
-          type: Database["public"]["Enums"]["playlist_type"]
           userid: string
         }
         Insert: {
-          description?: string | null
           songid: string
-          thumbnailurl?: string | null
-          title: string
-          type: Database["public"]["Enums"]["playlist_type"]
           userid: string
         }
         Update: {
-          description?: string | null
           songid?: string
-          thumbnailurl?: string | null
-          title?: string
-          type?: Database["public"]["Enums"]["playlist_type"]
           userid?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "liked songs_songid_fkey"
+            columns: ["songid"]
+            isOneToOne: false
+            referencedRelation: "songs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "liked songs_userid_fkey"
+            columns: ["userid"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      playlists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          thumbnailurl: string | null
+          title: string
+          type: Database["public"]["Enums"]["playlist_option"]
+          userid: string
+          visibility: Database["public"]["Enums"]["visibility_option"] | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          thumbnailurl?: string | null
+          title: string
+          type: Database["public"]["Enums"]["playlist_option"]
+          userid: string
+          visibility?: Database["public"]["Enums"]["visibility_option"] | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          thumbnailurl?: string | null
+          title?: string
+          type?: Database["public"]["Enums"]["playlist_option"]
+          userid?: string
+          visibility?: Database["public"]["Enums"]["visibility_option"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlists_userid_fkey"
+            columns: ["userid"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      playlistssongs: {
+        Row: {
+          id: string
+          songid: string
+        }
+        Insert: {
+          id: string
+          songid: string
+        }
+        Update: {
+          id?: string
+          songid?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlists_id_fkey"
+            columns: ["id"]
+            isOneToOne: false
+            referencedRelation: "playlists"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "playlists_songid_fkey"
             columns: ["songid"]
@@ -104,21 +178,24 @@ export type Database = {
       profiles: {
         Row: {
           avatarurl: string | null
-          gender: Database["public"]["Enums"]["gender_type"]
+          country: string | null
           id: string
-          role: string | null
+          role: Database["public"]["Enums"]["role_option"]
+          username: string | null
         }
         Insert: {
           avatarurl?: string | null
-          gender: Database["public"]["Enums"]["gender_type"]
+          country?: string | null
           id: string
-          role?: string | null
+          role?: Database["public"]["Enums"]["role_option"]
+          username?: string | null
         }
         Update: {
           avatarurl?: string | null
-          gender?: Database["public"]["Enums"]["gender_type"]
+          country?: string | null
           id?: string
-          role?: string | null
+          role?: Database["public"]["Enums"]["role_option"]
+          username?: string | null
         }
         Relationships: []
       }
@@ -127,7 +204,7 @@ export type Database = {
           duration: number | null
           fileurl: string | null
           id: string
-          releasedate: string | null
+          releasedate: string
           thumbnailurl: string | null
           title: string
         }
@@ -135,7 +212,7 @@ export type Database = {
           duration?: number | null
           fileurl?: string | null
           id?: string
-          releasedate?: string | null
+          releasedate?: string
           thumbnailurl?: string | null
           title: string
         }
@@ -143,7 +220,7 @@ export type Database = {
           duration?: number | null
           fileurl?: string | null
           id?: string
-          releasedate?: string | null
+          releasedate?: string
           thumbnailurl?: string | null
           title?: string
         }
@@ -157,9 +234,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      gender_type: "M" | "F" | "NB"
-      genders: "M" | "F" | "NB"
-      playlist_type: "Album" | "Single" | "EP" | "Playlist"
+      playlist_option: "Album" | "Single" | "EP" | "Playlist" | "Mix"
+      role_option: "User" | "Admin" | "Artist Manager"
+      visibility_option: "Public" | "Private"
     }
     CompositeTypes: {
       [_ in never]: never

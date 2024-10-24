@@ -1,5 +1,5 @@
 import express, { Router } from "express";
-import { cloudinary } from "services/cloudinary";
+import { cloudinary } from "@/services/cloudinary";
 
 const router = Router();
 

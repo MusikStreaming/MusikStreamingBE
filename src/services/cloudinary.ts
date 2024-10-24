@@ -11,7 +11,7 @@ class Cloudinary {
     });
   }
 
-  async generateSignature(req: Request, res: Response) {
+  public async generatePresignedUploadURL(req: Request) {
     const folder = req.params.folder;
     let url;
 
@@ -27,9 +27,9 @@ class Cloudinary {
 
       url = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_NAME}/image/upload?api_key=${process.env.CLOUDINARY_API_KEY}&folder=${folder}&timestamp=${timestamp}&signature=${signature}`;
     } catch (err) {
-      return res.status(500).json({ error: err });
+      throw new Error(`Error generating pre-signed URL: ${err}`);
     }
-    return res.status(200).json({ url });
+    return url;
   }
 }
 

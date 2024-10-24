@@ -1,9 +1,13 @@
 import express, { Router } from "express";
-import { cloudinary } from "services/cloudinary";
+import controller from "./controller";
 
 const router = Router();
 
 router.get("/");
+
+router.get("/presigned/:op/:fileName", async (req, res) => {
+  await controller.interactBlobStorage(req, res);
+});
 
 router.post("/");
 

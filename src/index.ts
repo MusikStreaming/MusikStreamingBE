@@ -1,11 +1,12 @@
-import express, { Request } from "express";
+import express, { Request, Response } from "express";
 import "dotenv/config";
 import cors from "cors";
-import { userRoutes } from "api/users/routes";
-import { songRoutes } from "api/songs/routes";
-import { playlistRoutes } from "api/playlists/routes";
-import { artistRoutes } from "api/artists/routes";
-import { cloudinary } from "services/cloudinary";
+import { userRoutes } from "@/api/users/routes";
+import { songRoutes } from "@/api/songs/routes";
+import { playlistRoutes } from "@/api/playlists/routes";
+import { artistRoutes } from "@/api/artists/routes";
+import { cloudinary } from "@/services/cloudinary";
+import backblaze from "./services/backblaze";
 
 const app = express();
 
@@ -19,10 +20,6 @@ app.get("/", (req, res) => {
     msg: "Server is healthy",
     last_checked: new Date(),
   });
-});
-
-app.get("/v1/:folder/upload/image", async (req, res) => {
-  await cloudinary.generateSignature(req, res);
 });
 
 app.use("/v1/users", userRoutes);

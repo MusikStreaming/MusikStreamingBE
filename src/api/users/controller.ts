@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import supabase from "services/supabase";
-import { Tables } from "models/types";
+import supabase from "@/services/supabase";
+import { Tables } from "@/models/types";
 
 const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
   const { data, error } = await supabase
@@ -111,4 +111,4 @@ const getUserByID = async (req: Request, res: Response): Promise<Response> => {
   return res.status(200).json({ data });
 };
 
-export { getAllUsers, getUserByID, signUp, signInWithGoogle, signIn };
+export default { getAllUsers, getUserByID, signUp, signInWithGoogle, signIn };

@@ -28,5 +28,7 @@ app.use("/v1/collections", playlistRoutes);
 app.use("/v1/artists", artistRoutes);
 
 app.listen(port, () => {
-  return console.log(`Listening on localhost:${port}`);
+  console.log("\x1b[35m\n 🚀 Musik-Backend 1.0.0\n\x1b[0m");
+  console.log(`- Local:\thttp://localhost:${port}/`);
+  return;
 });

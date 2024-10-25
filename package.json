@@ -7,7 +7,7 @@
   "scripts": {
     "build": "npx tsc && npx resolve-tspaths",
     "start": "node dist/index.js",
-    "dev": "npx nodemon"
+    "dev": "npx nodemon -q"
   },
   "author": "Zeann3th",
   "license": "GPL-3.0-or-later",
@@ -18,11 +18,14 @@
     "cloudinary": "^2.5.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.21.1"
+    "express": "^4.21.1",
+    "multer": "^1.4.5-lts.1",
+    "supabase": "^1.207.9"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "@types/multer": "^1.4.12",
     "@types/node": "^22.7.5",
     "nodemon": "^3.1.7",
     "resolve-tspaths": "^0.8.22",

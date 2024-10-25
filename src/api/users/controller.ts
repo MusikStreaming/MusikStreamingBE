@@ -14,7 +14,10 @@ const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
   return res.status(200).json({ data });
 };
 
-const signUp = async (req: Request, res: Response): Promise<Response> => {
+const signUpWithEmail = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
   const { email, password, metadata } = req.body;
 
   try {
@@ -42,25 +45,23 @@ const signUp = async (req: Request, res: Response): Promise<Response> => {
   }
 };
 
-const signIn = async (req: Request, res: Response): Promise<Response> => {
-  const { email, phone, password } = req.body;
+const signInWithEmail = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
+  const { email, password } = req.body;
 
   try {
     let data, error;
 
-    if (email && !phone) {
-      ({ data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-      }));
-    } else if (phone && !email) {
-      ({ data, error } = await supabase.auth.signInWithPassword({
-        phone: phone,
-        password: password,
-      }));
-    } else {
-      return res.status(400).json({ error: "Email or phone is required" });
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
     }
+
+    ({ data, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password,
+    }));
 
     if (error) {
       return res.status(400).json({ error: error.message });
@@ -92,23 +93,45 @@ const signInWithGoogle = async (req: Request, res: Response): Promise<any> => {
   return res.redirect(data.url);
 };
 
-const getUserByID = async (req: Request, res: Response): Promise<Response> => {
-  const id = req.params.id;
-
-  if (!id) {
-    return res.status(400).json({ error: "No ID specified" });
+const getUserProfile = async (
+  req: Request,
+  res: Response,
+): Promise<Response> => {
+  let metadata;
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+  } catch (err) {
+    return res.status(500).json({ error: err });
   }
-
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("id, username, avatarurl, role")
-    .eq("id", id)
-    .returns<Tables<"profiles">>();
-
-  if (error) {
-    return res.status(500).json({ error });
-  }
-  return res.status(200).json({ data });
+  return res.status(200).json({ metadata });
 };
 
-export default { getAllUsers, getUserByID, signUp, signInWithGoogle, signIn };
+const updateUser = async (req: Request, res: Response): Promise<Response> => {
+  const { email, password, metadata } = req.body;
+  let response: object;
+
+  response = {
+    ...(email && { email }),
+    ...(password && { password }),
+    ...(metadata && { data: metadata }),
+  };
+
+  const { data, error } = await supabase.auth.updateUser(response);
+
+  if (error) {
+    return res.status(error.status ?? 500).json({ error: error.message });
+  }
+
+  return res.status(200).json({ message: "User updated successfully" });
+};
+
+export default {
+  getAllUsers,
+  getUserProfile,
+  signUpWithEmail,
+  signInWithGoogle,
+  signInWithEmail,
+  updateUser,
+};

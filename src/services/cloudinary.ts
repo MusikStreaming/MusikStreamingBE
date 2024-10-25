@@ -11,25 +11,26 @@ class Cloudinary {
     });
   }
 
-  public async generatePresignedUploadURL(req: Request) {
-    const folder = req.params.folder;
-    let url;
-
-    try {
-      const timestamp = Math.round(new Date().getTime() / 1000) - 45 * 60;
-      const signature = await cloudinary.utils.api_sign_request(
-        {
-          timestamp: timestamp,
-          ...(folder ? { folder: folder } : {}),
-        },
-        process.env.CLOUDINARY_SECRET!,
-      );
-
-      url = `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_NAME}/image/upload?api_key=${process.env.CLOUDINARY_API_KEY}&folder=${folder}&timestamp=${timestamp}&signature=${signature}`;
-    } catch (err) {
-      throw new Error(`Error generating pre-signed URL: ${err}`);
+  public async upload(req: Request) {
+    if (!req.file) {
+      throw new Error("No file uploaded!");
     }
-    return url;
+
+    const folder = req.params.folder || "misc";
+
+    const uploadResult = await new Promise<{ secure_url: string }>(
+      (resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { resource_type: "image", folder },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result as { secure_url: string });
+          },
+        );
+        stream.end(req.file!.buffer);
+      },
+    );
+    return uploadResult;
   }
 }
 

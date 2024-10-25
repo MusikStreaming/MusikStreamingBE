@@ -6,12 +6,13 @@ import { songRoutes } from "@/api/songs/routes";
 import { playlistRoutes } from "@/api/playlists/routes";
 import { artistRoutes } from "@/api/artists/routes";
 import { cloudinary } from "@/services/cloudinary";
-import backblaze from "./services/backblaze";
+import multer from "multer";
 
 const app = express();
 
 app.use(express.json());
 app.use(cors<Request>());
+const storage = multer({ storage: multer.memoryStorage() });
 
 const port = process.env.PORT || 7554;
 
@@ -20,6 +21,19 @@ app.get("/", (req, res) => {
     msg: "Server is healthy",
     last_checked: new Date(),
   });
+});
+
+app.post("/v1/:folder/upload", storage.single("file"), async (req, res) => {
+  let url: string;
+  try {
+    const data = await cloudinary.upload(req);
+    url = data.secure_url;
+  } catch (err) {
+    res.status(500).json({ error: err });
+    return;
+  }
+  res.status(200).json({ url });
+  return;
 });
 
 app.use("/v1/users", userRoutes);

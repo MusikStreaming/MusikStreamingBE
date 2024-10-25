@@ -23,7 +23,7 @@ export type Database = {
           country?: string | null
           description?: string | null
           id?: string
-          managerid: string
+          managerid?: string
           name: string
         }
         Update: {
@@ -122,7 +122,7 @@ export type Database = {
           thumbnailurl?: string | null
           title: string
           type: Database["public"]["Enums"]["playlist_option"]
-          userid: string
+          userid?: string
           visibility?: Database["public"]["Enums"]["visibility_option"] | null
         }
         Update: {
@@ -202,7 +202,6 @@ export type Database = {
       songs: {
         Row: {
           duration: number | null
-          fileurl: string | null
           id: string
           releasedate: string
           thumbnailurl: string | null
@@ -210,7 +209,6 @@ export type Database = {
         }
         Insert: {
           duration?: number | null
-          fileurl?: string | null
           id?: string
           releasedate?: string
           thumbnailurl?: string | null
@@ -218,7 +216,6 @@ export type Database = {
         }
         Update: {
           duration?: number | null
-          fileurl?: string | null
           id?: string
           releasedate?: string
           thumbnailurl?: string | null

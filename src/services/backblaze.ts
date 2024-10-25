@@ -19,34 +19,30 @@ class Backblaze {
     });
   }
 
-  public async generatePresignedDownloadURL(fileName: string): Promise<string> {
-    const expiresIn = 1800;
-    try {
-      const command = new GetObjectCommand({
-        Bucket: process.env.AWS_BUCKET,
-        Key: fileName,
-      });
+  public async generatePresignedDownloadURL(
+    fileName: string,
+    expiresIn: number,
+  ): Promise<string> {
+    const command = new GetObjectCommand({
+      Bucket: process.env.AWS_BUCKET,
+      Key: fileName,
+    });
 
-      const signedUrl = await getSignedUrl(this.client, command, { expiresIn });
-      return signedUrl;
-    } catch (err) {
-      throw new Error(`Error generating pre-signed URL: ${err}`);
-    }
+    const signedUrl = await getSignedUrl(this.client, command, { expiresIn });
+    return signedUrl;
   }
 
-  public async generatePresignedUploadURL(fileName: string): Promise<string> {
-    const expiresIn = 900;
-    try {
-      const command = new PutObjectCommand({
-        Bucket: process.env.AWS_BUCKET,
-        Key: fileName,
-      });
+  public async generatePresignedUploadURL(
+    fileName: string,
+    expiresIn: number,
+  ): Promise<string> {
+    const command = new PutObjectCommand({
+      Bucket: process.env.AWS_BUCKET,
+      Key: fileName,
+    });
 
-      const signedUrl = await getSignedUrl(this.client, command, { expiresIn });
-      return signedUrl;
-    } catch (err) {
-      throw new Error(`Error generating pre-signed URL: ${err}`);
-    }
+    const signedUrl = await getSignedUrl(this.client, command, { expiresIn });
+    return signedUrl;
   }
 }
 

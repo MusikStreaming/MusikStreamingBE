@@ -23,19 +23,6 @@ app.get("/", (req, res) => {
   });
 });
 
-app.post("/v1/:folder/upload", storage.single("file"), async (req, res) => {
-  let url: string;
-  try {
-    const data = await cloudinary.upload(req);
-    url = data.secure_url;
-  } catch (err) {
-    res.status(500).json({ error: err });
-    return;
-  }
-  res.status(200).json({ url });
-  return;
-});
-
 app.use("/v1/users", userRoutes);
 app.use("/v1/songs", songRoutes);
 app.use("/v1/collections", playlistRoutes);

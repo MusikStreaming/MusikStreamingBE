@@ -30,7 +30,7 @@ class Cloudinary {
         stream.end(req.file!.buffer);
       },
     );
-    return uploadResult;
+    return uploadResult.secure_url;
   }
 }
 

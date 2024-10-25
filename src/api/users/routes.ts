@@ -1,5 +1,6 @@
 import express from "express";
 import controller from "./controller";
+import { storage } from "@/multer.config";
 
 const router = express.Router();
 
@@ -11,8 +12,8 @@ router.get("/profile", async (req, res) => {
   await controller.getUserProfile(req, res);
 });
 
-router.post("/auth/signup", async (req, res) => {
-  await controller.signUpWithEmail(req, res);
+router.post("/auth/signup", storage.single("file"), async (req, res) => {
+  await controller.signUpWithEmailForm(req, res);
 });
 
 router.post("/auth/signin", async (req, res) => {

@@ -11,12 +11,10 @@ class Cloudinary {
     });
   }
 
-  public async upload(req: Request) {
+  public async upload(req: Request, folder: string) {
     if (!req.file) {
       throw new Error("No file uploaded!");
     }
-
-    const folder = req.params.folder || "misc";
 
     const uploadResult = await new Promise<{ secure_url: string }>(
       (resolve, reject) => {

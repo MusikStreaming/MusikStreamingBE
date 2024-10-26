@@ -4,28 +4,20 @@ import { storage } from "@/multer.config";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  await controller.getAllUsers(req, res);
-});
+router.get("/", controller.getAllUsers);
 
-router.get("/profile", async (req, res) => {
-  await controller.getUserProfile(req, res);
-});
+router.get("/profile", controller.getUserProfile);
 
-router.post("/auth/signup", storage.single("file"), async (req, res) => {
-  await controller.signUpWithEmailForm(req, res);
-});
+router.post(
+  "/auth/signup",
+  storage.single("file"),
+  controller.signUpWithEmailForm,
+);
 
-router.post("/auth/signin", async (req, res) => {
-  await controller.signInWithEmail(req, res);
-});
+router.post("/auth/signin", controller.signInWithEmail);
 
-router.get("/oauth/signin", async (req, res) => {
-  await controller.signInWithGoogle(req, res);
-});
+router.get("auth/oauth/", controller.signInWithGoogle);
 
-router.patch("/", async (req, res) => {
-  await controller.updateUser(req, res);
-});
+router.patch("/", controller.updateUser);
 
 export { router as userRoutes };

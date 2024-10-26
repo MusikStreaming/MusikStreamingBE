@@ -1,24 +1,23 @@
-import { Request, Response } from "express";
+import { Request, RequestHandler, Response } from "express";
 import supabase from "@/services/supabase";
 import { Tables } from "@/models/types";
 import { cloudinary } from "@/services/cloudinary";
 
-const getAllUsers = async (req: Request, res: Response): Promise<Response> => {
+const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
   const { data, error } = await supabase
     .from("profiles")
     .select("*")
     .returns<Tables<"profiles">>();
 
   if (error) {
-    return res.status(500).json({ error });
+    res.status(500).json({ error });
+    return;
   }
-  return res.status(200).json({ data });
+  res.status(200).json({ data });
+  return;
 };
 
-const signUpWithEmail = async (
-  req: Request,
-  res: Response,
-): Promise<Response> => {
+const signUpWithEmail: RequestHandler = async (req: Request, res: Response) => {
   const { email, password, metadata } = req.body;
 
   try {
@@ -31,70 +30,75 @@ const signUpWithEmail = async (
         ...(metadata && { options: { data: metadata } }),
       }));
     } else {
-      return res.status(400).json({ error: "Email is required" });
+      res.status(400).json({ error: "Email is required" });
+      return;
     }
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message });
+      return;
     }
 
-    return res.status(200).json({ data });
+    res.status(200).json({ data });
+    return;
   } catch (err) {
-    return res
+    res
       .status(500)
       .json({ error: "Internal server error. Please try again later" });
+    return;
   }
 };
 
-const signUpWithEmailForm = async (
+const signUpWithEmailForm: RequestHandler = async (
   req: Request,
   res: Response,
-): Promise<Response> => {
+) => {
   const { json } = req.body;
-
   const obj = JSON.parse(json);
-
   const { email, password, metadata } = obj;
 
-  // [TODO]: Need to implement logic to check if user exists
+  if (!email) {
+    res.status(400).json({ error: "Email is required" });
+    return;
+  }
 
   try {
-    let data, error;
-
-    if (email) {
-      metadata.avatarurl = await cloudinary.upload(req, "users");
-      ({ data, error } = await supabase.auth.signUp({
-        email: email,
-        password: password,
-        ...(metadata && { options: { data: metadata } }),
-      }));
-    } else {
-      return res.status(400).json({ error: "Email is required" });
-    }
+    let { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      ...(metadata && { options: { data: metadata } }),
+    });
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      res.status(500).json({ error: error.message });
+      return;
     }
 
-    return res.status(200).json({ data });
+    const url = await cloudinary.upload(req, "users");
+    await supabase
+      .from("profiles")
+      .update({ avatarurl: url })
+      .eq("id", data.user!.id);
+
+    res.status(200).json({ data });
+    return;
   } catch (err) {
-    return res
+    res
       .status(500)
       .json({ error: "Internal server error. Please try again later" });
+    return;
   }
 };
 
-const signInWithEmail = async (
-  req: Request,
-  res: Response,
-): Promise<Response> => {
+const signInWithEmail: RequestHandler = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
     let data, error;
 
     if (!email) {
-      return res.status(400).json({ error: "Email is required" });
+      res.status(400).json({ error: "Email is required" });
+      return;
     }
 
     ({ data, error } = await supabase.auth.signInWithPassword({
@@ -103,18 +107,24 @@ const signInWithEmail = async (
     }));
 
     if (error) {
-      return res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message });
+      return;
     }
 
-    return res.status(200).json({ data });
+    res.status(200).json({ data });
+    return;
   } catch (err) {
-    return res
+    res
       .status(500)
       .json({ error: "Internal server error. Please try again later" });
+    return;
   }
 };
 
-const signInWithGoogle = async (req: Request, res: Response): Promise<any> => {
+const signInWithGoogle: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
@@ -126,28 +136,28 @@ const signInWithGoogle = async (req: Request, res: Response): Promise<any> => {
     },
   });
   if (error) {
-    return res.status(400).json({ error: error.message });
+    res.status(400).json({ error: error.message });
+    return;
   }
 
   return res.redirect(data.url);
 };
 
-const getUserProfile = async (
-  req: Request,
-  res: Response,
-): Promise<Response> => {
+const getUserProfile: RequestHandler = async (req: Request, res: Response) => {
   let metadata;
   try {
     const {
       data: { user },
     } = await supabase.auth.getUser();
   } catch (err) {
-    return res.status(500).json({ error: err });
+    res.status(500).json({ error: err });
+    return;
   }
-  return res.status(200).json({ metadata });
+  res.status(200).json({ metadata });
+  return;
 };
 
-const updateUser = async (req: Request, res: Response): Promise<Response> => {
+const updateUser: RequestHandler = async (req: Request, res: Response) => {
   const { email, password, metadata } = req.body;
   let response: object;
 
@@ -160,29 +170,27 @@ const updateUser = async (req: Request, res: Response): Promise<Response> => {
   const { data, error } = await supabase.auth.updateUser(response);
 
   if (error) {
-    return res.status(error.status ?? 500).json({ error: error.message });
+    res.status(error.status ?? 500).json({ error: error.message });
+    return;
   }
 
-  return res.status(200).json({ message: "User updated successfully" });
+  res.status(200).json({ message: "User updated successfully" });
+  return;
 };
 
-const getUserByID = async (req: Request, res: Response): Promise<Response> => {
-  const id = req.params.id;
-
-  if (!id) {
-    return res.status(400).json({ error: "No id specified!" });
-  }
-
+const getUserByID: RequestHandler = async (req: Request, res: Response) => {
   const { data, error } = await supabase
     .from("profiles")
     .select("*")
-    .eq("id", id)
+    .eq("id", req.params.id)
     .returns<Tables<"profiles">>();
 
   if (error) {
-    return res.status(500).json({ error });
+    res.status(500).json({ error });
+    return;
   }
-  return res.status(200).json({ data });
+  res.status(200).json({ data });
+  return;
 };
 
 export default {

@@ -1,10 +1,43 @@
+import { Tables } from "@/models/types";
 import backblaze from "@/services/backblaze";
-import { Request, Response } from "express";
+import supabase from "@/services/supabase";
+import { Request, RequestHandler, Response } from "express";
 
-const interactBlobStorage = async (
+const getAllSongs: RequestHandler = async (req: Request, res: Response) => {
+  const { data, error } = await supabase
+    .from("songs")
+    .select()
+    .returns<Tables<"songs">>();
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  res.status(200).json({ data });
+  return;
+};
+
+const getSongByID: RequestHandler = async (req: Request, res: Response) => {
+  const { data, error } = await supabase
+    .from("songs")
+    .select()
+    .eq("id", req.params.id)
+    .returns<Tables<"songs">>();
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  res.status(200).json({ data });
+  return;
+};
+
+const interactBlobStorage: RequestHandler = async (
   req: Request,
   res: Response,
-): Promise<Response> => {
+) => {
   let response: object;
   const fileName: string = decodeURIComponent(req.params.fileName).replace(
     /\+/g,
@@ -30,25 +63,26 @@ const interactBlobStorage = async (
         response = { message: `File ${fileName} deleted successfully` };
         break;
       default:
-        return res.status(400).json({
+        res.status(400).json({
           error: "Invalid operation when trying to interact with storage",
         });
+        return;
     }
   } catch (err) {
     if (req.params.op === "r" || req.params.op === "u") {
-      return res.status(500).json({ error: `Error generating pre-signed URL` });
+      res.status(500).json({ error: `Error generating pre-signed URL` });
+      return;
     } else if (req.params.op === "d") {
-      return res
-        .status(500)
-        .json({ error: `Error deleting file "${fileName}"` });
+      res.status(500).json({ error: `Error deleting file "${fileName}"` });
+      return;
     } else {
-      return res
-        .status(500)
-        .json({ error: `An unexpected error occurred: ${err}` });
+      res.status(500).json({ error: `An unexpected error occurred: ${err}` });
+      return;
     }
   }
 
-  return res.status(200).json(response);
+  res.status(200).json(response);
+  return;
 };
 
-export default { interactBlobStorage };
+export default { getAllSongs, getSongByID, interactBlobStorage };

@@ -34,7 +34,7 @@ const getSongByID: RequestHandler = async (req: Request, res: Response) => {
   return;
 };
 
-const interactBlobStorage: RequestHandler = async (
+const handleBlobStorage: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
@@ -85,4 +85,4 @@ const interactBlobStorage: RequestHandler = async (
   return;
 };
 
-export default { getAllSongs, getSongByID, interactBlobStorage };
+export default { getAllSongs, getSongByID, handleBlobStorage };

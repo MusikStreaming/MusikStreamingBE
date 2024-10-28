@@ -1,23 +1,32 @@
 import express from "express";
 import controller from "./controller";
 import { storage } from "@/multer.config";
+import rateLimit from "express-rate-limit";
+
+const uploadRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  keyGenerator: (req) => req.params.id,
+  message: "Too many requests, please try again later.",
+});
 
 const router = express.Router();
 
-router.get("/", controller.getAllUsers);
-
+// Profile
 router.get("/profile", controller.getUserProfile);
 
+router.patch("/:id/profile", controller.updateUserProfile);
+
 router.post(
-  "/auth/signup",
+  "/:id/upload",
+  uploadRateLimit,
   storage.single("file"),
-  controller.signUpWithEmailForm,
+  controller.uploadAvatar,
 );
 
-router.post("/auth/signin", controller.signInWithEmail);
+// Basic query
+router.get("/:id", controller.getUserByID);
 
-router.get("auth/oauth/", controller.signInWithGoogle);
-
-router.patch("/", controller.updateUser);
+router.get("/:id/playlists", controller.getUserPlaylists);
 
 export { router as userRoutes };

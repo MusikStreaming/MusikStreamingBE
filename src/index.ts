@@ -5,6 +5,7 @@ import { userRoutes } from "@/api/users/routes";
 import { songRoutes } from "@/api/songs/routes";
 import { playlistRoutes } from "@/api/playlists/routes";
 import { artistRoutes } from "@/api/artists/routes";
+import { authRoutes } from "./api/auth/routes";
 
 const app = express();
 
@@ -20,10 +21,11 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use("/v1/users", userRoutes);
-app.use("/v1/songs", songRoutes);
-app.use("/v1/collections", playlistRoutes);
-app.use("/v1/artists", artistRoutes);
+app.use("/v1/auth", authRoutes);
+app.use("/v1/user", userRoutes);
+app.use("/v1/song", songRoutes);
+app.use("/v1/collection", playlistRoutes);
+app.use("/v1/artist", artistRoutes);
 
 app.listen(port, () => {
   console.log(`

@@ -147,30 +147,30 @@ export type Database = {
       }
       playlistssongs: {
         Row: {
-          id: string
+          playlistid: string
           songid: string
         }
         Insert: {
-          id: string
+          playlistid: string
           songid: string
         }
         Update: {
-          id?: string
+          playlistid?: string
           songid?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "playlists_id_fkey"
-            columns: ["id"]
-            isOneToOne: false
-            referencedRelation: "playlists"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "playlists_songid_fkey"
             columns: ["songid"]
             isOneToOne: false
             referencedRelation: "songs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playlistssongs_playlistid_fkey"
+            columns: ["playlistid"]
+            isOneToOne: false
+            referencedRelation: "playlists"
             referencedColumns: ["id"]
           },
         ]

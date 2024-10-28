@@ -3,9 +3,10 @@ import controller from "./controller";
 import rateLimit from "express-rate-limit";
 
 const router = Router();
-const rate_limit = rateLimit({
+const uploadRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 5,
+  keyGenerator: (req) => req.params.op,
   message: "Too many requests, please try again later.",
 });
 
@@ -13,8 +14,8 @@ router.get("/", controller.getAllSongs);
 
 router.get(
   "/presigned/:op/:fileName",
-  rate_limit,
-  controller.interactBlobStorage,
+  uploadRateLimit,
+  controller.handleBlobStorage,
 );
 
 router.post("/", async (req, res) => {});

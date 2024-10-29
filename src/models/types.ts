@@ -104,6 +104,39 @@ export type Database = {
           },
         ]
       }
+      listenhistory: {
+        Row: {
+          last_listened: string
+          songid: string
+          userid: string
+        }
+        Insert: {
+          last_listened?: string
+          songid: string
+          userid: string
+        }
+        Update: {
+          last_listened?: string
+          songid?: string
+          userid?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listenhistory_songid_fkey"
+            columns: ["songid"]
+            isOneToOne: false
+            referencedRelation: "songs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listenhistory_userid_fkey"
+            columns: ["userid"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       playlists: {
         Row: {
           created_at: string
@@ -228,7 +261,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_old_history: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       playlist_option: "Album" | "Single" | "EP" | "Playlist" | "Mix"

@@ -12,21 +12,25 @@ const uploadRateLimit = rateLimit({
 
 const router = express.Router();
 
-// Profile
-router.get("/profile", controller.getUserProfile);
+router.get("/", controller.getAllUsers);
 
-router.patch("/:id/profile", controller.updateUserProfile);
+router.get("/me", controller.getUserProfile);
+
+router.patch("/me", controller.updateUserProfile);
 
 router.post(
-  "/:id/upload",
+  "/upload",
   uploadRateLimit,
   storage.single("file"),
   controller.uploadAvatar,
 );
 
-// Basic query
-router.get("/:id", controller.getUserByID);
+router.get("/history", controller.getUserListenHistory);
 
-router.get("/:id/playlists", controller.getUserPlaylists);
+router.post("/history");
+
+router.get("/playlists", controller.getUserPlaylists);
+
+router.get("/:id", controller.getUserByID);
 
 export { router as userRoutes };

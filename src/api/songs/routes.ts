@@ -5,20 +5,19 @@ import rateLimit from "express-rate-limit";
 const router = Router();
 const uploadRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 5,
-  keyGenerator: (req) => req.params.op,
+  limit: 10,
   message: "Too many requests, please try again later.",
 });
 
 router.get("/", controller.getAllSongs);
 
-router.get(
-  "/presigned/:op/:fileName",
-  uploadRateLimit,
-  controller.handleBlobStorage,
-);
+router.get("/presigned/r/:filename", controller.generatePresignedDownloadURL);
 
-router.post("/", async (req, res) => {});
+router.get(
+  "/presigned/u/:fileName",
+  uploadRateLimit,
+  controller.generatePresignedUploadURL,
+);
 
 router.get("/:id", controller.getSongByID);
 

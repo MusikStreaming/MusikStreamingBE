@@ -7,4 +7,6 @@ router.get("/playlists", controller.getAllPlaylists);
 
 router.get("/albums", controller.getAllAlbums);
 
+router.get("/id", controller.getCollectionByID);
+
 export { router as collectionRoutes };

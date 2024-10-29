@@ -74,29 +74,29 @@ export type Database = {
           },
         ]
       }
-      likedsongs: {
+      follows: {
         Row: {
-          songid: string
+          artistid: string
           userid: string
         }
         Insert: {
-          songid: string
+          artistid: string
           userid: string
         }
         Update: {
-          songid?: string
+          artistid?: string
           userid?: string
         }
         Relationships: [
           {
-            foreignKeyName: "liked songs_songid_fkey"
-            columns: ["songid"]
+            foreignKeyName: "follows_artistid_fkey"
+            columns: ["artistid"]
             isOneToOne: false
-            referencedRelation: "songs"
+            referencedRelation: "artists"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "liked songs_userid_fkey"
+            foreignKeyName: "follows_userid_fkey"
             columns: ["userid"]
             isOneToOne: false
             referencedRelation: "profiles"

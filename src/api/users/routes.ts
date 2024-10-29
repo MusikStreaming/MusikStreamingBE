@@ -14,10 +14,12 @@ const router = express.Router();
 
 router.get("/", controller.getAllUsers);
 
-router.get("/me", controller.getUserProfile);
+// Profile
+router.get("/me", controller.getProfile);
 
-router.patch("/me", controller.updateUserProfile);
+router.patch("/me", controller.updateProfile);
 
+// Upload Avatar
 router.post(
   "/upload",
   uploadRateLimit,
@@ -25,12 +27,22 @@ router.post(
   controller.uploadAvatar,
 );
 
-router.get("/history", controller.getUserListenHistory);
+// User's playlists
+router.get("/playlists", controller.getPlaylists);
 
-router.post("/history");
+// User's listen history
+router.get("/history", controller.getListenHistory);
 
-router.get("/playlists", controller.getUserPlaylists);
+router.post("/history", controller.upsertListenHistory);
 
+// User's followed artists
+router.get("/following", controller.getFollowedArtists);
+
+router.post("/following", controller.followArtist);
+
+router.post("/following", controller.unfollowArtist);
+
+// Basic user query
 router.get("/:id", controller.getUserByID);
 
 export { router as userRoutes };

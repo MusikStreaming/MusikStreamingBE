@@ -2,7 +2,6 @@ import { Request, RequestHandler, Response } from "express";
 import supabase from "@/services/supabase";
 import { Tables } from "@/models/types";
 import { cloudinary } from "@/services/cloudinary";
-import { error } from "console";
 
 const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1;
@@ -43,7 +42,7 @@ const getUserByID: RequestHandler = async (req: Request, res: Response) => {
   return;
 };
 
-const getUserProfile: RequestHandler = async (req: Request, res: Response) => {
+const getProfile: RequestHandler = async (req: Request, res: Response) => {
   const {
     data: { user },
     error: userError,
@@ -68,10 +67,7 @@ const getUserProfile: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
-const updateUserProfile: RequestHandler = async (
-  req: Request,
-  res: Response,
-) => {
+const updateProfile: RequestHandler = async (req: Request, res: Response) => {
   const {
     data: { user },
     error: userError,
@@ -144,10 +140,7 @@ const uploadAvatar: RequestHandler = async (req: Request, res: Response) => {
   return;
 };
 
-const getUserPlaylists: RequestHandler = async (
-  req: Request,
-  res: Response,
-) => {
+const getPlaylists: RequestHandler = async (req: Request, res: Response) => {
   const {
     data: { user },
     error: userError,
@@ -172,7 +165,7 @@ const getUserPlaylists: RequestHandler = async (
   return;
 };
 
-const getUserListenHistory: RequestHandler = async (
+const getListenHistory: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
@@ -212,12 +205,133 @@ const getUserListenHistory: RequestHandler = async (
   return;
 };
 
+const upsertListenHistory: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  const { songid } = req.body;
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError) {
+    res.status(userError.status ?? 401).json({ error: userError.message });
+    return;
+  }
+
+  const { data, error: historyError } = await supabase
+    .from("listenhistory")
+    .upsert(
+      [
+        {
+          userid: user!.id,
+          songid: songid,
+        },
+      ],
+      { onConflict: "userid, songid" },
+    );
+
+  if (historyError) {
+    res.status(500).json({ error: historyError.message });
+    return;
+  }
+};
+
+const getFollowedArtists: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError) {
+    res.status(userError.status ?? 401).json({ error: userError });
+    return;
+  }
+
+  const {
+    data,
+    status,
+    error: followError,
+  } = await supabase
+    .from("follows")
+    .select("artist: artists(id, name, avatarurl)")
+    .eq("userid", user!.id);
+
+  if (followError) {
+    res.status(status).json({ error: followError.message });
+    return;
+  }
+
+  res.status(status).json({ data });
+  return;
+};
+
+const followArtist: RequestHandler = async (req: Request, res: Response) => {
+  const { artistid } = req.body;
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError) {
+    res.status(userError.status ?? 401).json({ error: userError.message });
+    return;
+  }
+
+  const { status, error: followError } = await supabase
+    .from("follows")
+    .insert({ userid: user!.id, artistid });
+
+  if (followError) {
+    res.status(status).json({ error: followError.message });
+    return;
+  }
+
+  res.status(status).json({ message: `Followed artist ${artistid}` });
+  return;
+};
+
+const unfollowArtist: RequestHandler = async (req: Request, res: Response) => {
+  const { artistid } = req.body;
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError) {
+    res.status(userError.status ?? 401).json({ error: userError.message });
+    return;
+  }
+
+  const { status, error: unfollowError } = await supabase
+    .from("follows")
+    .delete()
+    .eq("userid", user!.id)
+    .eq("artistid", artistid);
+
+  if (unfollowError) {
+    res.status(status).json({ error: unfollowError.message });
+    return;
+  }
+
+  res.status(status).json({ message: `Unfollowed artist ${artistid}` });
+  return;
+};
+
 export default {
   getAllUsers,
   getUserByID,
-  getUserProfile,
-  updateUserProfile,
+  getProfile,
+  updateProfile,
   uploadAvatar,
-  getUserPlaylists,
-  getUserListenHistory,
+  getPlaylists,
+  getListenHistory,
+  upsertListenHistory,
+  getFollowedArtists,
+  followArtist,
+  unfollowArtist,
 };

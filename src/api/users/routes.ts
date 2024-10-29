@@ -1,14 +1,7 @@
 import express from "express";
 import controller from "./controller";
-import { storage } from "@/multer.config";
-import rateLimit from "express-rate-limit";
-
-const uploadRateLimit = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  keyGenerator: (req) => req.params.id,
-  message: "Too many requests, please try again later.",
-});
+import { ratelimit } from "@/middlewares/rate-limit.config";
+import { storage } from "@/middlewares/multer.config";
 
 const router = express.Router();
 
@@ -22,7 +15,7 @@ router.patch("/me", controller.updateProfile);
 // Upload Avatar
 router.post(
   "/upload",
-  uploadRateLimit,
+  ratelimit,
   storage.single("file"),
   controller.uploadAvatar,
 );

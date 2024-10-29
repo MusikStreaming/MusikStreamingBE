@@ -129,7 +129,7 @@ const uploadAvatar: RequestHandler = async (req: Request, res: Response) => {
     .from("profiles")
     .update({ avatarurl: url })
     .eq("id", user!.id)
-    .returns<Tables<"profiles">>();
+    .single();
 
   if (updateError) {
     res.status(500).json({ error: updateError.message });

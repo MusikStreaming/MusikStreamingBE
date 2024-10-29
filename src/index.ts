@@ -22,10 +22,10 @@ app.get("/", (req, res) => {
 });
 
 app.use("/v1/auth", authRoutes);
-app.use("/v1/users", userRoutes);
-app.use("/v1/songs", songRoutes);
-app.use("/v1/collections", collectionRoutes);
-app.use("/v1/artists", artistRoutes);
+app.use("/v1/user", userRoutes);
+app.use("/v1/song", songRoutes);
+app.use("/v1/collection", collectionRoutes);
+app.use("/v1/artist", artistRoutes);
 
 app.listen(port, () => {
   console.log(`

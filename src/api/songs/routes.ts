@@ -5,7 +5,7 @@ import rateLimit from "express-rate-limit";
 const router = Router();
 const uploadRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 10,
+  limit: 20,
   message: "Too many requests, please try again later.",
 });
 

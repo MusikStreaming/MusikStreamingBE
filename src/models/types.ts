@@ -235,6 +235,7 @@ export type Database = {
       songs: {
         Row: {
           duration: number | null
+          genre: string | null
           id: string
           releasedate: string
           thumbnailurl: string | null
@@ -242,6 +243,7 @@ export type Database = {
         }
         Insert: {
           duration?: number | null
+          genre?: string | null
           id?: string
           releasedate?: string
           thumbnailurl?: string | null
@@ -249,6 +251,7 @@ export type Database = {
         }
         Update: {
           duration?: number | null
+          genre?: string | null
           id?: string
           releasedate?: string
           thumbnailurl?: string | null

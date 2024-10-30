@@ -78,4 +78,39 @@ const generatePresignedUploadURL: RequestHandler = async (
   return;
 };
 
-export default { getAllSongs, getSongByID, generatePresignedDownloadURL, generatePresignedUploadURL };
+const updateSongMetadata: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  const id = req.params.id;
+  const { title, thumbnailurl, duration, releasedate, genre } = req.body;
+
+  const response = {
+    ...(title && { title }),
+    ...(thumbnailurl && { thumbnailurl }),
+    ...(duration && { duration }),
+    ...(releasedate && { releasedate }),
+    ...(genre && { genre }),
+  };
+
+  const { status, error } = await supabase
+    .from("songs")
+    .update(response)
+    .eq("id", id);
+
+  if (error) {
+    res.status(status).json({ error: error.message });
+    return;
+  }
+
+  res.status(status).json({ message: `Song ${id} updated successfully` });
+  return;
+};
+
+export default {
+  getAllSongs,
+  getSongByID,
+  generatePresignedDownloadURL,
+  generatePresignedUploadURL,
+  updateSongMetadata,
+};

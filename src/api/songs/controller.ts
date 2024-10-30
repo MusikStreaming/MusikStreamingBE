@@ -1,5 +1,5 @@
-import { Tables } from "@/models/types";
 import backblaze from "@/services/backblaze";
+import { cloudinary } from "@/services/cloudinary";
 import supabase from "@/services/supabase";
 import { Request, RequestHandler, Response } from "express";
 
@@ -10,8 +10,7 @@ const getAllSongs: RequestHandler = async (req: Request, res: Response) => {
   const { data, error } = await supabase
     .from("songs")
     .select()
-    .range((page - 1) * limit, page * limit - 1)
-    .returns<Tables<"songs">>();
+    .range((page - 1) * limit, page * limit - 1);
 
   if (error) {
     res.status(500).json({ error: error.message });
@@ -27,7 +26,7 @@ const getSongByID: RequestHandler = async (req: Request, res: Response) => {
     .from("songs")
     .select()
     .eq("id", req.params.id)
-    .returns<Tables<"songs">>();
+    .single();
 
   if (error) {
     res.status(500).json({ error: error.message });
@@ -78,39 +77,115 @@ const generatePresignedUploadURL: RequestHandler = async (
   return;
 };
 
-const updateSongMetadata: RequestHandler = async (
-  req: Request,
-  res: Response,
-) => {
+const updateSong: RequestHandler = async (req: Request, res: Response) => {
   const id = req.params.id;
-  const { title, thumbnailurl, duration, releasedate, genre } = req.body;
+  const { title, description, thumbnailurl, duration, releasedate, genre } =
+    req.body;
 
   const response = {
     ...(title && { title }),
+    ...(description && { description }),
     ...(thumbnailurl && { thumbnailurl }),
     ...(duration && { duration }),
     ...(releasedate && { releasedate }),
     ...(genre && { genre }),
   };
 
-  const { status, error } = await supabase
-    .from("songs")
-    .update(response)
-    .eq("id", id);
+  const { error } = await supabase.from("songs").update(response).eq("id", id);
 
   if (error) {
-    res.status(status).json({ error: error.message });
+    res.status(500).json({ error: error.message });
     return;
   }
 
-  res.status(status).json({ message: `Song ${id} updated successfully` });
+  res.status(200).json({ message: `Song ${id} updated successfully` });
   return;
+};
+
+const uploadThumbnail: RequestHandler = async (req: Request, res: Response) => {
+  let url;
+  const id = req.params.id;
+
+  try {
+    url = await cloudinary.upload(req, "songs");
+  } catch (err) {
+    res.status(500).json({ error: err });
+    return;
+  }
+
+  const { error: updateError } = await supabase
+    .from("songs")
+    .update({ thumbnailurl: url })
+    .eq("id", id);
+
+  if (updateError) {
+    res.status(500).json({ error: updateError.message });
+    return;
+  }
+
+  res.status(200).json({ message: `Song ${id} updated successfully` });
+  return;
+};
+
+const addSong: RequestHandler = async (req: Request, res: Response) => {
+  const { title, description, thumbnailurl, duration, releasedate, genre } =
+    req.body;
+
+  if (!title) {
+    res.status(400).json({ error: "Payload must have field: title" });
+    return;
+  }
+
+  const response = {
+    title,
+    ...(description && { description }),
+    ...(thumbnailurl && { thumbnailurl }),
+    ...(duration && { duration }),
+    ...(releasedate && { releasedate }),
+    ...(genre && { genre }),
+  };
+
+  const { error } = await supabase.from("songs").insert(response);
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  res.status(201).json({ message: `Song ${title} created` });
+  return;
+};
+
+const deleteSong: RequestHandler = async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  const { data, error } = await supabase
+    .from("songs")
+    .delete()
+    .eq("id", id)
+    .select("title, thumbnailurl")
+    .single();
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  backblaze.deleteObject(data.title + ".mp3");
+  if (data.thumbnailurl) {
+    cloudinary.delete(data.thumbnailurl.split("/").pop()?.split(".")[0]!);
+  }
+
+  res.status(200).json({ message: `Song ${id}-${data.title} deleted` });
 };
 
 export default {
   getAllSongs,
   getSongByID,
+  addSong,
   generatePresignedDownloadURL,
   generatePresignedUploadURL,
-  updateSongMetadata,
+  updateSong,
+  uploadThumbnail,
+  deleteSong,
 };

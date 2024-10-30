@@ -7,6 +7,7 @@ import { userRoutes } from "@/api/users/routes";
 import { songRoutes } from "@/api/songs/routes";
 import { collectionRoutes } from "@/api/collections/routes";
 import { artistRoutes } from "@/api/artists/routes";
+import { cloudinary } from "./services/cloudinary";
 
 const app = express();
 const port = process.env.PORT || 7554;

@@ -5,25 +5,30 @@ const signUpWithEmail: RequestHandler = async (req: Request, res: Response) => {
   const { email, password, metadata } = req.body;
 
   try {
-    let data, error;
-
-    if (email) {
-      ({ data, error } = await supabase.auth.signUp({
-        email: email,
-        password: password,
-        ...(metadata && { options: { data: metadata } }),
-      }));
-    } else {
+    if (!email) {
       res.status(400).json({ error: "Email is required" });
       return;
     }
 
+    const { data, error } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+      ...(metadata && { options: { data: metadata } }),
+    });
+
     if (error) {
-      res.status(400).json({ error: error.message });
+      res.status(error.status ?? 500).json({ error: error.message });
       return;
     }
 
-    res.status(200).json({ data });
+    res.status(201).json({
+      user: { id: data.user?.id, aud: data.user?.aud },
+      session: {
+        access_token: data.session?.access_token,
+        expires_in: data.session?.expires_in,
+        refresh_token: data.session?.refresh_token,
+      },
+    });
     return;
   } catch (err) {
     res
@@ -50,11 +55,18 @@ const signInWithEmail: RequestHandler = async (req: Request, res: Response) => {
     }));
 
     if (error) {
-      res.status(400).json({ error: error.message });
+      res.status(error.status ?? 500).json({ error: error.message });
       return;
     }
 
-    res.status(200).json({ data });
+    res.status(200).json({
+      user: { id: data.user?.id, aud: data.user?.aud },
+      session: {
+        access_token: data.session?.access_token,
+        expires_in: data.session?.expires_in,
+        refresh_token: data.session?.refresh_token,
+      },
+    });
     return;
   } catch (err) {
     res
@@ -79,7 +91,7 @@ const signInWithGoogle: RequestHandler = async (
     },
   });
   if (error) {
-    res.status(400).json({ error: error.message });
+    res.status(error.status ?? 500).json({ error: error.message });
     return;
   }
 
@@ -113,7 +125,7 @@ const signOut: RequestHandler = async (req: Request, res: Response) => {
   const { error } = await supabase.auth.signOut();
 
   if (error) {
-    res.status(500).json({ error: error.message });
+    res.status(error.status ?? 500).json({ error: error.message });
     return;
   }
 

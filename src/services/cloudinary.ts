@@ -11,7 +11,7 @@ class Cloudinary {
     });
   }
 
-  public async upload(req: Request, folder: string) {
+  public async upload(req: Request, folder: string): Promise<string> {
     if (!req.file) {
       throw new Error("No file uploaded!");
     }
@@ -29,6 +29,14 @@ class Cloudinary {
       },
     );
     return uploadResult.secure_url;
+  }
+
+  public async delete(filePath: string): Promise<void> {
+    const response = await cloudinary.uploader.destroy(filePath, {
+      invalidate: true,
+    });
+    console.log(`[Cloudinary] Log: Delete result is ${response.result}`);
+    return;
   }
 }
 

@@ -1,4 +1,5 @@
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -43,6 +44,24 @@ class Backblaze {
 
     const signedUrl = await getSignedUrl(this.client, command, { expiresIn });
     return signedUrl;
+  }
+
+  public async deleteObject(fileName: string): Promise<void> {
+    const command = new DeleteObjectCommand({
+      Bucket: process.env.AWS_BUCKET,
+      Key: fileName,
+    });
+    try {
+      await this.client.send(command);
+    } catch (error) {
+      console.error(
+        "\x1b[31m[Backblaze] Error: File not removed properly:",
+        fileName,
+        "Error message:",
+        error,
+        "\x1b[0m",
+      );
+    }
   }
 }
 

@@ -7,33 +7,32 @@ const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
 
-  const { data, status, error } = await supabase
+  const { data, error } = await supabase
     .from("profiles")
     .select("*")
-    .range((page - 1) * limit, page * limit - 1)
-    .returns<Tables<"profiles">>();
+    .range((page - 1) * limit, page * limit - 1);
 
   if (error) {
-    res.status(status).json({ error: error.message });
+    res.status(500).json({ error: error.message });
     return;
   }
 
-  res.status(status).json({ data });
+  res.status(200).json({ data });
   return;
 };
 
 const getUserByID: RequestHandler = async (req: Request, res: Response) => {
-  const { data, status, error } = await supabase
+  const { data, error } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", req.params.id)
-    .single<Tables<"profiles">>();
+    .single();
 
   if (error) {
     if (error.code === "PGRST116") {
       res.status(404).json({ error: "User does not exist" });
     } else {
-      res.status(status).json({ error: error.message });
+      res.status(500).json({ error: error.message });
       return;
     }
   }
@@ -57,7 +56,7 @@ const getProfile: RequestHandler = async (req: Request, res: Response) => {
     .from("profiles")
     .select()
     .eq("id", user!.id)
-    .returns<Tables<"profiles">>();
+    .single();
 
   if (profileError) {
     res.status(500).json({ error: profileError.message });
@@ -68,16 +67,6 @@ const getProfile: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const updateProfile: RequestHandler = async (req: Request, res: Response) => {
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError) {
-    res.status(userError.status ?? 401).json({ error: userError.message });
-    return;
-  }
-
   const { username, country, avatarurl } = req.body;
 
   if (!username && !country && !avatarurl) {
@@ -91,11 +80,9 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
     ...(avatarurl && { avatarurl }),
   };
 
-  const { error: updateError } = await supabase
-    .from("profiles")
-    .update(response)
-    .eq("id", user!.id)
-    .returns<Tables<"profiles">>();
+  const { error: updateError } = await supabase.auth.updateUser({
+    data: response,
+  });
 
   if (updateError) {
     res.status(500).json({ error: updateError.message });
@@ -128,8 +115,7 @@ const uploadAvatar: RequestHandler = async (req: Request, res: Response) => {
   const { error: updateError } = await supabase
     .from("profiles")
     .update({ avatarurl: url })
-    .eq("id", user!.id)
-    .single();
+    .eq("id", user!.id);
 
   if (updateError) {
     res.status(500).json({ error: updateError.message });
@@ -184,7 +170,7 @@ const getListenHistory: RequestHandler = async (
     .select(
       `
     last_listened,
-    song: songs (
+    songs (
       id,
       title,
       duration,
@@ -252,21 +238,17 @@ const getFollowedArtists: RequestHandler = async (
     return;
   }
 
-  const {
-    data,
-    status,
-    error: followError,
-  } = await supabase
+  const { data, error: followError } = await supabase
     .from("follows")
     .select("artist: artists(id, name, avatarurl)")
     .eq("userid", user!.id);
 
   if (followError) {
-    res.status(status).json({ error: followError.message });
+    res.status(500).json({ error: followError.message });
     return;
   }
 
-  res.status(status).json({ data });
+  res.status(200).json({ data });
   return;
 };
 
@@ -282,16 +264,16 @@ const followArtist: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  const { status, error: followError } = await supabase
+  const { error: followError } = await supabase
     .from("follows")
     .insert({ userid: user!.id, artistid });
 
   if (followError) {
-    res.status(status).json({ error: followError.message });
+    res.status(500).json({ error: followError.message });
     return;
   }
 
-  res.status(status).json({ message: `Followed artist ${artistid}` });
+  res.status(200).json({ message: `Followed artist ${artistid}` });
   return;
 };
 
@@ -307,18 +289,18 @@ const unfollowArtist: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  const { status, error: unfollowError } = await supabase
+  const { error: unfollowError } = await supabase
     .from("follows")
     .delete()
     .eq("userid", user!.id)
     .eq("artistid", artistid);
 
   if (unfollowError) {
-    res.status(status).json({ error: unfollowError.message });
+    res.status(500).json({ error: unfollowError.message });
     return;
   }
 
-  res.status(status).json({ message: `Unfollowed artist ${artistid}` });
+  res.status(200).json({ message: `Unfollowed artist ${artistid}` });
   return;
 };
 

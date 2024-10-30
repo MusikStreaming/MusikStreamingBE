@@ -10,12 +10,12 @@ router.get("/:id", controller.getCollectionByID);
 
 router.post("/");
 
-router.post("/:id/songs"); // Add songs to playlist
+router.post("/:id/songs");
 
-router.delete("/:id/songs/:songId"); // Delete song from playlist
+router.delete("/:id/songs/:songId");
 
-router.patch("/:id"); // Update playlist metadata
+router.patch("/:id");
 
-router.delete("/:id"); // Delete playlist
+router.delete("/:id");
 
 export { router as collectionRoutes };

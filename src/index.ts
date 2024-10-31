@@ -8,6 +8,7 @@ import { songRoutes } from "@/api/songs/routes";
 import { collectionRoutes } from "@/api/collections/routes";
 import { artistRoutes } from "@/api/artists/routes";
 import { cloudinary } from "./services/cloudinary";
+import { searchRoutes } from "./api/search/routes";
 
 const app = express();
 const port = process.env.PORT || 7554;
@@ -38,6 +39,7 @@ app.use("/v1/user", userRoutes);
 app.use("/v1/song", songRoutes);
 app.use("/v1/collection", collectionRoutes);
 app.use("/v1/artist", artistRoutes);
+app.use("/v1/search", searchRoutes);
 
 // Server start
 app.listen(port, () => {

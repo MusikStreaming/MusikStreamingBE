@@ -15,4 +15,4 @@ router.get("/:term/playlists", controller.searchPlaylists);
 
 router.get("/:term/users", controller.searchUsers);
 
-export { router as songRoutes };
+export { router as searchRoutes };

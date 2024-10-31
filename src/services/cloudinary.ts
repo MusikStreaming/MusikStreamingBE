@@ -23,7 +23,7 @@ class Cloudinary {
     const uploadResult = await new Promise<{ secure_url: string }>(
       (resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { resource_type: "image", folder, public_id: `i${id}` },
+          { resource_type: "image", folder, public_id: `i-${id}` },
           (error, result) => {
             if (error) return reject(error);
             resolve(result as { secure_url: string });

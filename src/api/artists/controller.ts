@@ -66,7 +66,7 @@ const uploadAvatar: RequestHandler = async (req: Request, res: Response) => {
   const id = req.params.id;
 
   try {
-    url = await cloudinary.upload(req, "artists");
+    url = await cloudinary.upload(req, id, "artists");
   } catch (err) {
     res.status(500).json({ error: err });
     return;

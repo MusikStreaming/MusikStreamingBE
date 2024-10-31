@@ -67,7 +67,7 @@ const getProfile: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const updateProfile: RequestHandler = async (req: Request, res: Response) => {
-  const { username, country, avatarurl } = req.body;
+  const { username, country, avatarurl, role } = req.body;
 
   if (!username && !country && !avatarurl) {
     res.status(400).json({ error: "Payload must have at least one field" });
@@ -78,6 +78,7 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
     ...(username && { username }),
     ...(country && { country }),
     ...(avatarurl && { avatarurl }),
+    ...(role && { role }),
   };
 
   const { error: updateError } = await supabase.auth.updateUser({
@@ -106,7 +107,7 @@ const uploadAvatar: RequestHandler = async (req: Request, res: Response) => {
   }
 
   try {
-    url = await cloudinary.upload(req, "users");
+    url = await cloudinary.upload(req, user!.id, "users");
   } catch (err) {
     res.status(500).json({ error: err });
     return;

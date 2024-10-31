@@ -41,10 +41,7 @@ const generatePresignedDownloadURL: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
-  const fileName: string = decodeURIComponent(req.params.fileName).replace(
-    /\+/g,
-    " ",
-  );
+  const fileName: string = `s-${req.params.id}.mp3`;
   let url: string;
   try {
     url = await backblaze.generatePresignedDownloadURL(fileName, 1800);
@@ -61,10 +58,7 @@ const generatePresignedUploadURL: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
-  const fileName: string = decodeURIComponent(req.params.fileName).replace(
-    /\+/g,
-    " ",
-  );
+  const fileName: string = `s-${req.params.id}.mp3`;
   let url: string;
   try {
     url = await backblaze.generatePresignedUploadURL(fileName, 900);
@@ -107,7 +101,7 @@ const uploadThumbnail: RequestHandler = async (req: Request, res: Response) => {
   const id = req.params.id;
 
   try {
-    url = await cloudinary.upload(req, "songs");
+    url = await cloudinary.upload(req, id, "songs");
   } catch (err) {
     res.status(500).json({ error: err });
     return;
@@ -176,7 +170,9 @@ const deleteSong: RequestHandler = async (req: Request, res: Response) => {
     cloudinary.delete(data.thumbnailurl.split("/").pop()?.split(".")[0]!);
   }
 
-  res.status(200).json({ message: `Song ${id}-${data.title} deleted` });
+  res
+    .status(202)
+    .json({ message: `Song ${id}-${data.title} is being deleted` });
 };
 
 export default {

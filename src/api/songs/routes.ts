@@ -5,10 +5,17 @@ import { storage } from "@/middlewares/multer.config";
 
 const router = Router();
 
+// CRUD
+router.get("/", controller.getAllSongs);
+router.post("/", controller.addSong);
+router.get("/:id", controller.getSongByID);
+router.patch("/:id", controller.updateSong);
+router.delete("/:id", controller.deleteSong);
+
 // Uploads
-router.get("/presigned/r/:filename", controller.generatePresignedDownloadURL);
+router.get("/:id/presigned/stream", controller.generatePresignedDownloadURL);
 router.get(
-  "/presigned/u/:fileName",
+  "/:id/presigned/upload",
   ratelimit,
   controller.generatePresignedUploadURL,
 );
@@ -18,12 +25,5 @@ router.post(
   storage.single("file"),
   controller.uploadThumbnail,
 );
-
-// CRUD
-router.get("/", controller.getAllSongs);
-router.post("/", controller.addSong);
-router.get("/:id", controller.getSongByID);
-router.patch("/:id", controller.updateSong);
-router.delete("/:id", controller.deleteSong);
 
 export { router as songRoutes };

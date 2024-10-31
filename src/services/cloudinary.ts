@@ -11,7 +11,11 @@ class Cloudinary {
     });
   }
 
-  public async upload(req: Request, folder: string): Promise<string> {
+  public async upload(
+    req: Request,
+    id: string,
+    folder: string,
+  ): Promise<string> {
     if (!req.file) {
       throw new Error("No file uploaded!");
     }
@@ -19,7 +23,7 @@ class Cloudinary {
     const uploadResult = await new Promise<{ secure_url: string }>(
       (resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { resource_type: "image", folder },
+          { resource_type: "image", folder, public_id: `i${id}` },
           (error, result) => {
             if (error) return reject(error);
             resolve(result as { secure_url: string });

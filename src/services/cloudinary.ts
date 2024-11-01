@@ -12,11 +12,11 @@ class Cloudinary {
   }
 
   public async upload(
-    req: Request,
-    id: string,
+    file: Express.Multer.File,
     folder: string,
+    id: string,
   ): Promise<string> {
-    if (!req.file) {
+    if (!file) {
       throw new Error("No file uploaded!");
     }
 
@@ -29,7 +29,7 @@ class Cloudinary {
             resolve(result as { secure_url: string });
           },
         );
-        stream.end(req.file!.buffer);
+        stream.end(file.buffer);
       },
     );
     return uploadResult.secure_url;

@@ -7,9 +7,9 @@ const router = Router();
 
 // CRUD
 router.get("/", controller.getAllSongs);
-router.post("/", controller.addSong);
+router.post("/", storage.single("file"), controller.addSong);
 router.get("/:id", controller.getSongByID);
-router.patch("/:id", controller.updateSong);
+router.post("/:id", controller.updateSong);
 router.delete("/:id", controller.deleteSong);
 
 // Uploads
@@ -18,12 +18,6 @@ router.get(
   "/:id/presigned/upload",
   ratelimit,
   controller.generatePresignedUploadURL,
-);
-router.post(
-  "/:id/upload",
-  ratelimit,
-  storage.single("file"),
-  controller.uploadThumbnail,
 );
 
 export { router as songRoutes };

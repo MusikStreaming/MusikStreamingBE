@@ -1,21 +1,12 @@
 import express from "express";
 import controller from "./controller";
-import { ratelimit } from "@/middlewares/rate-limit.config";
 import { storage } from "@/middlewares/multer.config";
 
 const router = express.Router();
 
 // Profile
 router.get("/me", controller.getProfile);
-router.patch("/me", controller.updateProfile);
-
-// Uploads
-router.post(
-  "/me/upload",
-  ratelimit,
-  storage.single("file"),
-  controller.uploadAvatar,
-);
+router.post("/me", storage.single("file"), controller.updateProfile);
 
 // User's playlists
 router.get("/me/playlists", controller.getPlaylists);

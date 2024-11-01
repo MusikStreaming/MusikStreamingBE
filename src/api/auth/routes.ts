@@ -1,9 +1,10 @@
 import express from "express";
 import controller from "./controller";
+import { storage } from "@/middlewares/multer.config";
 
 const router = express.Router();
 
-router.post("/signup", controller.signUpWithEmail);
+router.post("/signup", storage.single("file"), controller.signUpWithEmail);
 
 router.post("/signin", controller.signInWithEmail);
 

@@ -92,29 +92,8 @@ const updateSong: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  res.status(200).json({ message: `Song ${id} updated successfully` });
-  return;
-};
-
-const uploadThumbnail: RequestHandler = async (req: Request, res: Response) => {
-  let url;
-  const id = req.params.id;
-
-  try {
-    url = await cloudinary.upload(req, id, "songs");
-  } catch (err) {
-    res.status(500).json({ error: err });
-    return;
-  }
-
-  const { error: updateError } = await supabase
-    .from("songs")
-    .update({ thumbnailurl: url })
-    .eq("id", id);
-
-  if (updateError) {
-    res.status(500).json({ error: updateError.message });
-    return;
+  if (req.file) {
+    cloudinary.upload(req.file, "songs", id);
   }
 
   res.status(200).json({ message: `Song ${id} updated successfully` });
@@ -139,11 +118,19 @@ const addSong: RequestHandler = async (req: Request, res: Response) => {
     ...(genre && { genre }),
   };
 
-  const { error } = await supabase.from("songs").insert(response);
+  const { data, error } = await supabase
+    .from("songs")
+    .insert(response)
+    .select("id")
+    .single();
 
   if (error) {
     res.status(500).json({ error: error.message });
     return;
+  }
+
+  if (req.file) {
+    cloudinary.upload(req.file, "songs", data.id);
   }
 
   res.status(201).json({ message: `Song ${title} created` });
@@ -182,6 +169,5 @@ export default {
   generatePresignedDownloadURL,
   generatePresignedUploadURL,
   updateSong,
-  uploadThumbnail,
   deleteSong,
 };

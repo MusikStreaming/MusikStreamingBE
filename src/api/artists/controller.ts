@@ -57,32 +57,11 @@ const updateArtist: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
+  if (req.file) {
+    cloudinary.upload(req.file, "artists", id);
+  }
+
   res.status(200).json({ message: `Artist ${id} updated successfully` });
-  return;
-};
-
-const uploadAvatar: RequestHandler = async (req: Request, res: Response) => {
-  let url;
-  const id = req.params.id;
-
-  try {
-    url = await cloudinary.upload(req, id, "artists");
-  } catch (err) {
-    res.status(500).json({ error: err });
-    return;
-  }
-
-  const { error: updateError } = await supabase
-    .from("artists")
-    .update({ avatarurl: url })
-    .eq("id", id);
-
-  if (updateError) {
-    res.status(500).json({ error: updateError.message });
-    return;
-  }
-
-  res.status(200).json({ message: `Artist ${id} avatar updated successfully` });
   return;
 };
 
@@ -101,11 +80,19 @@ const addArtist: RequestHandler = async (req: Request, res: Response) => {
     ...(country && { country }),
   };
 
-  const { data, error } = await supabase.from("artists").insert(response);
+  const { data, error } = await supabase
+    .from("artists")
+    .insert(response)
+    .select("id")
+    .single();
 
   if (error) {
     res.status(500).json({ error: error.message });
     return;
+  }
+
+  if (req.file) {
+    cloudinary.upload(req.file, "artists", data.id);
   }
 
   res.status(201).json({ message: `Artist ${name} created` });
@@ -139,6 +126,5 @@ export default {
   getArtistByID,
   addArtist,
   updateArtist,
-  uploadAvatar,
   deleteArtist,
 };

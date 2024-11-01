@@ -7,7 +7,6 @@ import { userRoutes } from "@/api/users/routes";
 import { songRoutes } from "@/api/songs/routes";
 import { collectionRoutes } from "@/api/collections/routes";
 import { artistRoutes } from "@/api/artists/routes";
-import { cloudinary } from "./services/cloudinary";
 import { searchRoutes } from "./api/search/routes";
 
 const app = express();
@@ -15,6 +14,7 @@ const port = process.env.PORT || 7554;
 
 // Content-type
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Security
 app.use(cors<Request>());

@@ -1,14 +1,21 @@
+import { cloudinary } from "@/services/cloudinary";
 import supabase from "@/services/supabase";
 import { Request, RequestHandler, Response } from "express";
 
 const signUpWithEmail: RequestHandler = async (req: Request, res: Response) => {
-  const { email, password, metadata } = req.body;
+  const { email, password, avatarurl, country, username } = req.body;
 
   try {
     if (!email) {
       res.status(400).json({ error: "Email is required" });
       return;
     }
+
+    const metadata = {
+      ...(avatarurl && { avatarurl }),
+      ...(country && { country }),
+      ...(username && { username }),
+    };
 
     const { data, error } = await supabase.auth.signUp({
       email: email,
@@ -19,6 +26,10 @@ const signUpWithEmail: RequestHandler = async (req: Request, res: Response) => {
     if (error) {
       res.status(error.status ?? 500).json({ error: error.message });
       return;
+    }
+
+    if (req.file) {
+      cloudinary.upload(req.file, "users", data.user!.id);
     }
 
     res.status(201).json({

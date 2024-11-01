@@ -7,16 +7,9 @@ const router = Router();
 
 router.get("/", controller.getAllArtists);
 
-router.post("/", controller.addArtist);
+router.post("/", storage.single("file"), controller.addArtist);
 
-router.post(
-  "/:id/upload",
-  ratelimit,
-  storage.single("file"),
-  controller.uploadAvatar,
-);
-
-router.patch("/:id", controller.updateArtist);
+router.post("/:id", storage.single("file"), controller.updateArtist);
 
 router.delete("/:id", controller.deleteArtist);
 

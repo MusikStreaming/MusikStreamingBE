@@ -14,7 +14,7 @@ router.post("/:id/songs");
 
 router.delete("/:id/songs/:songId");
 
-router.patch("/:id");
+router.post("/:id");
 
 router.delete("/:id");
 

@@ -69,7 +69,7 @@ const getProfile: RequestHandler = async (req: Request, res: Response) => {
 const updateProfile: RequestHandler = async (req: Request, res: Response) => {
   const { username, country, avatarurl, role } = req.body;
 
-  if (!username && !country && !avatarurl) {
+  if (!username && !country) {
     res.status(400).json({ error: "Payload must have at least one field" });
     return;
   }
@@ -81,7 +81,10 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
     ...(role && { role }),
   };
 
-  const { error: updateError } = await supabase.auth.updateUser({
+  const {
+    data: { user },
+    error: updateError,
+  } = await supabase.auth.updateUser({
     data: response,
   });
 
@@ -90,40 +93,11 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  res.status(200).json({ message: "User profile updated" });
-  return;
-};
-
-const uploadAvatar: RequestHandler = async (req: Request, res: Response) => {
-  let url;
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError) {
-    res.status(userError.status ?? 401).json({ error: userError.message });
-    return;
+  if (req.file) {
+    cloudinary.upload(req.file, "users", user!.id);
   }
 
-  try {
-    url = await cloudinary.upload(req, user!.id, "users");
-  } catch (err) {
-    res.status(500).json({ error: err });
-    return;
-  }
-
-  const { error: updateError } = await supabase
-    .from("profiles")
-    .update({ avatarurl: url })
-    .eq("id", user!.id);
-
-  if (updateError) {
-    res.status(500).json({ error: updateError.message });
-    return;
-  }
-
-  res.status(200).json({ message: "User's avatar updated successfully" });
+  res.status(202).json({ message: "User profile updated" });
   return;
 };
 
@@ -310,7 +284,6 @@ export default {
   getUserByID,
   getProfile,
   updateProfile,
-  uploadAvatar,
   getPlaylists,
   getListenHistory,
   upsertListenHistory,

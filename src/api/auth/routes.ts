@@ -10,7 +10,7 @@ router.post("/signin", controller.signInWithEmail);
 
 router.get("/oauth/", controller.signInWithGoogle);
 
-router.patch("/credentials", controller.updateUserCredentials);
+router.post("/credentials", controller.updateUserCredentials);
 
 router.get("/signout", controller.signOut);
 

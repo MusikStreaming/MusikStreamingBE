@@ -9,7 +9,7 @@ const router = Router();
 router.get("/", controller.getAllSongs);
 router.post("/", storage.single("file"), controller.addSong);
 router.get("/:id", controller.getSongByID);
-router.post("/:id", controller.updateSong);
+router.post("/:id", storage.single("file"), controller.updateSong);
 router.delete("/:id", controller.deleteSong);
 
 // Uploads

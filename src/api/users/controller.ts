@@ -197,6 +197,8 @@ const upsertListenHistory: RequestHandler = async (
     res.status(500).json({ error: historyError.message });
     return;
   }
+
+  res.status(200).json({});
 };
 
 const getFollowedArtists: RequestHandler = async (
@@ -254,20 +256,10 @@ const followArtist: RequestHandler = async (req: Request, res: Response) => {
 
 const unfollowArtist: RequestHandler = async (req: Request, res: Response) => {
   const { artistid } = req.body;
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError) {
-    res.status(userError.status ?? 401).json({ error: userError.message });
-    return;
-  }
 
   const { error: unfollowError } = await supabase
     .from("follows")
     .delete()
-    .eq("userid", user!.id)
     .eq("artistid", artistid);
 
   if (unfollowError) {

@@ -131,6 +131,7 @@ const updateCollection: RequestHandler = async (
   const { data, error } = await supabase
     .from("playlists")
     .update(response)
+    .eq("id", id)
     .select(
       "id, title, description, type, thumbnailurl, owner: profiles (id, username, avatarurl), songs: playlistssongs (songid)",
     )

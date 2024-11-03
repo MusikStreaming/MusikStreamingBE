@@ -41,7 +41,25 @@ const generatePresignedDownloadURL: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
-  const fileName: string = `s-${req.params.id}.mp3`;
+  const id = req.params.id;
+
+  const { data, error } = await supabase
+    .from("artistssongs")
+    .select("artist: artists (name), song: songs (title)")
+    .match({ relation: "Primary", songid: id })
+    .single();
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  if (!data.song || !data.artist) {
+    res.status(404).json({ error: "Artist or Song does not exist" });
+    return;
+  }
+
+  const fileName: string = `${data.artist.name}/${data.song.title}.mp3`;
   let url: string;
   try {
     url = await backblaze.generatePresignedDownloadURL(fileName, 1800);
@@ -58,7 +76,25 @@ const generatePresignedUploadURL: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
-  const fileName: string = `s-${req.params.id}.mp3`;
+  const id = req.params.id;
+
+  const { data, error } = await supabase
+    .from("artistssongs")
+    .select("artist: artists (name), song: songs (title)")
+    .match({ relation: "Primary", songid: id })
+    .single();
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  if (!data.song || !data.artist) {
+    res.status(404).json({ error: "Artist or Song does not exist" });
+    return;
+  }
+
+  const fileName: string = `${data.artist.name}/${data.song.title}.mp3`;
   let url: string;
   try {
     url = await backblaze.generatePresignedUploadURL(fileName, 900);
@@ -109,8 +145,15 @@ const updateSong: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const addSong: RequestHandler = async (req: Request, res: Response) => {
-  const { title, description, thumbnailurl, duration, releasedate, genre } =
-    req.body;
+  const {
+    title,
+    description,
+    thumbnailurl,
+    duration,
+    releasedate,
+    genre,
+    artists,
+  } = req.body;
 
   if (!title) {
     res.status(400).json({ error: "Payload must have field: title" });
@@ -134,6 +177,25 @@ const addSong: RequestHandler = async (req: Request, res: Response) => {
 
   if (error) {
     res.status(500).json({ error: error.message });
+    return;
+  }
+
+  const promises = artists.map((artistid: string, index: number) =>
+    supabase.from("artistssongs").insert({
+      songid: data!.id,
+      artistid: artistid,
+      relation: index === 0 ? "Primary" : "Featured",
+    }),
+  );
+
+  const results = await Promise.all(promises);
+  const errors = results.filter((result) => result.error);
+
+  if (errors.length > 0) {
+    res.status(500).json({
+      error: `Failed to link associate artists with current song ${data!.id}`,
+      details: errors.map((e) => e.error.message),
+    });
     return;
   }
 

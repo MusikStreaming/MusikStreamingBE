@@ -16,7 +16,7 @@ router.post("/:id", storage.single("file"), controller.updateCollection);
 router.delete("/:id", controller.deleteCollection);
 
 // Add/Remove songs from collection
-router.post("/:id/songs", controller.addCollectionSong);
-router.delete("/:id/songs/:songId", controller.deleteCollectionSong);
+router.post("/:id/songs/:songid", controller.addCollectionSong);
+router.delete("/:id/songs/:songid", controller.deleteCollectionSong);
 
 export { router as collectionRoutes };

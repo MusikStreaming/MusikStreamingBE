@@ -47,14 +47,17 @@ export type Database = {
       artistssongs: {
         Row: {
           artistid: string
+          relation: Database["public"]["Enums"]["song_relation"] | null
           songid: string
         }
         Insert: {
           artistid: string
+          relation?: Database["public"]["Enums"]["song_relation"] | null
           songid: string
         }
         Update: {
           artistid?: string
+          relation?: Database["public"]["Enums"]["song_relation"] | null
           songid?: string
         }
         Relationships: [
@@ -139,7 +142,7 @@ export type Database = {
       }
       playlists: {
         Row: {
-          created_at: string
+          created_at: string | null
           description: string | null
           id: string
           thumbnailurl: string | null
@@ -149,7 +152,7 @@ export type Database = {
           visibility: Database["public"]["Enums"]["visibility_option"] | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           id?: string
           thumbnailurl?: string | null
@@ -159,7 +162,7 @@ export type Database = {
           visibility?: Database["public"]["Enums"]["visibility_option"] | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           id?: string
           thumbnailurl?: string | null
@@ -240,6 +243,7 @@ export type Database = {
           releasedate: string
           thumbnailurl: string | null
           title: string
+          views: number
         }
         Insert: {
           duration?: number | null
@@ -248,6 +252,7 @@ export type Database = {
           releasedate?: string
           thumbnailurl?: string | null
           title: string
+          views?: number
         }
         Update: {
           duration?: number | null
@@ -256,6 +261,7 @@ export type Database = {
           releasedate?: string
           thumbnailurl?: string | null
           title?: string
+          views?: number
         }
         Relationships: []
       }
@@ -272,6 +278,7 @@ export type Database = {
     Enums: {
       playlist_option: "Album" | "Single" | "EP" | "Playlist" | "Mix"
       role_option: "User" | "Admin" | "Artist Manager"
+      song_relation: "Primary" | "Featured"
       visibility_option: "Public" | "Private"
     }
     CompositeTypes: {

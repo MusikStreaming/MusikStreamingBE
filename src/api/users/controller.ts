@@ -9,7 +9,7 @@ const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("*")
+    .select("id, username, role, avatarutl")
     .range((page - 1) * limit, page * limit - 1);
 
   if (error) {
@@ -24,7 +24,7 @@ const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
 const getUserByID: RequestHandler = async (req: Request, res: Response) => {
   const { data, error } = await supabase
     .from("profiles")
-    .select("*")
+    .select()
     .eq("id", req.params.id)
     .single();
 
@@ -42,20 +42,19 @@ const getUserByID: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const getProfile: RequestHandler = async (req: Request, res: Response) => {
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  const [{ sub: userid, error }, status] = parseJWTPayload(
+    req.headers["authorization"],
+  );
 
-  if (userError) {
-    res.status(userError.status ?? 401).json({ error: userError.message });
+  if (error) {
+    res.status(status).json({ error: error });
     return;
   }
 
   const { data, error: profileError } = await supabase
     .from("profiles")
     .select()
-    .eq("id", user!.id)
+    .eq("id", userid)
     .single();
 
   if (profileError) {
@@ -102,20 +101,19 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const getPlaylists: RequestHandler = async (req: Request, res: Response) => {
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  const [{ sub: userid, error }, status] = parseJWTPayload(
+    req.headers["authorization"],
+  );
 
-  if (userError) {
-    res.status(userError.status ?? 401).json({ error: userError.message });
+  if (error) {
+    res.status(status).json({ error: error });
     return;
   }
 
   const { data, error: playlistError } = await supabase
     .from("playlists")
     .select("id, title, description, thumbnailurl, type")
-    .eq("userid", user!.id);
+    .eq("userid", userid);
 
   if (playlistError) {
     res.status(500).json({ error: playlistError.message });
@@ -130,16 +128,6 @@ const getListenHistory: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError) {
-    res.status(userError.status ?? 401).json({ error: userError.message });
-    return;
-  }
-
   const { data, error: historyError } = await supabase
     .from("listenhistory")
     .select(
@@ -150,8 +138,8 @@ const getListenHistory: RequestHandler = async (
       title,
       duration,
       thumbnailurl,
-      artistssongs (
-        artist: artists (id, name)
+      artist: artistssongs (
+        artists (id, name)
       )
     )
   `,
@@ -170,28 +158,25 @@ const upsertListenHistory: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
-  const { songid } = req.body;
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  const songid = req.params.songid;
+  const [{ sub: userid, error }, status] = parseJWTPayload(
+    req.headers["authorization"],
+  );
 
-  if (userError) {
-    res.status(userError.status ?? 401).json({ error: userError.message });
+  if (error) {
+    res.status(status).json({ error: error });
     return;
   }
 
-  const { data, error: historyError } = await supabase
-    .from("listenhistory")
-    .upsert(
-      [
-        {
-          userid: user!.id,
-          songid: songid,
-        },
-      ],
-      { onConflict: "userid, songid" },
-    );
+  const { error: historyError } = await supabase.from("listenhistory").upsert(
+    [
+      {
+        userid,
+        songid,
+      },
+    ],
+    { onConflict: "userid, songid" },
+  );
 
   if (historyError) {
     res.status(500).json({ error: historyError.message });
@@ -205,20 +190,19 @@ const getFollowedArtists: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  const [{ sub: id, error }, status] = parseJWTPayload(
+    req.headers["authorization"],
+  );
 
-  if (userError) {
-    res.status(userError.status ?? 401).json({ error: userError });
+  if (error) {
+    res.status(status).json({ error: error });
     return;
   }
 
   const { data, error: followError } = await supabase
     .from("follows")
     .select("artist: artists(id, name, avatarurl)")
-    .eq("userid", user!.id);
+    .eq("userid", id);
 
   if (followError) {
     res.status(500).json({ error: followError.message });
@@ -230,20 +214,19 @@ const getFollowedArtists: RequestHandler = async (
 };
 
 const followArtist: RequestHandler = async (req: Request, res: Response) => {
-  const { artistid } = req.body;
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  const artistid = req.params.artistid;
+  const [{ sub: userid, error }, status] = parseJWTPayload(
+    req.headers["authorization"],
+  );
 
-  if (userError) {
-    res.status(userError.status ?? 401).json({ error: userError.message });
+  if (error) {
+    res.status(status).json({ error: error });
     return;
   }
 
   const { error: followError } = await supabase
     .from("follows")
-    .insert({ userid: user!.id, artistid });
+    .insert({ userid, artistid });
 
   if (followError) {
     res.status(500).json({ error: followError.message });
@@ -255,7 +238,7 @@ const followArtist: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const unfollowArtist: RequestHandler = async (req: Request, res: Response) => {
-  const { artistid } = req.body;
+  const artistid = req.params.artistid;
 
   const { error: unfollowError } = await supabase
     .from("follows")

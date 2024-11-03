@@ -144,7 +144,7 @@ const deleteSong: RequestHandler = async (req: Request, res: Response) => {
     .from("songs")
     .delete()
     .eq("id", id)
-    .select("title, thumbnailurl")
+    .select("title")
     .single();
 
   if (error) {
@@ -153,13 +153,9 @@ const deleteSong: RequestHandler = async (req: Request, res: Response) => {
   }
 
   backblaze.deleteObject(data.title + ".mp3");
-  if (data.thumbnailurl) {
-    cloudinary.delete(data.thumbnailurl.split("/").pop()?.split(".")[0]!);
-  }
+  cloudinary.delete("songs", `i-${id}`);
 
-  res
-    .status(202)
-    .json({ message: `Song ${id}-${data.title} is being deleted` });
+  res.status(202).json({ message: `Song ${id} is being deleted` });
 };
 
 export default {

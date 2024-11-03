@@ -35,10 +35,13 @@ class Cloudinary {
     return uploadResult.secure_url;
   }
 
-  public async delete(filePath: string): Promise<void> {
-    const response = await cloudinary.uploader.destroy(filePath, {
-      invalidate: true,
-    });
+  public async delete(folder: string, fileName: string): Promise<void> {
+    const response = await cloudinary.uploader.destroy(
+      `${folder}/${fileName}`,
+      {
+        invalidate: true,
+      },
+    );
     console.log(`[Cloudinary] Log: Delete result is ${response.result}`);
     return;
   }

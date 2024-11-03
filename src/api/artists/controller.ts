@@ -9,7 +9,7 @@ const getAllArtists: RequestHandler = async (req: Request, res: Response) => {
 
   const { data, error } = await supabase
     .from("artists")
-    .select()
+    .select("id, name, avatarurl")
     .range((page - 1) * limit, page * limit - 1);
 
   if (error) {
@@ -102,11 +102,10 @@ const addArtist: RequestHandler = async (req: Request, res: Response) => {
 const deleteArtist: RequestHandler = async (req: Request, res: Response) => {
   const id = req.params.id;
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("artists")
     .delete()
     .eq("id", id)
-    .select("avatarurl")
     .single();
 
   if (error) {
@@ -114,9 +113,7 @@ const deleteArtist: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  if (data.avatarurl) {
-    cloudinary.delete(data.avatarurl.split("/").pop()?.split(".")[0]!);
-  }
+  cloudinary.delete("artists", `i-${id}`);
 
   res.status(200).json({ message: `Artist ${id} deleted` });
 };

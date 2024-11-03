@@ -13,12 +13,12 @@ router.get("/me/playlists", controller.getPlaylists);
 
 // User's listen history
 router.get("/me/history", controller.getListenHistory);
-router.post("/me/history", controller.upsertListenHistory);
+router.post("/me/history/:songid", controller.upsertListenHistory);
 
 // User's followed artists
 router.get("/me/following", controller.getFollowedArtists);
-router.post("/me/following", controller.followArtist);
-router.delete("/me/following", controller.unfollowArtist);
+router.post("/me/following/:artistid", controller.followArtist);
+router.delete("/me/following/:artistid", controller.unfollowArtist);
 
 // Basic user query
 router.get("/", controller.getAllUsers);

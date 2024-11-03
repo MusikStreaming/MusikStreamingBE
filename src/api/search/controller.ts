@@ -149,7 +149,7 @@ const searchAlbums: RequestHandler = async (req: Request, res: Response) => {
   const { data, error } = await supabase
     .from("playlists")
     .select("id, title, thumbnailurl, user: profiles (username)")
-    .eq("type", `"Album" | "EP" | "Single"`)
+    .in("type", ["Album", "EP", "Single"])
     .textSearch("title", term)
     .range((page - 1) * limit, page * limit - 1);
 

@@ -47,8 +47,8 @@ const generatePresignedDownloadURL: RequestHandler = async (
     url = await backblaze.generatePresignedDownloadURL(fileName, 1800);
   } catch (err) {
     res.status(500).json({ error: `Error generating pre-signed URL: ${err}` });
+    return;
   }
-  return;
 
   res.status(200).json({ url });
   return;
@@ -64,8 +64,8 @@ const generatePresignedUploadURL: RequestHandler = async (
     url = await backblaze.generatePresignedUploadURL(fileName, 900);
   } catch (err) {
     res.status(500).json({ error: `Error generating pre-signed URL: ${err}` });
+    return;
   }
-  return;
 
   res.status(200).json({ url });
   return;
@@ -73,8 +73,15 @@ const generatePresignedUploadURL: RequestHandler = async (
 
 const updateSong: RequestHandler = async (req: Request, res: Response) => {
   const id = req.params.id;
-  const { title, description, thumbnailurl, duration, releasedate, genre } =
-    req.body;
+  const {
+    title,
+    description,
+    thumbnailurl,
+    duration,
+    releasedate,
+    genre,
+    views,
+  } = req.body;
 
   const response = {
     ...(title && { title }),
@@ -83,6 +90,7 @@ const updateSong: RequestHandler = async (req: Request, res: Response) => {
     ...(duration && { duration }),
     ...(releasedate && { releasedate }),
     ...(genre && { genre }),
+    ...(views && { views }),
   };
 
   const { error } = await supabase.from("songs").update(response).eq("id", id);

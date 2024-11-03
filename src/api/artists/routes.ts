@@ -7,6 +7,8 @@ const router = Router();
 
 router.get("/", controller.getAllArtists);
 
+router.get("/:id", controller.getArtistByID);
+
 router.post("/", storage.single("file"), controller.addArtist);
 
 router.post("/:id", storage.single("file"), controller.updateArtist);

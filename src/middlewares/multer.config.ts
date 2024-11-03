@@ -8,12 +8,13 @@ const storage = multer({
   },
   fileFilter: function (req, file, callback) {
     const ext = path.extname(file.originalname).toLowerCase();
-    const allowedExts = [".png", ".jpg", ".jpeg", ".gif"];
+    const allowedExts = [".png", ".jpg", ".jpeg", ".gif", ".avif"];
     const allowedMimeTypes = [
       "image/png",
       "image/jpg",
       "image/jpeg",
       "image/gif",
+      "image/avif",
     ];
 
     if (

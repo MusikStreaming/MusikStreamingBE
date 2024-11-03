@@ -11,3 +11,7 @@ const parseJWTPayload = (header: string | undefined) => {
   const decoded = Buffer.from(parts[1], "base64").toString("utf-8");
   return [JSON.parse(decoded), 200];
 };
+
+export default {
+  parseJWTPayload,
+};

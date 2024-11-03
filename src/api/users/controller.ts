@@ -2,6 +2,7 @@ import { Request, RequestHandler, Response } from "express";
 import supabase from "@/services/supabase";
 import { Tables } from "@/models/types";
 import { cloudinary } from "@/services/cloudinary";
+import utils from "@/utils";
 
 const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1;
@@ -9,7 +10,7 @@ const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, username, role, avatarutl")
+    .select("id, username, role, avatarurl")
     .range((page - 1) * limit, page * limit - 1);
 
   if (error) {
@@ -42,7 +43,7 @@ const getUserByID: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const getProfile: RequestHandler = async (req: Request, res: Response) => {
-  const [{ sub: userid, error }, status] = parseJWTPayload(
+  const [{ sub: userid, error }, status] = utils.parseJWTPayload(
     req.headers["authorization"],
   );
 
@@ -66,6 +67,15 @@ const getProfile: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const updateProfile: RequestHandler = async (req: Request, res: Response) => {
+  const [{ sub: userid, error }, status] = utils.parseJWTPayload(
+    req.headers["authorization"],
+  );
+
+  if (error) {
+    res.status(status).json({ error: error });
+    return;
+  }
+
   const { username, country, avatarurl, role } = req.body;
 
   if (!username && !country) {
@@ -80,12 +90,10 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
     ...(role && { role }),
   };
 
-  const {
-    data: { user },
-    error: updateError,
-  } = await supabase.auth.updateUser({
-    data: response,
-  });
+  const { data, error: updateError } = await supabase
+    .from("profiles")
+    .update(response)
+    .eq("id", userid);
 
   if (updateError) {
     res.status(500).json({ error: updateError.message });
@@ -93,7 +101,7 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
   }
 
   if (req.file) {
-    cloudinary.upload(req.file, "users", user!.id);
+    cloudinary.upload(req.file, "users", userid);
   }
 
   res.status(202).json({ message: "User profile updated" });
@@ -101,7 +109,7 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const getPlaylists: RequestHandler = async (req: Request, res: Response) => {
-  const [{ sub: userid, error }, status] = parseJWTPayload(
+  const [{ sub: userid, error }, status] = utils.parseJWTPayload(
     req.headers["authorization"],
   );
 
@@ -138,8 +146,8 @@ const getListenHistory: RequestHandler = async (
       title,
       duration,
       thumbnailurl,
-      artist: artistssongs (
-        artists (id, name)
+      artists: artistssongs (
+        artist: artists (id, name)
       )
     )
   `,
@@ -159,7 +167,7 @@ const upsertListenHistory: RequestHandler = async (
   res: Response,
 ) => {
   const songid = req.params.songid;
-  const [{ sub: userid, error }, status] = parseJWTPayload(
+  const [{ sub: userid, error }, status] = utils.parseJWTPayload(
     req.headers["authorization"],
   );
 
@@ -190,7 +198,7 @@ const getFollowedArtists: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
-  const [{ sub: id, error }, status] = parseJWTPayload(
+  const [{ sub: id, error }, status] = utils.parseJWTPayload(
     req.headers["authorization"],
   );
 
@@ -215,7 +223,7 @@ const getFollowedArtists: RequestHandler = async (
 
 const followArtist: RequestHandler = async (req: Request, res: Response) => {
   const artistid = req.params.artistid;
-  const [{ sub: userid, error }, status] = parseJWTPayload(
+  const [{ sub: userid, error }, status] = utils.parseJWTPayload(
     req.headers["authorization"],
   );
 
@@ -239,11 +247,19 @@ const followArtist: RequestHandler = async (req: Request, res: Response) => {
 
 const unfollowArtist: RequestHandler = async (req: Request, res: Response) => {
   const artistid = req.params.artistid;
+  const [{ sub: userid, error }, status] = utils.parseJWTPayload(
+    req.headers["authorization"],
+  );
+
+  if (error) {
+    res.status(status).json({ error: error });
+    return;
+  }
 
   const { error: unfollowError } = await supabase
     .from("follows")
     .delete()
-    .eq("artistid", artistid);
+    .match({ artistid, userid });
 
   if (unfollowError) {
     res.status(500).json({ error: unfollowError.message });

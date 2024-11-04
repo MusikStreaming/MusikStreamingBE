@@ -1,6 +1,6 @@
 import rateLimit from "express-rate-limit";
 
-const uploadRateLimit = rateLimit({
+const uploadRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
   keyGenerator: (req) => req.params.id,
@@ -12,4 +12,9 @@ const uploadRateLimit = rateLimit({
   },
 });
 
-export { uploadRateLimit as ratelimit };
+const googleSignInLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+});
+
+export { uploadRateLimiter, googleSignInLimiter };

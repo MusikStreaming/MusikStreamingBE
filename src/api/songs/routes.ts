@@ -1,6 +1,6 @@
 import { Router } from "express";
 import controller from "./controller";
-import { ratelimit } from "@/middlewares/rate-limit.config";
+import { uploadRateLimiter } from "@/middlewares/rate-limit.config";
 import { storage } from "@/middlewares/multer.config";
 
 const router = Router();
@@ -16,7 +16,7 @@ router.delete("/:id", controller.deleteSong);
 router.get("/:id/presigned/stream", controller.generatePresignedDownloadURL);
 router.get(
   "/:id/presigned/upload",
-  ratelimit,
+  uploadRateLimiter,
   controller.generatePresignedUploadURL,
 );
 

@@ -1,5 +1,4 @@
 import { v2 as cloudinary } from "cloudinary";
-import { Request, Response } from "express";
 
 class Cloudinary {
   constructor() {
@@ -25,7 +24,7 @@ class Cloudinary {
         const stream = cloudinary.uploader.upload_stream(
           { resource_type: "image", folder, public_id: `i-${id}` },
           (error, result) => {
-            if (error) return reject(error);
+            if (error) return reject(new Error(error.message));
             resolve(result as { secure_url: string });
           },
         );

@@ -1,6 +1,5 @@
 import { Request, RequestHandler, Response } from "express";
 import supabase from "@/services/supabase";
-import { Tables } from "@/models/types";
 import { cloudinary } from "@/services/cloudinary";
 import utils from "@/utils";
 
@@ -90,7 +89,7 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
     ...(role && { role }),
   };
 
-  const { data, error: updateError } = await supabase
+  const { error: updateError } = await supabase
     .from("profiles")
     .update(response)
     .eq("id", userid);

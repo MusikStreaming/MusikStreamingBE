@@ -7,7 +7,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 class Backblaze {
-  private client: S3Client;
+  private readonly client: S3Client;
 
   constructor() {
     this.client = new S3Client({

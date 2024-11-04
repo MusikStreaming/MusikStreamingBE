@@ -1,6 +1,5 @@
 import { cloudinary } from "@/services/cloudinary";
 import supabase from "@/services/supabase";
-import { count } from "console";
 import { Request, RequestHandler, Response } from "express";
 
 const getAllArtists: RequestHandler = async (req: Request, res: Response) => {

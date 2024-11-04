@@ -121,7 +121,7 @@ const updateUserCredentials: RequestHandler = async (
     ...(password && { password }),
   };
 
-  const { data, error } = await supabase.auth.updateUser(response);
+  const { error } = await supabase.auth.updateUser(response);
 
   if (error) {
     res.status(error.status ?? 500).json({ error: error.message });

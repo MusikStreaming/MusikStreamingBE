@@ -5,7 +5,7 @@ const parseJWTPayload = (header: string | undefined) => {
 
   const parts = header.split(".");
   if (parts.length !== 3) {
-    throw [{ error: "Invalid token input" }, 500];
+    return [{ error: "Invalid token input" }, 500];
   }
 
   const decoded = Buffer.from(parts[1], "base64").toString("utf-8");

@@ -2,13 +2,13 @@ import express, { Request } from "express";
 import "dotenv/config";
 import cors from "cors";
 import helmet from "helmet";
-import { authRoutes } from "./api/auth/routes";
+import { authRoutes } from "@/api/auth/routes";
 import { userRoutes } from "@/api/users/routes";
 import { songRoutes } from "@/api/songs/routes";
 import { collectionRoutes } from "@/api/collections/routes";
 import { artistRoutes } from "@/api/artists/routes";
-import { searchRoutes } from "./api/search/routes";
-import { authRateLimiter } from "./middlewares/rate-limit.config";
+import { searchRoutes } from "@/api/search/routes";
+import { authRateLimiter } from "@/middlewares/rate-limit.config";
 
 const app = express();
 const port = process.env.PORT || 7554;

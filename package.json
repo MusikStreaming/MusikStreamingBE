@@ -7,7 +7,8 @@
   "scripts": {
     "build": "npx tsc && npx resolve-tspaths",
     "start": "node dist/index.js",
-    "dev": "npx nodemon -q"
+    "dev": "npx nodemon -q",
+    "test": "node --import tsx -r tsconfig-paths/register --test test/**/*.test.ts"
   },
   "author": "Zeann3th",
   "license": "GPL-3.0-or-later",
@@ -30,9 +31,9 @@
     "@types/node": "^22.7.5",
     "nodemon": "^3.1.7",
     "resolve-tspaths": "^0.8.22",
+    "supabase": "^1.207.9",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.19.1",
-    "typescript": "^5.6.3",
-    "supabase": "^1.207.9"
+    "typescript": "^5.6.3"
   }
 }

@@ -12,20 +12,4 @@ const uploadRateLimiter = rateLimit({
   },
 });
 
-const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  keyGenerator: (req) => {
-    const cfip = req.headers["cf-connecting-ip"] || req.ip;
-    const country = req.headers["cf-ipcountry"] || "VN";
-    return `${cfip}-${country}`;
-  },
-  handler: (req, res) => {
-    res.status(429).json({
-      message: "Too many requests, please try again later.",
-      retryAfter: 900,
-    });
-  },
-});
-
-export { uploadRateLimiter, authRateLimiter };
+export { uploadRateLimiter };

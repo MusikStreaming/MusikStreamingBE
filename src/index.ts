@@ -8,7 +8,6 @@ import { songRoutes } from "@/api/songs/routes";
 import { collectionRoutes } from "@/api/collections/routes";
 import { artistRoutes } from "@/api/artists/routes";
 import { searchRoutes } from "./api/search/routes";
-import { authRateLimiter } from "./middlewares/rate-limit.config";
 
 const app = express();
 const port = process.env.PORT || 7554;
@@ -35,7 +34,7 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use("/v1/auth", authRateLimiter, authRoutes);
+app.use("/v1/auth", authRoutes);
 app.use("/v1/user", userRoutes);
 app.use("/v1/song", songRoutes);
 app.use("/v1/collection", collectionRoutes);

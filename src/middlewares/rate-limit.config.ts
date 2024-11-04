@@ -14,7 +14,13 @@ const uploadRateLimiter = rateLimit({
 
 const googleSignInLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: 100,
+  handler: (req, res) => {
+    res.status(429).json({
+      message: "Too many requests, please try again later.",
+      retryAfter: 900,
+    });
+  },
 });
 
 export { uploadRateLimiter, googleSignInLimiter };

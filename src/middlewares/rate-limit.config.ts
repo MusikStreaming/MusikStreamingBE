@@ -16,9 +16,13 @@ const authRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
   keyGenerator: (req) => {
-    const cfip = req.headers["cf-connecting-ip"] || req.ip;
-    const country = req.headers["cf-ipcountry"] || "VN";
-    return `${cfip}-${country}`;
+    const ipAddress =
+      req.headers["cf-connecting-ip"] ||
+      req.headers["x-forwarded-for"] ||
+      req.socket.remoteAddress ||
+      "Unknown IP";
+    const userAgent = req.headers["user-agent"] || "Unknown User Agent";
+    return `${ipAddress}::${userAgent}`;
   },
   handler: (req, res) => {
     res.status(429).json({

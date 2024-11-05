@@ -1,4 +1,5 @@
 import { cloudinary } from "@/services/cloudinary";
+import redis from "@/services/redis";
 import supabase from "@/services/supabase";
 import { Request, RequestHandler, Response } from "express";
 
@@ -8,6 +9,13 @@ const getAllCollections: RequestHandler = async (
 ) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
+
+  const cache = await redis.get(`collections?page=${page}&limit=${limit}`);
+  if (cache) {
+    console.log("Fetch data from cache");
+    res.status(200).json(cache);
+    return;
+  }
 
   const { data, error } = await supabase
     .from("playlists")
@@ -19,6 +27,9 @@ const getAllCollections: RequestHandler = async (
     return;
   }
 
+  redis.set(`collections?page=${page}&limit=${limit}`, JSON.stringify(data), {
+    ex: 300,
+  });
   res.status(200).json({ data });
   return;
 };
@@ -26,6 +37,13 @@ const getAllCollections: RequestHandler = async (
 const getAllPlaylists: RequestHandler = async (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
+
+  const cache = await redis.get(`playlists?page=${page}&limit=${limit}`);
+  if (cache) {
+    console.log("Fetch data from cache");
+    res.status(200).json(cache);
+    return;
+  }
 
   const { data, error } = await supabase
     .from("playlists")
@@ -38,6 +56,9 @@ const getAllPlaylists: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
+  redis.set(`playlists?page=${page}&limit=${limit}`, JSON.stringify(data), {
+    ex: 300,
+  });
   res.status(200).json({ data });
   return;
 };
@@ -45,6 +66,13 @@ const getAllPlaylists: RequestHandler = async (req: Request, res: Response) => {
 const getAllAlbums: RequestHandler = async (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
+
+  const cache = await redis.get(`albums?page=${page}&limit=${limit}`);
+  if (cache) {
+    console.log("Fetch data from cache");
+    res.status(200).json(cache);
+    return;
+  }
 
   const { data, error } = await supabase
     .from("playlists")
@@ -57,6 +85,9 @@ const getAllAlbums: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
+  redis.set(`albums?page=${page}&limit=${limit}`, JSON.stringify(data), {
+    ex: 300,
+  });
   res.status(200).json({ data });
   return;
 };
@@ -66,6 +97,13 @@ const getCollectionByID: RequestHandler = async (
   res: Response,
 ) => {
   const id = req.params.id;
+
+  const cache = await redis.get(`collections?id=${id}`);
+  if (cache) {
+    console.log("Fetch data from cache");
+    res.status(200).json(cache);
+    return;
+  }
 
   const { data, error } = await supabase
     .from("playlists")
@@ -80,6 +118,9 @@ const getCollectionByID: RequestHandler = async (
     return;
   }
 
+  redis.set(`collections?id=${id}`, JSON.stringify(data), {
+    ex: 300,
+  });
   res.status(200).json({ data });
   return;
 };

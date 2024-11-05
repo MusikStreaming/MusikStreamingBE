@@ -1,4 +1,5 @@
 import { cloudinary } from "@/services/cloudinary";
+import redis from "@/services/redis";
 import supabase from "@/services/supabase";
 import { Request, RequestHandler, Response } from "express";
 
@@ -6,6 +7,14 @@ const getAllArtists: RequestHandler = async (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
 
+  const cache = await redis.get(`artists?page=${page}&limit=${limit}`);
+  if (cache) {
+    console.log("Fetch data from cache");
+    res.status(200).json(cache);
+    return;
+  }
+
+  console.log("Fetch data from database");
   const { data, error } = await supabase
     .from("artists")
     .select("id, name, avatarurl")
@@ -16,11 +25,21 @@ const getAllArtists: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
+  redis.set(`artists?page=${page}&limit=${limit}`, JSON.stringify({ data }), {
+    ex: 300,
+  });
   res.status(200).json({ data });
   return;
 };
 
 const getArtistByID: RequestHandler = async (req: Request, res: Response) => {
+  const cache = await redis.get(`artists?id=${req.params.id}`);
+  if (cache) {
+    console.log("Fetch data from cache");
+    res.status(200).json(cache);
+    return;
+  }
+
   const { data, error } = await supabase
     .from("artists")
     .select()
@@ -31,6 +50,7 @@ const getArtistByID: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
+  redis.set(`artists?id=${req.params.id}`, JSON.stringify(data), { ex: 300 });
   res.status(200).json({ data });
   return;
 };

@@ -170,11 +170,13 @@ const addSong: RequestHandler = async (req: Request, res: Response) => {
     res.status(400).json({ error: "Payload must have field: title" });
     return;
   }
+
   if (typeof artists !== "string") {
     res.status(400).json({
       error:
         "Invalid payload request: artists must be a string separated by ','",
     });
+    return;
   }
 
   const response = {
@@ -196,21 +198,33 @@ const addSong: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  const promises = artists.split(",").map((artistid: string, index: number) =>
+  const artistIds = artists
+    .split(",")
+    .map((id) => id.trim())
+    .filter((id) => id.length > 0);
+
+  if (!artistIds.length) {
+    supabase.from("songs").delete().eq("id", data.id);
+    res.status(400).json({ error: "At least one valid artist ID is required" });
+    return;
+  }
+
+  const promises = artistIds.map((artistid: string, index: number) =>
     supabase.from("artistssongs").insert({
       songid: data.id,
-      artistid: artistid.trim(),
+      artistid,
       relation: index === 0 ? "Primary" : "Featured",
     }),
   );
 
   const results = await Promise.all(promises);
-  const errors = results.filter((result) => result.error);
+  const errors = results.filter((result) => result.error).map((e) => e.error);
 
   if (errors.length > 0) {
+    supabase.from("songs").delete().eq("id", data.id);
     res.status(500).json({
       error: `Failed to link associate artists with current song ${data.id}`,
-      details: errors.map((e) => e.error.message),
+      details: errors.filter(Boolean).map((e) => e!.message),
     });
     return;
   }

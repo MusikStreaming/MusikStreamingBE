@@ -41,8 +41,12 @@ const enforceRole = (header: string | undefined): string => {
     if (parts.length === 3) {
       try {
         const decoded = Buffer.from(parts[1], "base64").toString("utf-8");
-        const payload = JSON.parse(decoded);
+        const payload = JSON.parse(decoded) as JWTPayload;
         const userRole = payload?.user_metadata?.role;
+
+        if (payload.exp && Date.now() >= payload.exp * 1000) {
+          return role;
+        }
 
         if (
           userRole &&

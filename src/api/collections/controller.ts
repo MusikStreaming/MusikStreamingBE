@@ -135,7 +135,7 @@ const getCollectionByID: RequestHandler = async (
   const { data, error } = await supabase
     .from("playlists")
     .select(
-      "id, title, description, type, thumbnailurl, owner: profiles (id, username, avatarurl), songs: playlistssongs (songid)",
+      "id, title, description, type, thumbnailurl, profiles (id, username, avatarurl), songs: playlistssongs (song: songs (id, title))",
     )
     .eq("id", id)
     .single();
@@ -189,7 +189,14 @@ const updateCollection: RequestHandler = async (
   res: Response,
 ) => {
   const id = req.params.id;
-  const { title, description, thumbnailurl, type, visibility } = req.body;
+  const { title, description, type, visibility } = req.body;
+  let { thumbnailurl } = req.body;
+
+  if (req.file) {
+    cloudinary.upload(req.file, "collections", id);
+    thumbnailurl = `${process.env.CLOUDINARY_PREFIX}/collections/i-${id}.jpg`;
+  }
+
   const response = {
     ...(title && { title }),
     ...(description && { description }),
@@ -210,10 +217,6 @@ const updateCollection: RequestHandler = async (
   if (error) {
     res.status(500).json({ error: error.message });
     return;
-  }
-
-  if (req.file) {
-    cloudinary.upload(req.file, "collections", data.id);
   }
 
   res.status(200).json({ data });

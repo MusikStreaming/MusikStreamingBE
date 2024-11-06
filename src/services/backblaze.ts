@@ -27,6 +27,8 @@ class Backblaze {
     const command = new GetObjectCommand({
       Bucket: process.env.AWS_BUCKET,
       Key: fileName,
+      ResponseContentType: "audio/mpeg",
+      ResponseContentDisposition: "inline",
     });
 
     const signedUrl = await getSignedUrl(this.client, command, { expiresIn });
@@ -40,6 +42,7 @@ class Backblaze {
     const command = new PutObjectCommand({
       Bucket: process.env.AWS_BUCKET,
       Key: fileName,
+      ContentType: "audio/mpeg",
     });
 
     const signedUrl = await getSignedUrl(this.client, command, { expiresIn });

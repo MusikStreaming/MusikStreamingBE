@@ -30,7 +30,6 @@ const getAllSongs: RequestHandler = async (req: Request, res: Response) => {
     ex: 300,
   });
   res.status(200).json({ data });
-  return;
 };
 
 const getSongByID: RequestHandler = async (req: Request, res: Response) => {
@@ -58,7 +57,6 @@ const getSongByID: RequestHandler = async (req: Request, res: Response) => {
     ex: 300,
   });
   res.status(200).json({ data });
-  return;
 };
 
 const generatePresignedDownloadURL: RequestHandler = async (
@@ -93,7 +91,6 @@ const generatePresignedDownloadURL: RequestHandler = async (
   }
 
   res.status(200).json({ url });
-  return;
 };
 
 const generatePresignedUploadURL: RequestHandler = async (
@@ -128,7 +125,6 @@ const generatePresignedUploadURL: RequestHandler = async (
   }
 
   res.status(200).json({ url });
-  return;
 };
 
 const updateSong: RequestHandler = async (req: Request, res: Response) => {
@@ -151,15 +147,19 @@ const updateSong: RequestHandler = async (req: Request, res: Response) => {
     ...(views && { views }),
   };
 
-  const { error } = await supabase.from("songs").update(response).eq("id", id);
+  const { data, error } = await supabase
+    .from("songs")
+    .update(response)
+    .eq("id", id)
+    .select()
+    .single();
 
   if (error) {
     res.status(500).json({ error: error.message });
     return;
   }
 
-  res.status(200).json({ message: `Song ${id} updated successfully` });
-  return;
+  res.status(200).json({ data });
 };
 
 const addSong: RequestHandler = async (req: Request, res: Response) => {
@@ -190,7 +190,7 @@ const addSong: RequestHandler = async (req: Request, res: Response) => {
   const { data, error } = await supabase
     .from("songs")
     .insert(response)
-    .select("id")
+    .select()
     .single();
 
   if (error) {
@@ -198,21 +198,10 @@ const addSong: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  const artistIds = artists
-    .split(",")
-    .map((id) => id.trim())
-    .filter((id) => id.length > 0);
-
-  if (!artistIds.length) {
-    supabase.from("songs").delete().eq("id", data.id);
-    res.status(400).json({ error: "At least one valid artist ID is required" });
-    return;
-  }
-
-  const promises = artistIds.map((artistid: string, index: number) =>
+  const promises = artists.split(",").map((artistid: string, index: number) =>
     supabase.from("artistssongs").insert({
       songid: data.id,
-      artistid,
+      artistid: artistid.trim(),
       relation: index === 0 ? "Primary" : "Featured",
     }),
   );
@@ -233,8 +222,7 @@ const addSong: RequestHandler = async (req: Request, res: Response) => {
     cloudinary.upload(req.file, "songs", data.id);
   }
 
-  res.status(201).json({ message: `Song ${data.id} created` });
-  return;
+  res.status(200).json({ data });
 };
 
 const deleteSong: RequestHandler = async (req: Request, res: Response) => {
@@ -255,7 +243,7 @@ const deleteSong: RequestHandler = async (req: Request, res: Response) => {
   backblaze.deleteObject(data.title + ".mp3");
   cloudinary.delete("songs", `i-${id}`);
 
-  res.status(202).json({ message: `Song ${id} is being deleted` });
+  res.status(204);
 };
 
 export default {

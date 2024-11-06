@@ -39,7 +39,6 @@ const getAllCollections: RequestHandler = async (
     });
   }
   res.status(200).json({ data });
-  return;
 };
 
 const getAllPlaylists: RequestHandler = async (req: Request, res: Response) => {
@@ -75,7 +74,6 @@ const getAllPlaylists: RequestHandler = async (req: Request, res: Response) => {
     });
   }
   res.status(200).json({ data });
-  return;
 };
 
 const getAllAlbums: RequestHandler = async (req: Request, res: Response) => {
@@ -111,7 +109,6 @@ const getAllAlbums: RequestHandler = async (req: Request, res: Response) => {
     });
   }
   res.status(200).json({ data });
-  return;
 };
 
 const getCollectionByID: RequestHandler = async (
@@ -151,7 +148,6 @@ const getCollectionByID: RequestHandler = async (
     });
   }
   res.status(200).json({ data });
-  return;
 };
 
 const addCollection: RequestHandler = async (req: Request, res: Response) => {
@@ -255,9 +251,7 @@ const addCollectionSong: RequestHandler = async (
     return;
   }
 
-  res.status(200).json({
-    message: `Song ${songid} is added to Collection ${id}`,
-  });
+  res.status(204);
 };
 
 const deleteCollectionSong: RequestHandler = async (
@@ -277,9 +271,7 @@ const deleteCollectionSong: RequestHandler = async (
     return;
   }
 
-  res.status(200).json({
-    message: `Song ${songid} is removed from Collection ${id}`,
-  });
+  res.status(204);
 };
 
 export default {

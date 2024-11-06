@@ -29,7 +29,6 @@ const getAllArtists: RequestHandler = async (req: Request, res: Response) => {
     ex: 300,
   });
   res.status(200).json({ data });
-  return;
 };
 
 const getArtistByID: RequestHandler = async (req: Request, res: Response) => {
@@ -52,7 +51,6 @@ const getArtistByID: RequestHandler = async (req: Request, res: Response) => {
 
   redis.set(`artists?id=${req.params.id}`, JSON.stringify(data), { ex: 300 });
   res.status(200).json({ data });
-  return;
 };
 
 const updateArtist: RequestHandler = async (req: Request, res: Response) => {
@@ -72,18 +70,19 @@ const updateArtist: RequestHandler = async (req: Request, res: Response) => {
     ...(country && { country }),
   };
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("artists")
     .update(response)
-    .eq("id", id);
+    .eq("id", id)
+    .select()
+    .single();
 
   if (error) {
     res.status(500).json({ error: error.message });
     return;
   }
 
-  res.status(200).json({ message: `Artist ${id} updated successfully` });
-  return;
+  res.status(200).json({ data });
 };
 
 const addArtist: RequestHandler = async (req: Request, res: Response) => {
@@ -104,7 +103,7 @@ const addArtist: RequestHandler = async (req: Request, res: Response) => {
   const { data, error } = await supabase
     .from("artists")
     .insert(response)
-    .select("id")
+    .select()
     .single();
 
   if (error) {
@@ -116,18 +115,13 @@ const addArtist: RequestHandler = async (req: Request, res: Response) => {
     cloudinary.upload(req.file, "artists", data.id);
   }
 
-  res.status(201).json({ message: `Artist ${data.id} created` });
-  return;
+  res.status(200).json({ data });
 };
 
 const deleteArtist: RequestHandler = async (req: Request, res: Response) => {
   const id = req.params.id;
 
-  const { error } = await supabase
-    .from("artists")
-    .delete()
-    .eq("id", id)
-    .single();
+  const { error } = await supabase.from("artists").delete().eq("id", id);
 
   if (error) {
     res.status(500).json({ error: error.message });
@@ -136,7 +130,7 @@ const deleteArtist: RequestHandler = async (req: Request, res: Response) => {
 
   cloudinary.delete("artists", `i-${id}`);
 
-  res.status(200).json({ message: `Artist ${id} deleted` });
+  res.status(204);
 };
 
 export default {

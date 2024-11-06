@@ -9,6 +9,7 @@ import { collectionRoutes } from "@/api/collections/routes";
 import { artistRoutes } from "@/api/artists/routes";
 import { searchRoutes } from "@/api/search/routes";
 import { authRateLimiter } from "@/middlewares/rate-limit.config";
+import { paymentRoutes } from "@/api/payments/routes";
 
 const app = express();
 const port = process.env.PORT || 7554;
@@ -41,6 +42,7 @@ app.use("/v1/song", songRoutes);
 app.use("/v1/collection", collectionRoutes);
 app.use("/v1/artist", artistRoutes);
 app.use("/v1/search", searchRoutes);
+app.use("/v1/checkout", paymentRoutes);
 
 // Server start
 app.listen(port, () => {

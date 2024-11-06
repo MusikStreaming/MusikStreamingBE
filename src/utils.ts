@@ -1,8 +1,11 @@
 interface JWTPayload {
   sub?: string;
   exp?: number;
+  iat?: number;
+  iss?: string;
+  aud?: string;
   user_metadata: {
-    role?: string;
+    role: string;
   };
 }
 

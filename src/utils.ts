@@ -13,25 +13,25 @@ const parseJWTPayload = (header: string | undefined): [any, number] => {
 };
 
 const enforceRole = (header: string | undefined): string => {
-  // This is a utility func to control cache
-  // Admins will have real-time data => no cache
-  // Others will have cache
-  // Q: What if JWT payload were modified to have role as Admin?
-  // A: Well they will not have cache, and db wont accept them anyway because of invalid signature
-  // This only applies to (which contains private data):
-  // - Collections
-  // - Users
+  // Determines user role from JWT for access control
   let role = "Anonymous";
   if (header) {
     const parts = header.split(".");
     if (parts.length === 3) {
-      const decoded = Buffer.from(parts[1], "base64").toString("utf-8");
-      const {
-        user_metadata: { role: userRole },
-      } = JSON.parse(decoded);
+      try {
+        const decoded = Buffer.from(parts[1], "base64").toString("utf-8");
+        const payload = JSON.parse(decoded);
+        const userRole = payload?.user_metadata?.role;
 
-      if (userRole) {
-        role = userRole;
+        if (
+          userRole &&
+          typeof userRole === "string" &&
+          ["Admin", "User", "Artist Manager"].includes(userRole)
+        ) {
+          role = userRole;
+        }
+      } catch (error) {
+        console.error("Error parsing JWT:", error);
       }
     }
   }

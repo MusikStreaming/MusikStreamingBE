@@ -190,7 +190,7 @@ const addSong: RequestHandler = async (req: Request, res: Response) => {
     ...(description && { description }),
     ...(thumbnailurl && { thumbnailurl }),
     ...(duration && { duration }),
-    ...(releasedate && { releasedate }),
+    ...(releasedate && { releasedate: new Date(releasedate).toISOString() }),
     ...(genre && { genre }),
   };
 

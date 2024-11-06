@@ -57,7 +57,13 @@ const getArtistByID: RequestHandler = async (req: Request, res: Response) => {
 
 const updateArtist: RequestHandler = async (req: Request, res: Response) => {
   const id = req.params.id;
-  const { name, description, avatarurl, country } = req.body;
+  const { name, description, country } = req.body;
+  let { avatarurl } = req.body;
+
+  if (req.file) {
+    cloudinary.upload(req.file, "artists", id);
+    avatarurl = `${process.env.CLOUDINARY_PREFIX}/artists/i-${id}.jpg`;
+  }
 
   const response = {
     name,
@@ -74,10 +80,6 @@ const updateArtist: RequestHandler = async (req: Request, res: Response) => {
   if (error) {
     res.status(500).json({ error: error.message });
     return;
-  }
-
-  if (req.file) {
-    cloudinary.upload(req.file, "artists", id);
   }
 
   res.status(200).json({ message: `Artist ${id} updated successfully` });
@@ -114,7 +116,7 @@ const addArtist: RequestHandler = async (req: Request, res: Response) => {
     cloudinary.upload(req.file, "artists", data.id);
   }
 
-  res.status(201).json({ message: `Artist ${name} created` });
+  res.status(201).json({ message: `Artist ${data.id} created` });
   return;
 };
 

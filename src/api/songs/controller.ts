@@ -83,7 +83,7 @@ const generatePresignedDownloadURL: RequestHandler = async (
     return;
   }
 
-  const fileName: string = `${data.artist.name}/${data.song.title}.mp3`;
+  const fileName: string = `${data.artist.name}/${data.song.title.replace(/\s+/g, "_")}.mp3`;
   let url: string;
   try {
     url = await backblaze.generatePresignedDownloadURL(fileName, 1800);
@@ -118,7 +118,7 @@ const generatePresignedUploadURL: RequestHandler = async (
     return;
   }
 
-  const fileName: string = `${data.artist.name}/${data.song.title}.mp3`;
+  const fileName: string = `${data.artist.name}/${data.song.title.replace(/\s+/g, "_")}.mp3`;
   let url: string;
   try {
     url = await backblaze.generatePresignedUploadURL(fileName, 900);
@@ -133,15 +133,13 @@ const generatePresignedUploadURL: RequestHandler = async (
 
 const updateSong: RequestHandler = async (req: Request, res: Response) => {
   const id = req.params.id;
-  const {
-    title,
-    description,
-    thumbnailurl,
-    duration,
-    releasedate,
-    genre,
-    views,
-  } = req.body;
+  const { title, description, duration, releasedate, genre, views } = req.body;
+  let { thumbnailurl } = req.body;
+
+  if (req.file) {
+    cloudinary.upload(req.file, "songs", id);
+    thumbnailurl = `${process.env.CLOUDNIARY_PREFIX}/songs/i-${id}.jpg`;
+  }
 
   const response = {
     ...(title && { title }),
@@ -160,33 +158,29 @@ const updateSong: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  if (req.file) {
-    cloudinary.upload(req.file, "songs", id);
-  }
-
   res.status(200).json({ message: `Song ${id} updated successfully` });
   return;
 };
 
 const addSong: RequestHandler = async (req: Request, res: Response) => {
-  const {
-    title,
-    description,
-    thumbnailurl,
-    duration,
-    releasedate,
-    genre,
-    artists,
-  } = req.body;
+  const { title, thumbnailurl, duration, releasedate, genre, artists } =
+    req.body;
 
   if (!title) {
     res.status(400).json({ error: "Payload must have field: title" });
     return;
   }
 
+  if (typeof artists !== "string") {
+    res.status(400).json({
+      error:
+        "Invalid payload request: artists must be a string separated by ','",
+    });
+    return;
+  }
+
   const response = {
     title,
-    ...(description && { description }),
     ...(thumbnailurl && { thumbnailurl }),
     ...(duration && { duration }),
     ...(releasedate && { releasedate: new Date(releasedate).toISOString() }),
@@ -204,21 +198,33 @@ const addSong: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  const promises = artists.map((artistid: string, index: number) =>
+  const artistIds = artists
+    .split(",")
+    .map((id) => id.trim())
+    .filter((id) => id.length > 0);
+
+  if (!artistIds.length) {
+    supabase.from("songs").delete().eq("id", data.id);
+    res.status(400).json({ error: "At least one valid artist ID is required" });
+    return;
+  }
+
+  const promises = artistIds.map((artistid: string, index: number) =>
     supabase.from("artistssongs").insert({
-      songid: data!.id,
-      artistid: artistid,
+      songid: data.id,
+      artistid,
       relation: index === 0 ? "Primary" : "Featured",
     }),
   );
 
   const results = await Promise.all(promises);
-  const errors = results.filter((result) => result.error);
+  const errors = results.filter((result) => result.error).map((e) => e.error);
 
   if (errors.length > 0) {
+    supabase.from("songs").delete().eq("id", data.id);
     res.status(500).json({
-      error: `Failed to link associate artists with current song ${data!.id}`,
-      details: errors.map((e) => e.error.message),
+      error: `Failed to link associate artists with current song ${data.id}`,
+      details: errors.filter(Boolean).map((e) => e!.message),
     });
     return;
   }
@@ -227,7 +233,7 @@ const addSong: RequestHandler = async (req: Request, res: Response) => {
     cloudinary.upload(req.file, "songs", data.id);
   }
 
-  res.status(201).json({ message: `Song ${title} created` });
+  res.status(201).json({ message: `Song ${data.id} created` });
   return;
 };
 

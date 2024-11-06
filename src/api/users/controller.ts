@@ -106,11 +106,17 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  const { username, country, avatarurl, role } = req.body;
+  const { username, country, role } = req.body;
+  let { avatarurl } = req.body;
 
   if (!username && !country) {
     res.status(400).json({ error: "Payload must have at least one field" });
     return;
+  }
+
+  if (req.file) {
+    cloudinary.upload(req.file, "users", payload.sub);
+    avatarurl = `${process.env.CLOUDINARY_PREFIX}/users/i-${payload.sub}.jpg`;
   }
 
   const response = {
@@ -128,10 +134,6 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
   if (updateError) {
     res.status(500).json({ error: updateError.message });
     return;
-  }
-
-  if (req.file) {
-    cloudinary.upload(req.file, "users", payload.sub);
   }
 
   res.status(202).json({ message: "User profile updated" });

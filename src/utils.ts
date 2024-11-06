@@ -1,6 +1,6 @@
 interface JWTPayload {
-  sub?: string;
-  exp?: number;
+  sub: string;
+  exp: number;
   iat?: number;
   iss?: string;
   aud?: string;

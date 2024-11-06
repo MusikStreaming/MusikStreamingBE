@@ -2,7 +2,6 @@ import backblaze from "@/services/backblaze";
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
 import supabase from "@/services/supabase";
-import utils from "@/utils";
 import { Request, RequestHandler, Response } from "express";
 
 const getAllSongs: RequestHandler = async (req: Request, res: Response) => {

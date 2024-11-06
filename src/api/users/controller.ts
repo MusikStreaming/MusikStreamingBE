@@ -7,13 +7,17 @@ import redis from "@/services/redis";
 const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
-
   const key = `users?page=${page}&limit=${limit}`;
-  const cache = await redis.get(key);
-  if (cache) {
-    console.log("Fetch data from cache");
-    res.status(200).json(cache);
-    return;
+
+  const role = utils.enforceRole(req.headers["authorization"]);
+
+  if (role !== "Admin") {
+    const cache = await redis.get(key);
+    if (cache) {
+      console.log("Fetch data from cache");
+      res.status(200).json(cache);
+      return;
+    }
   }
 
   const { data, error } = await supabase
@@ -26,20 +30,26 @@ const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  redis.set(key, JSON.stringify(data), {
-    ex: 300,
-  });
+  if (role !== "Admin") {
+    redis.set(key, data, {
+      ex: 300,
+    });
+  }
   res.status(200).json({ data });
   return;
 };
 
 const getUserByID: RequestHandler = async (req: Request, res: Response) => {
   const key = `users?id=${req.params.id}`;
-  const cache = await redis.get(key);
-  if (cache) {
-    console.log("Fetch data from cache");
-    res.status(200).json(cache);
-    return;
+  const role = utils.enforceRole(req.headers["authorization"]);
+
+  if (role !== "Admin") {
+    const cache = await redis.get(key);
+    if (cache) {
+      console.log("Fetch data from cache");
+      res.status(200).json(cache);
+      return;
+    }
   }
 
   const { data, error } = await supabase
@@ -57,9 +67,11 @@ const getUserByID: RequestHandler = async (req: Request, res: Response) => {
     }
   }
 
-  redis.set(key, JSON.stringify(data), {
-    ex: 300,
-  });
+  if (role !== "Admin") {
+    redis.set(key, data, {
+      ex: 300,
+    });
+  }
   res.status(200).json({ data });
   return;
 };

@@ -2,13 +2,15 @@ import backblaze from "@/services/backblaze";
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
 import supabase from "@/services/supabase";
+import utils from "@/utils";
 import { Request, RequestHandler, Response } from "express";
 
 const getAllSongs: RequestHandler = async (req: Request, res: Response) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
+  const key = `songs?page=${page}&limit=${limit}`;
 
-  const cache = await redis.get(`songs?page=${page}&limit=${limit}`);
+  const cache = await redis.get(key);
   if (cache) {
     console.log("Fetch data from cache");
     res.status(200).json(cache);
@@ -25,7 +27,7 @@ const getAllSongs: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  redis.set(`songs?page=${page}&limit=${limit}`, JSON.stringify(data), {
+  redis.set(key, data, {
     ex: 300,
   });
   res.status(200).json({ data });
@@ -33,7 +35,9 @@ const getAllSongs: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const getSongByID: RequestHandler = async (req: Request, res: Response) => {
-  const cache = await redis.get(`songs?id=${req.params.id}`);
+  const key = `songs?id=${req.params.id}`;
+
+  const cache = await redis.get(key);
   if (cache) {
     console.log("Fetch data from cache");
     res.status(200).json(cache);
@@ -51,7 +55,7 @@ const getSongByID: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  redis.set(`songs?id=${req.params.id}`, JSON.stringify(data), {
+  redis.set(key, data, {
     ex: 300,
   });
   res.status(200).json({ data });

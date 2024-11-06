@@ -34,33 +34,17 @@ const parseJWTPayload = (
 };
 
 const enforceRole = (header: string | undefined): string => {
-  // Determines user role from JWT for access control
-  let role = "Anonymous";
-  if (header) {
-    const parts = header.split(".");
-    if (parts.length === 3) {
-      try {
-        const decoded = Buffer.from(parts[1], "base64").toString("utf-8");
-        const payload = JSON.parse(decoded) as JWTPayload;
-        const userRole = payload?.user_metadata?.role;
+  const [payload, status] = parseJWTPayload(header);
 
-        if (payload.exp && Date.now() >= payload.exp * 1000) {
-          return role;
-        }
-
-        if (
-          userRole &&
-          typeof userRole === "string" &&
-          ["Admin", "User", "Artist Manager"].includes(userRole)
-        ) {
-          role = userRole;
-        }
-      } catch (error) {
-        console.error("Error parsing JWT:", error);
-      }
-    }
+  if ("error" in payload || status !== 200) {
+    return "Anonymous";
   }
-  return role;
+
+  const userRole = payload.user_metadata.role;
+  return typeof userRole === "string" &&
+    ["Admin", "User", "Artist Manager"].includes(userRole)
+    ? userRole
+    : "Anonymous";
 };
 
 export default {

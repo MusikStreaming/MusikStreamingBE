@@ -1,4 +1,4 @@
-import { JWTPayload } from "./models/interfaces";
+import { JWTPayload, SanitizeOptions } from "./models/interfaces";
 
 const parseJWTPayload = (
   header: string | undefined,
@@ -34,14 +34,64 @@ const enforceRole = (header: string | undefined): string => {
     return "Anonymous";
   }
 
-  const userRole = payload.user_metadata.role;
-  return typeof userRole === "string" &&
-    ["Admin", "User", "Artist Manager"].includes(userRole)
-    ? userRole
-    : "Anonymous";
+  const userRole = sanitize(payload.user_metadata.role, {
+    type: "string",
+    defaultValue: "Anonymous",
+    allowedValues: ["Admin", "User", "Artist Manager"],
+  });
+  return userRole;
 };
 
-export default {
-  parseJWTPayload,
-  enforceRole,
+const escapeHtml = (input: string): string => {
+  const entityMap = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+    "/": "&#x2F;",
+    "`": "&#x60;",
+    "=": "&#x3D;",
+  };
+  return String(input).replace(
+    /[&<>"'`=\/]/g,
+    (s) => entityMap[s as keyof typeof entityMap] || s,
+  );
 };
+
+const sanitize = (value: any, options: SanitizeOptions) => {
+  if (value == null || value === "") {
+    return options.defaultValue;
+  }
+
+  switch (options.type) {
+    case "number": {
+      const num = Number(value);
+      if (
+        Number.isNaN(num) ||
+        (options.min !== undefined && num < options.min) ||
+        (options.max !== undefined && num > options.max)
+      ) {
+        return options.defaultValue;
+      }
+      return num;
+    }
+
+    case "string": {
+      const str = String(value).trim();
+      if (options.allowedValues && !options.allowedValues.includes(str)) {
+        return options.defaultValue;
+      }
+      return escapeHtml(str);
+    }
+
+    case "boolean": {
+      return value === "true" || value === true;
+    }
+
+    default:
+      throw new Error(`Unsupported type: ${options.type}`);
+  }
+};
+
+export { parseJWTPayload, enforceRole, sanitize, escapeHtml };

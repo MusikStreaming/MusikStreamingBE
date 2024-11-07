@@ -1,13 +1,13 @@
 import redis from "@/services/redis";
 import supabase from "@/services/supabase";
-import utils from "@/utils";
+import { enforceRole, sanitize } from "@/utils";
 import { Request, RequestHandler, Response } from "express";
 
 const searchDefault: RequestHandler = async (req: Request, res: Response) => {
-  const term = req.params.term;
-  const key = `searches?term=${term}`;
+  const term = decodeURIComponent(req.params.term);
+  const key = `searches?term=${encodeURIComponent(term)}`;
 
-  const role = utils.enforceRole(req.headers["authorization"]);
+  const role = enforceRole(req.headers["authorization"]);
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -86,12 +86,21 @@ const searchDefault: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const searchSongs: RequestHandler = async (req: Request, res: Response) => {
-  const term = req.params.term;
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 20;
-  const key = `searches?cat=songs&term=${term}&page=${page}&limit=${limit}`;
+  const term = decodeURIComponent(req.params.term);
+  const page: number = sanitize(req.query.page, {
+    type: "number",
+    defaultValue: 1,
+    min: 1,
+  });
+  const limit: number = sanitize(req.query.limit, {
+    type: "number",
+    defaultValue: 20,
+    min: 10,
+    max: 50,
+  });
+  const key = `searches?cat=songs&term=${encodeURIComponent(term)}&page=${page}&limit=${limit}`;
 
-  const role = utils.enforceRole(req.headers["authorization"]);
+  const role = enforceRole(req.headers["authorization"]);
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -121,12 +130,22 @@ const searchSongs: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const searchArtists: RequestHandler = async (req: Request, res: Response) => {
-  const term = req.params.term;
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 30;
-  const key = `searches?cat=artists&term=${term}&page=${page}&limit=${limit}`;
+  const term = decodeURIComponent(req.params.term);
+  const page: number = sanitize(req.query.page, {
+    type: "number",
+    defaultValue: 1,
+    min: 1,
+  });
+  const limit: number = sanitize(req.query.limit, {
+    type: "number",
+    defaultValue: 30,
+    min: 10,
+    max: 50,
+  });
 
-  const role = utils.enforceRole(req.headers["authorization"]);
+  const key = `searches?cat=artists&term=${encodeURIComponent(term)}&page=${page}&limit=${limit}`;
+
+  const role = enforceRole(req.headers["authorization"]);
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -156,12 +175,22 @@ const searchArtists: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const searchUsers: RequestHandler = async (req: Request, res: Response) => {
-  const term = req.params.term;
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 30;
-  const key = `searches?cat=users&term=${term}&page=${page}&limit=${limit}`;
+  const term = decodeURIComponent(req.params.term);
+  const page: number = sanitize(req.query.page, {
+    type: "number",
+    defaultValue: 1,
+    min: 1,
+  });
+  const limit: number = sanitize(req.query.limit, {
+    type: "number",
+    defaultValue: 30,
+    min: 10,
+    max: 50,
+  });
 
-  const role = utils.enforceRole(req.headers["authorization"]);
+  const key = `searches?cat=users&term=${encodeURIComponent(term)}&page=${page}&limit=${limit}`;
+
+  const role = enforceRole(req.headers["authorization"]);
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -191,12 +220,22 @@ const searchUsers: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const searchPlaylists: RequestHandler = async (req: Request, res: Response) => {
-  const term = req.params.term;
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 30;
-  const key = `searches?cat=playlists&term=${term}&page=${page}&limit=${limit}`;
+  const term = decodeURIComponent(req.params.term);
+  const page: number = sanitize(req.query.page, {
+    type: "number",
+    defaultValue: 1,
+    min: 1,
+  });
+  const limit: number = sanitize(req.query.limit, {
+    type: "number",
+    defaultValue: 30,
+    min: 10,
+    max: 50,
+  });
 
-  const role = utils.enforceRole(req.headers["authorization"]);
+  const key = `searches?cat=playlists&term=${encodeURIComponent(term)}&page=${page}&limit=${limit}`;
+
+  const role = enforceRole(req.headers["authorization"]);
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -227,12 +266,21 @@ const searchPlaylists: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const searchAlbums: RequestHandler = async (req: Request, res: Response) => {
-  const term = req.params.term;
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 30;
-  const key = `searches?cat=albums&term=${term}&page=${page}&limit=${limit}`;
+  const term = decodeURIComponent(req.params.term);
+  const page: number = sanitize(req.query.page, {
+    type: "number",
+    defaultValue: 1,
+    min: 1,
+  });
+  const limit: number = sanitize(req.query.limit, {
+    type: "number",
+    defaultValue: 30,
+    min: 10,
+    max: 50,
+  });
+  const key = `searches?cat=albums&term=${encodeURIComponent(term)}&page=${page}&limit=${limit}`;
 
-  const role = utils.enforceRole(req.headers["authorization"]);
+  const role = enforceRole(req.headers["authorization"]);
 
   if (role !== "Admin") {
     const cache = await redis.get(key);

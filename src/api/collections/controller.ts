@@ -1,18 +1,27 @@
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
 import supabase from "@/services/supabase";
-import utils from "@/utils";
+import { enforceRole, sanitize } from "@/utils";
 import { Request, RequestHandler, Response } from "express";
 
 const getAllCollections: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
+  const page: number = sanitize(req.query.page, {
+    type: "number",
+    defaultValue: 1,
+    min: 1,
+  });
+  const limit: number = sanitize(req.query.limit, {
+    type: "number",
+    defaultValue: 10,
+    min: 10,
+    max: 50,
+  });
   const key = `collections?page=${page}&limit=${limit}`;
 
-  const role = utils.enforceRole(req.headers["authorization"]);
+  const role = enforceRole(req.headers["authorization"]);
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -42,11 +51,20 @@ const getAllCollections: RequestHandler = async (
 };
 
 const getAllPlaylists: RequestHandler = async (req: Request, res: Response) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
+  const page: number = sanitize(req.query.page, {
+    type: "number",
+    defaultValue: 1,
+    min: 1,
+  });
+  const limit: number = sanitize(req.query.limit, {
+    type: "number",
+    defaultValue: 10,
+    min: 10,
+    max: 50,
+  });
   const key = `playlists?page=${page}&limit=${limit}`;
 
-  const role = utils.enforceRole(req.headers["authorization"]);
+  const role = enforceRole(req.headers["authorization"]);
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -77,11 +95,21 @@ const getAllPlaylists: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const getAllAlbums: RequestHandler = async (req: Request, res: Response) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
+  const page: number = sanitize(req.query.page, {
+    type: "number",
+    defaultValue: 1,
+    min: 1,
+  });
+  const limit: number = sanitize(req.query.limit, {
+    type: "number",
+    defaultValue: 10,
+    min: 10,
+    max: 50,
+  });
+
   const key = `albums?page=${page}&limit=${limit}`;
 
-  const role = utils.enforceRole(req.headers["authorization"]);
+  const role = enforceRole(req.headers["authorization"]);
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -118,7 +146,7 @@ const getCollectionByID: RequestHandler = async (
   const id = req.params.id;
   const key = `collections?id=${id}`;
 
-  const role = utils.enforceRole(req.headers["authorization"]);
+  const role = enforceRole(req.headers["authorization"]);
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -251,7 +279,7 @@ const addCollectionSong: RequestHandler = async (
     return;
   }
 
-  res.status(204);
+  res.status(204).send();
 };
 
 const deleteCollectionSong: RequestHandler = async (
@@ -271,7 +299,7 @@ const deleteCollectionSong: RequestHandler = async (
     return;
   }
 
-  res.status(204);
+  res.status(204).send();
 };
 
 export default {

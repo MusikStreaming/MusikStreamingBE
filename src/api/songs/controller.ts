@@ -2,13 +2,23 @@ import backblaze from "@/services/backblaze";
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
 import supabase from "@/services/supabase";
+import { sanitize } from "@/utils";
 import { Request, RequestHandler, Response } from "express";
 
 const getAllSongs: RequestHandler = async (req: Request, res: Response) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
-  const key = `songs?page=${page}&limit=${limit}`;
+  const page: number = sanitize(req.query.page, {
+    type: "number",
+    defaultValue: 1,
+    min: 1,
+  });
+  const limit: number = sanitize(req.query.limit, {
+    type: "number",
+    defaultValue: 10,
+    min: 10,
+    max: 50,
+  });
 
+  const key = `songs?page=${page}&limit=${limit}`;
   const cache = await redis.get(key);
   if (cache) {
     console.log("Fetch data from cache");
@@ -243,7 +253,7 @@ const deleteSong: RequestHandler = async (req: Request, res: Response) => {
   backblaze.deleteObject(data.title + ".mp3");
   cloudinary.delete("songs", `i-${id}`);
 
-  res.status(204);
+  res.status(204).send();
 };
 
 export default {

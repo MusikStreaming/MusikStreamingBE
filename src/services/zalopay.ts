@@ -1,14 +1,16 @@
-import { ZaloResult, ZaloClient, ZaloOrder } from "@/models/interfaces";
+import {
+  ZaloResult,
+  ZaloClient,
+  ZaloOrder,
+  OrderItem,
+} from "@/models/interfaces";
 import axios from "axios";
-import { randomUUID } from "crypto";
-import moment from "moment";
-import CryptoJS from "crypto-js";
-import QueryString from "qs";
+import { createHmac } from "crypto";
 
 // Sandbox env
 class Zalo {
   private readonly client: ZaloClient;
-  private orderID: number = 100000;
+  private orderID: number;
 
   constructor() {
     this.client = {
@@ -16,21 +18,26 @@ class Zalo {
       key1: process.env.ZALO_KEY1!,
       key2: process.env.ZALO_KEY2!,
       embed_data: {
-        redirecturl: "<some-page>, will update later",
+        redirecturl: "https://open.hustmusik.live",
       },
     };
+    this.orderID = parseInt(Date.now().toString().slice(-6));
   }
 
-  public createOrder = async (user_id: string, items: any, amount: number) => {
+  public createOrder = async (user_id: string, items: OrderItem[]) => {
     this.orderID++;
+    const date = new Date();
     const order: ZaloOrder = {
       app_id: this.client.app_id,
-      app_trans_id: `${moment().format("YYMMDD")}_${this.orderID}`,
+      app_trans_id: `${date.getFullYear().toString().slice(-2)}${String(date.getMonth() + 1).padStart(2, "0")}${String(date.getDate()).padStart(2, "0")}_${this.orderID}`,
       app_user: user_id,
       app_time: Date.now(),
       item: JSON.stringify(items),
       embed_data: JSON.stringify(this.client.embed_data),
-      amount: amount,
+      amount: items.reduce(
+        (acc, item) => acc + item.itemprice * item.itemquantity,
+        0,
+      ),
       description: `Hust Musik Premium - Payment for order ${this.orderID}`,
       bank_code: "zalopayapp",
     };
@@ -48,7 +55,9 @@ class Zalo {
       order.embed_data +
       "|" +
       order.item;
-    order.mac = CryptoJS.HmacSHA256(data, this.client.key1).toString();
+    order.mac = createHmac("sha256", this.client.key1)
+      .update(data)
+      .digest("hex");
 
     const res = await axios.post(
       "https://sb-openapi.zalopay.vn/v2/create",
@@ -64,7 +73,9 @@ class Zalo {
   ): ZaloResult => {
     let result: ZaloResult;
     try {
-      let mac = CryptoJS.HmacSHA256(dataStr, this.client.key2).toString();
+      let mac = createHmac("sha256", this.client.key2)
+        .update(dataStr)
+        .digest("hex");
 
       if (reqMac !== mac) {
         result = {
@@ -93,7 +104,9 @@ class Zalo {
     };
     const data =
       order.app_id + "|" + order.app_trans_id + "|" + this.client.key1;
-    order.mac = CryptoJS.HmacSHA256(data, this.client.key1).toString();
+    order.mac = createHmac("sha256", this.client.key1)
+      .update(data)
+      .digest("hex");
 
     const config = {
       method: "post",
@@ -101,11 +114,16 @@ class Zalo {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      data: QueryString.stringify(order),
+      data: new URLSearchParams(Object.entries(order)).toString(),
+      timeout: 5000,
     };
 
-    const resp = await axios(config);
-    return resp.data;
+    try {
+      const resp = await axios(config);
+      return resp.data;
+    } catch (error) {
+      throw new Error(`Failed to retrieve order status: ${error}`);
+    }
   };
 }
 

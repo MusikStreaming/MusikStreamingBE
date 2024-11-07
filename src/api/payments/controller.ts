@@ -1,11 +1,12 @@
 import zalo from "@/services/zalopay";
-import { Request, Response } from "express";
+import { Request, RequestHandler, Response } from "express";
 
-const createZaloOrder = async (req: Request, res: Response) => {
+const createZaloOrder: RequestHandler = async (req: Request, res: Response) => {
   const { userid, items } = req.body;
 
   if (!Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ error: "Items array cannot be empty" });
+    res.status(400).json({ error: "Items array cannot be empty" });
+    return;
   }
 
   if (
@@ -22,7 +23,8 @@ const createZaloOrder = async (req: Request, res: Response) => {
         item.itemquantity > 0,
     )
   ) {
-    return res.status(400).json({ error: "Invalid items format or values" });
+    res.status(400).json({ error: "Invalid items format or values" });
+    return;
   }
   try {
     const data = await zalo.createOrder(userid, items);
@@ -34,13 +36,13 @@ const createZaloOrder = async (req: Request, res: Response) => {
   }
 };
 
-const receiveZaloCallback = (req: Request, res: Response) => {
+const receiveZaloCallback: RequestHandler = (req: Request, res: Response) => {
   const { data, mac } = req.body;
   const result = zalo.receiveOrderCallback(data, mac);
   res.json(result);
 };
 
-const getZaloOrderStatus = async (req: Request, res: Response) => {
+const getZaloOrderStatus: RequestHandler = async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
     const result = await zalo.getOrderStatus(id);

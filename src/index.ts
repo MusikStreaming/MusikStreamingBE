@@ -42,7 +42,7 @@ app.use("/v1/song", songRoutes);
 app.use("/v1/collection", collectionRoutes);
 app.use("/v1/artist", artistRoutes);
 app.use("/v1/search", searchRoutes);
-app.use("/v1/checkout", paymentRoutes);
+app.use("/v1/order", paymentRoutes);
 
 // Server start
 app.listen(port, () => {

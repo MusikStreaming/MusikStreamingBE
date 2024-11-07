@@ -12,7 +12,7 @@ const uploadRateLimiter = rateLimit({
   },
 });
 
-const authRateLimiter = rateLimit({
+const IPRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
   keyGenerator: (req) => {
@@ -32,4 +32,4 @@ const authRateLimiter = rateLimit({
   },
 });
 
-export { uploadRateLimiter, authRateLimiter };
+export { uploadRateLimiter, IPRateLimiter };

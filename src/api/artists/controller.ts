@@ -1,11 +1,18 @@
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
 import supabase from "@/services/supabase";
+import { sanitize } from "@/utils";
 import { Request, RequestHandler, Response } from "express";
 
 const getAllArtists: RequestHandler = async (req: Request, res: Response) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
+  const page: number = sanitize(req.query.page, {
+    type: "number",
+    defaultValue: 1,
+  });
+  const limit: number = sanitize(req.query.limit, {
+    type: "number",
+    defaultValue: 10,
+  });
 
   const cache = await redis.get(`artists?page=${page}&limit=${limit}`);
   if (cache) {

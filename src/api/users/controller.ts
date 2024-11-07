@@ -1,15 +1,21 @@
 import { Request, RequestHandler, Response } from "express";
 import supabase from "@/services/supabase";
 import { cloudinary } from "@/services/cloudinary";
-import utils from "@/utils";
 import redis from "@/services/redis";
+import { enforceRole, parseJWTPayload, sanitize } from "@/utils";
 
 const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
+  const page: number = sanitize(req.query.page, {
+    type: "number",
+    defaultValue: 1,
+  });
+  const limit: number = sanitize(req.query.limit, {
+    type: "number",
+    defaultValue: 10,
+  });
   const key = `users?page=${page}&limit=${limit}`;
 
-  const role = utils.enforceRole(req.headers["authorization"]);
+  const role = enforceRole(req.headers["authorization"]);
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -40,7 +46,7 @@ const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
 
 const getUserByID: RequestHandler = async (req: Request, res: Response) => {
   const key = `users?id=${req.params.id}`;
-  const role = utils.enforceRole(req.headers["authorization"]);
+  const role = enforceRole(req.headers["authorization"]);
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -75,7 +81,7 @@ const getUserByID: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const getProfile: RequestHandler = async (req: Request, res: Response) => {
-  const [payload, status] = utils.parseJWTPayload(req.headers["authorization"]);
+  const [payload, status] = parseJWTPayload(req.headers["authorization"]);
 
   if ("error" in payload) {
     res.status(status).json({ error: payload.error });
@@ -97,7 +103,7 @@ const getProfile: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const updateProfile: RequestHandler = async (req: Request, res: Response) => {
-  const [payload, status] = utils.parseJWTPayload(req.headers["authorization"]);
+  const [payload, status] = parseJWTPayload(req.headers["authorization"]);
 
   if ("error" in payload) {
     res.status(status).json({ error: payload.error });
@@ -140,7 +146,7 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const getPlaylists: RequestHandler = async (req: Request, res: Response) => {
-  const [payload, status] = utils.parseJWTPayload(req.headers["authorization"]);
+  const [payload, status] = parseJWTPayload(req.headers["authorization"]);
 
   if ("error" in payload) {
     res.status(status).json({ error: payload.error });
@@ -194,7 +200,7 @@ const upsertListenHistory: RequestHandler = async (
   res: Response,
 ) => {
   const songid = req.params.songid;
-  const [payload, status] = utils.parseJWTPayload(req.headers["authorization"]);
+  const [payload, status] = parseJWTPayload(req.headers["authorization"]);
 
   if ("error" in payload) {
     res.status(status).json({ error: payload.error });
@@ -223,7 +229,7 @@ const getFollowedArtists: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
-  const [payload, status] = utils.parseJWTPayload(req.headers["authorization"]);
+  const [payload, status] = parseJWTPayload(req.headers["authorization"]);
 
   if ("error" in payload) {
     res.status(status).json({ error: payload.error });
@@ -245,7 +251,7 @@ const getFollowedArtists: RequestHandler = async (
 
 const followArtist: RequestHandler = async (req: Request, res: Response) => {
   const artistid = req.params.artistid;
-  const [payload, status] = utils.parseJWTPayload(req.headers["authorization"]);
+  const [payload, status] = parseJWTPayload(req.headers["authorization"]);
 
   if ("error" in payload) {
     res.status(status).json({ error: payload.error });
@@ -266,7 +272,7 @@ const followArtist: RequestHandler = async (req: Request, res: Response) => {
 
 const unfollowArtist: RequestHandler = async (req: Request, res: Response) => {
   const artistid = req.params.artistid;
-  const [payload, status] = utils.parseJWTPayload(req.headers["authorization"]);
+  const [payload, status] = parseJWTPayload(req.headers["authorization"]);
 
   if ("error" in payload) {
     res.status(status).json({ error: payload.error });

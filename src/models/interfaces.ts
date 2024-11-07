@@ -9,6 +9,14 @@ export interface JWTPayload {
   };
 }
 
+export interface SanitizeOptions {
+  type: "number" | "string" | "boolean";
+  defaultValue: any;
+  min?: number;
+  max?: number;
+  allowedValues?: any[];
+}
+
 export interface ZaloOrder {
   app_id: string;
   app_trans_id: string;
@@ -35,4 +43,10 @@ export interface ZaloClient {
 export interface ZaloResult {
   return_code: number;
   return_message: string;
+}
+
+export interface OrderItem {
+  itemname: string;
+  itemprice: number;
+  itemquantity: number;
 }

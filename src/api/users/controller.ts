@@ -36,7 +36,6 @@ const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
     });
   }
   res.status(200).json({ data });
-  return;
 };
 
 const getUserByID: RequestHandler = async (req: Request, res: Response) => {
@@ -73,7 +72,6 @@ const getUserByID: RequestHandler = async (req: Request, res: Response) => {
     });
   }
   res.status(200).json({ data });
-  return;
 };
 
 const getProfile: RequestHandler = async (req: Request, res: Response) => {
@@ -126,18 +124,19 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
     ...(role && { role }),
   };
 
-  const { error: updateError } = await supabase
+  const { data, error: updateError } = await supabase
     .from("profiles")
     .update(response)
-    .eq("id", payload.sub);
+    .eq("id", payload.sub)
+    .select()
+    .single();
 
   if (updateError) {
     res.status(500).json({ error: updateError.message });
     return;
   }
 
-  res.status(202).json({ message: "User profile updated" });
-  return;
+  res.status(200).json({ data });
 };
 
 const getPlaylists: RequestHandler = async (req: Request, res: Response) => {
@@ -159,7 +158,6 @@ const getPlaylists: RequestHandler = async (req: Request, res: Response) => {
   }
 
   res.status(200).json({ data });
-  return;
 };
 
 const getListenHistory: RequestHandler = async (
@@ -189,7 +187,6 @@ const getListenHistory: RequestHandler = async (
   }
 
   res.status(200).json({ data });
-  return;
 };
 
 const upsertListenHistory: RequestHandler = async (
@@ -219,7 +216,7 @@ const upsertListenHistory: RequestHandler = async (
     return;
   }
 
-  res.status(200).json({});
+  res.status(204);
 };
 
 const getFollowedArtists: RequestHandler = async (
@@ -244,7 +241,6 @@ const getFollowedArtists: RequestHandler = async (
   }
 
   res.status(200).json({ data });
-  return;
 };
 
 const followArtist: RequestHandler = async (req: Request, res: Response) => {
@@ -265,8 +261,7 @@ const followArtist: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  res.status(200).json({ message: `Followed artist ${artistid}` });
-  return;
+  res.status(204);
 };
 
 const unfollowArtist: RequestHandler = async (req: Request, res: Response) => {
@@ -288,8 +283,7 @@ const unfollowArtist: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  res.status(200).json({ message: `Unfollowed artist ${artistid}` });
-  return;
+  res.status(204);
 };
 
 export default {

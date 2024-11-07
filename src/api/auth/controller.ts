@@ -32,7 +32,7 @@ const signUpWithEmail: RequestHandler = async (req: Request, res: Response) => {
       cloudinary.upload(req.file, "users", data.user!.id);
     }
 
-    res.status(201).json({
+    res.status(200).json({
       user: { id: data.user?.id, aud: data.user?.aud },
       session: {
         access_token: data.session?.access_token,
@@ -106,7 +106,7 @@ const signInWithGoogle: RequestHandler = async (
     return;
   }
 
-  return res.redirect(data.url);
+  res.redirect(data.url);
 };
 
 const updateUserCredentials: RequestHandler = async (
@@ -128,8 +128,7 @@ const updateUserCredentials: RequestHandler = async (
     return;
   }
 
-  res.status(200).json({ message: "User updated successfully" });
-  return;
+  res.status(204);
 };
 
 const signOut: RequestHandler = async (req: Request, res: Response) => {
@@ -140,7 +139,7 @@ const signOut: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  res.status(200).json({ message: "User signed out successfully" });
+  res.status(204);
 };
 
 export default {

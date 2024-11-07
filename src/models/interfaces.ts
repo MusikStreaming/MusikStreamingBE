@@ -1,0 +1,38 @@
+export interface JWTPayload {
+  sub: string;
+  exp: number;
+  iat?: number;
+  iss?: string;
+  aud?: string;
+  user_metadata: {
+    role: string;
+  };
+}
+
+export interface ZaloOrder {
+  app_id: string;
+  app_trans_id: string;
+  app_user?: string;
+  app_time?: number;
+  item?: any;
+  embed_data?: any;
+  amount?: number;
+  description?: string;
+  bank_code?: string;
+  mac?: string;
+  callback_url?: string;
+}
+
+export interface ZaloClient {
+  app_id: string;
+  key1: string;
+  key2: string;
+  embed_data?: {
+    redirecturl?: string;
+  };
+}
+
+export interface ZaloResult {
+  return_code: number;
+  return_message: string;
+}

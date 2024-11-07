@@ -1,13 +1,4 @@
-interface JWTPayload {
-  sub: string;
-  exp: number;
-  iat?: number;
-  iss?: string;
-  aud?: string;
-  user_metadata: {
-    role: string;
-  };
-}
+import { JWTPayload } from "./models/interfaces";
 
 const parseJWTPayload = (
   header: string | undefined,

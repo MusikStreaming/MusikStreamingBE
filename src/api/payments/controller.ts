@@ -4,24 +4,26 @@ import { Request, Response } from "express";
 const createZaloOrder = async (req: Request, res: Response) => {
   const { userid, items } = req.body;
 
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ error: "Items array cannot be empty" });
+  }
+
   if (
-    !Array.isArray(items) ||
     !items.every(
       (item) =>
-        item.hasOwnProperty("itemname") &&
+        Object.hasOwn(item, "itemname") &&
         typeof item.itemname === "string" &&
         item.itemname.trim() !== "" &&
-        item.hasOwnProperty("itemprice") &&
+        Object.hasOwn(item, "itemprice") &&
         typeof item.itemprice === "number" &&
         item.itemprice > 0 &&
-        item.hasOwnProperty("itemquantity") &&
+        Object.hasOwn(item, "itemquantity") &&
         typeof item.itemquantity === "number" &&
         item.itemquantity > 0,
     )
   ) {
     return res.status(400).json({ error: "Invalid items format or values" });
   }
-
   try {
     const data = await zalo.createOrder(userid, items);
     res.status(200).json(data);

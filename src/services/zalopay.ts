@@ -21,7 +21,7 @@ class Zalo {
         redirecturl: "https://open.hustmusik.live",
       },
     };
-    this.orderID = Math.floor(Math.random() * 1000000);
+    this.orderID = parseInt(Date.now().toString().slice(-6));
   }
 
   public createOrder = async (user_id: string, items: OrderItem[]) => {
@@ -115,6 +115,7 @@ class Zalo {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       data: new URLSearchParams(Object.entries(order)).toString(),
+      timeout: 5000,
     };
 
     try {

@@ -13,7 +13,7 @@ const getAllCollections: RequestHandler = async (
     defaultValue: 1,
     min: 1,
   });
-  const limit: number = sanitize(req.query.page, {
+  const limit: number = sanitize(req.query.limit, {
     type: "number",
     defaultValue: 10,
     min: 10,
@@ -56,7 +56,7 @@ const getAllPlaylists: RequestHandler = async (req: Request, res: Response) => {
     defaultValue: 1,
     min: 1,
   });
-  const limit: number = sanitize(req.query.page, {
+  const limit: number = sanitize(req.query.limit, {
     type: "number",
     defaultValue: 10,
     min: 10,
@@ -100,7 +100,7 @@ const getAllAlbums: RequestHandler = async (req: Request, res: Response) => {
     defaultValue: 1,
     min: 1,
   });
-  const limit: number = sanitize(req.query.page, {
+  const limit: number = sanitize(req.query.limit, {
     type: "number",
     defaultValue: 10,
     min: 10,

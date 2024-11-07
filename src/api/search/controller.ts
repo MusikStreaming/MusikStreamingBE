@@ -5,7 +5,7 @@ import { Request, RequestHandler, Response } from "express";
 
 const searchDefault: RequestHandler = async (req: Request, res: Response) => {
   const term = decodeURIComponent(req.params.term);
-  const key = `searches?term=${term}`;
+  const key = `searches?term=${encodeURIComponent(term)}`;
 
   const role = enforceRole(req.headers["authorization"]);
 
@@ -98,7 +98,7 @@ const searchSongs: RequestHandler = async (req: Request, res: Response) => {
     min: 10,
     max: 50,
   });
-  const key = `searches?cat=songs&term=${term}&page=${page}&limit=${limit}`;
+  const key = `searches?cat=songs&term=${encodeURIComponent(term)}&page=${page}&limit=${limit}`;
 
   const role = enforceRole(req.headers["authorization"]);
 
@@ -143,7 +143,7 @@ const searchArtists: RequestHandler = async (req: Request, res: Response) => {
     max: 50,
   });
 
-  const key = `searches?cat=artists&term=${term}&page=${page}&limit=${limit}`;
+  const key = `searches?cat=artists&term=${encodeURIComponent(term)}&page=${page}&limit=${limit}`;
 
   const role = enforceRole(req.headers["authorization"]);
 
@@ -188,7 +188,7 @@ const searchUsers: RequestHandler = async (req: Request, res: Response) => {
     max: 50,
   });
 
-  const key = `searches?cat=users&term=${term}&page=${page}&limit=${limit}`;
+  const key = `searches?cat=users&term=${encodeURIComponent(term)}&page=${page}&limit=${limit}`;
 
   const role = enforceRole(req.headers["authorization"]);
 
@@ -233,7 +233,7 @@ const searchPlaylists: RequestHandler = async (req: Request, res: Response) => {
     max: 50,
   });
 
-  const key = `searches?cat=playlists&term=${term}&page=${page}&limit=${limit}`;
+  const key = `searches?cat=playlists&term=${encodeURIComponent(term)}&page=${page}&limit=${limit}`;
 
   const role = enforceRole(req.headers["authorization"]);
 
@@ -278,7 +278,7 @@ const searchAlbums: RequestHandler = async (req: Request, res: Response) => {
     min: 10,
     max: 50,
   });
-  const key = `searches?cat=albums&term=${term}&page=${page}&limit=${limit}`;
+  const key = `searches?cat=albums&term=${encodeURIComponent(term)}&page=${page}&limit=${limit}`;
 
   const role = enforceRole(req.headers["authorization"]);
 

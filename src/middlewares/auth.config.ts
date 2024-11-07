@@ -15,6 +15,7 @@ export const authMiddleware: RequestHandler = async (
 
   if (!payload.sub) {
     res.status(401).json({ error: "Invalid payload, missing important field" });
+    return;
   }
 
   const sanitizedRole = sanitize(payload.user_metadata.role, {

@@ -9,10 +9,13 @@ const getAllSongs: RequestHandler = async (req: Request, res: Response) => {
   const page: number = sanitize(req.query.page, {
     type: "number",
     defaultValue: 1,
+    min: 1,
   });
-  const limit: number = sanitize(req.query.page, {
+  const limit: number = sanitize(req.query.limit, {
     type: "number",
     defaultValue: 10,
+    min: 10,
+    max: 50,
   });
 
   const key = `songs?page=${page}&limit=${limit}`;
@@ -250,7 +253,7 @@ const deleteSong: RequestHandler = async (req: Request, res: Response) => {
   backblaze.deleteObject(data.title + ".mp3");
   cloudinary.delete("songs", `i-${id}`);
 
-  res.status(204);
+  res.status(204).send();
 };
 
 export default {

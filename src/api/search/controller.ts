@@ -90,10 +90,13 @@ const searchSongs: RequestHandler = async (req: Request, res: Response) => {
   const page: number = sanitize(req.query.page, {
     type: "number",
     defaultValue: 1,
+    min: 1,
   });
   const limit: number = sanitize(req.query.limit, {
     type: "number",
     defaultValue: 20,
+    min: 10,
+    max: 50,
   });
   const key = `searches?cat=songs&term=${term}&page=${page}&limit=${limit}`;
 
@@ -131,10 +134,13 @@ const searchArtists: RequestHandler = async (req: Request, res: Response) => {
   const page: number = sanitize(req.query.page, {
     type: "number",
     defaultValue: 1,
+    min: 1,
   });
   const limit: number = sanitize(req.query.limit, {
     type: "number",
     defaultValue: 30,
+    min: 10,
+    max: 50,
   });
 
   const key = `searches?cat=artists&term=${term}&page=${page}&limit=${limit}`;
@@ -173,10 +179,13 @@ const searchUsers: RequestHandler = async (req: Request, res: Response) => {
   const page: number = sanitize(req.query.page, {
     type: "number",
     defaultValue: 1,
+    min: 1,
   });
   const limit: number = sanitize(req.query.limit, {
     type: "number",
     defaultValue: 30,
+    min: 10,
+    max: 50,
   });
 
   const key = `searches?cat=users&term=${term}&page=${page}&limit=${limit}`;
@@ -215,10 +224,13 @@ const searchPlaylists: RequestHandler = async (req: Request, res: Response) => {
   const page: number = sanitize(req.query.page, {
     type: "number",
     defaultValue: 1,
+    min: 1,
   });
   const limit: number = sanitize(req.query.limit, {
     type: "number",
     defaultValue: 30,
+    min: 10,
+    max: 50,
   });
 
   const key = `searches?cat=playlists&term=${term}&page=${page}&limit=${limit}`;
@@ -258,10 +270,13 @@ const searchAlbums: RequestHandler = async (req: Request, res: Response) => {
   const page: number = sanitize(req.query.page, {
     type: "number",
     defaultValue: 1,
+    min: 1,
   });
   const limit: number = sanitize(req.query.limit, {
     type: "number",
     defaultValue: 30,
+    min: 10,
+    max: 50,
   });
   const key = `searches?cat=albums&term=${term}&page=${page}&limit=${limit}`;
 

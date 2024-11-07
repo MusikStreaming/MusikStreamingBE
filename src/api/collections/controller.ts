@@ -11,10 +11,13 @@ const getAllCollections: RequestHandler = async (
   const page: number = sanitize(req.query.page, {
     type: "number",
     defaultValue: 1,
+    min: 1,
   });
   const limit: number = sanitize(req.query.page, {
     type: "number",
     defaultValue: 10,
+    min: 10,
+    max: 50,
   });
   const key = `collections?page=${page}&limit=${limit}`;
 
@@ -51,10 +54,13 @@ const getAllPlaylists: RequestHandler = async (req: Request, res: Response) => {
   const page: number = sanitize(req.query.page, {
     type: "number",
     defaultValue: 1,
+    min: 1,
   });
   const limit: number = sanitize(req.query.page, {
     type: "number",
     defaultValue: 10,
+    min: 10,
+    max: 50,
   });
   const key = `playlists?page=${page}&limit=${limit}`;
 
@@ -92,10 +98,13 @@ const getAllAlbums: RequestHandler = async (req: Request, res: Response) => {
   const page: number = sanitize(req.query.page, {
     type: "number",
     defaultValue: 1,
+    min: 1,
   });
   const limit: number = sanitize(req.query.page, {
     type: "number",
     defaultValue: 10,
+    min: 10,
+    max: 50,
   });
 
   const key = `albums?page=${page}&limit=${limit}`;
@@ -270,7 +279,7 @@ const addCollectionSong: RequestHandler = async (
     return;
   }
 
-  res.status(204);
+  res.status(204).send();
 };
 
 const deleteCollectionSong: RequestHandler = async (
@@ -290,7 +299,7 @@ const deleteCollectionSong: RequestHandler = async (
     return;
   }
 
-  res.status(204);
+  res.status(204).send();
 };
 
 export default {

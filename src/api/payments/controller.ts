@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 const createZaloOrder = async (req: Request, res: Response) => {
   const { userid, items, amount } = req.body;
   try {
-    const data = await zalo.createOrder(userid, items, amount);
+    const data = await zalo.createOrder(userid, items);
     res.status(200).json(data);
     return;
   } catch (err) {

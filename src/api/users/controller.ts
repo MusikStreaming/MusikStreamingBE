@@ -2,20 +2,23 @@ import { Request, RequestHandler, Response } from "express";
 import supabase from "@/services/supabase";
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
-import { enforceRole, parseJWTPayload, sanitize } from "@/utils";
+import { enforceRole, sanitize } from "@/utils";
 
 const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
   const page: number = sanitize(req.query.page, {
     type: "number",
     defaultValue: 1,
+    min: 1,
   });
   const limit: number = sanitize(req.query.limit, {
     type: "number",
     defaultValue: 10,
+    min: 10,
+    max: 50,
   });
   const key = `users?page=${page}&limit=${limit}`;
 
-  const role = enforceRole(req.headers["authorization"]);
+  const role = req.user!.role || "Anonymous";
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -46,7 +49,7 @@ const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
 
 const getUserByID: RequestHandler = async (req: Request, res: Response) => {
   const key = `users?id=${req.params.id}`;
-  const role = enforceRole(req.headers["authorization"]);
+  const role = req.user!.role || "Anonymous";
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -81,17 +84,12 @@ const getUserByID: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const getProfile: RequestHandler = async (req: Request, res: Response) => {
-  const [payload, status] = parseJWTPayload(req.headers["authorization"]);
-
-  if ("error" in payload) {
-    res.status(status).json({ error: payload.error });
-    return;
-  }
+  const id = req.user!.id;
 
   const { data, error: profileError } = await supabase
     .from("profiles")
     .select()
-    .eq("id", payload.sub)
+    .eq("id", id)
     .single();
 
   if (profileError) {
@@ -103,12 +101,7 @@ const getProfile: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const updateProfile: RequestHandler = async (req: Request, res: Response) => {
-  const [payload, status] = parseJWTPayload(req.headers["authorization"]);
-
-  if ("error" in payload) {
-    res.status(status).json({ error: payload.error });
-    return;
-  }
+  const id = req.user!.id;
 
   const { username, country, role } = req.body;
   let { avatarurl } = req.body;
@@ -119,8 +112,8 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
   }
 
   if (req.file) {
-    cloudinary.upload(req.file, "users", payload.sub);
-    avatarurl = `${process.env.CLOUDINARY_PREFIX}/users/i-${payload.sub}.jpg`;
+    cloudinary.upload(req.file, "users", id);
+    avatarurl = `${process.env.CLOUDINARY_PREFIX}/users/i-${id}.jpg`;
   }
 
   const response = {
@@ -133,7 +126,7 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
   const { data, error: updateError } = await supabase
     .from("profiles")
     .update(response)
-    .eq("id", payload.sub)
+    .eq("id", id)
     .select()
     .single();
 
@@ -146,17 +139,12 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
 };
 
 const getPlaylists: RequestHandler = async (req: Request, res: Response) => {
-  const [payload, status] = parseJWTPayload(req.headers["authorization"]);
-
-  if ("error" in payload) {
-    res.status(status).json({ error: payload.error });
-    return;
-  }
+  const id = req.user!.id;
 
   const { data, error: playlistError } = await supabase
     .from("playlists")
     .select("id, title, description, thumbnailurl, type")
-    .eq("userid", payload.sub);
+    .eq("userid", id);
 
   if (playlistError) {
     res.status(500).json({ error: playlistError.message });
@@ -200,17 +188,12 @@ const upsertListenHistory: RequestHandler = async (
   res: Response,
 ) => {
   const songid = req.params.songid;
-  const [payload, status] = parseJWTPayload(req.headers["authorization"]);
-
-  if ("error" in payload) {
-    res.status(status).json({ error: payload.error });
-    return;
-  }
+  const userid = req.user!.id;
 
   const { error: historyError } = await supabase.from("listenhistory").upsert(
     [
       {
-        userid: payload.sub,
+        userid,
         songid,
       },
     ],
@@ -222,24 +205,19 @@ const upsertListenHistory: RequestHandler = async (
     return;
   }
 
-  res.status(204);
+  res.status(204).send();
 };
 
 const getFollowedArtists: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
-  const [payload, status] = parseJWTPayload(req.headers["authorization"]);
-
-  if ("error" in payload) {
-    res.status(status).json({ error: payload.error });
-    return;
-  }
+  const id = req.user!.id;
 
   const { data, error: followError } = await supabase
     .from("follows")
     .select("artist: artists(id, name, avatarurl)")
-    .eq("userid", payload.sub);
+    .eq("userid", id);
 
   if (followError) {
     res.status(500).json({ error: followError.message });
@@ -251,45 +229,36 @@ const getFollowedArtists: RequestHandler = async (
 
 const followArtist: RequestHandler = async (req: Request, res: Response) => {
   const artistid = req.params.artistid;
-  const [payload, status] = parseJWTPayload(req.headers["authorization"]);
-
-  if ("error" in payload) {
-    res.status(status).json({ error: payload.error });
-    return;
-  }
+  const userid = req.user!.id;
 
   const { error: followError } = await supabase
     .from("follows")
-    .insert({ userid: payload.sub, artistid });
+    .insert({ userid, artistid });
 
   if (followError) {
     res.status(500).json({ error: followError.message });
     return;
   }
 
-  res.status(204);
+  res.status(204).send();
+  return;
 };
 
 const unfollowArtist: RequestHandler = async (req: Request, res: Response) => {
   const artistid = req.params.artistid;
-  const [payload, status] = parseJWTPayload(req.headers["authorization"]);
-
-  if ("error" in payload) {
-    res.status(status).json({ error: payload.error });
-    return;
-  }
+  const userid = req.user!.id;
 
   const { error: unfollowError } = await supabase
     .from("follows")
     .delete()
-    .match({ artistid, userid: payload.sub });
+    .match({ artistid, userid });
 
   if (unfollowError) {
     res.status(500).json({ error: unfollowError.message });
     return;
   }
 
-  res.status(204);
+  res.status(204).send();
 };
 
 export default {

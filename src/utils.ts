@@ -68,7 +68,7 @@ const sanitize = (value: any, options: SanitizeOptions) => {
     case "number": {
       const num = Number(value);
       if (
-        isNaN(num) ||
+        Number.isNaN(num) ||
         (options.min !== undefined && num < options.min) ||
         (options.max !== undefined && num > options.max)
       ) {

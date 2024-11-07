@@ -24,11 +24,7 @@ class Zalo {
     this.orderID = Math.floor(Math.random() * 1000000);
   }
 
-  public createOrder = async (
-    user_id: string,
-    items: OrderItem[],
-    amount: number,
-  ) => {
+  public createOrder = async (user_id: string, items: OrderItem[]) => {
     this.orderID++;
     const date = new Date();
     const order: ZaloOrder = {
@@ -59,7 +55,9 @@ class Zalo {
       order.embed_data +
       "|" +
       order.item;
-    order.mac = CryptoJS.HmacSHA256(data, this.client.key1).toString();
+    order.mac = createHmac("sha256", this.client.key1)
+      .update(data)
+      .digest("hex");
 
     const res = await axios.post(
       "https://sb-openapi.zalopay.vn/v2/create",
@@ -75,7 +73,9 @@ class Zalo {
   ): ZaloResult => {
     let result: ZaloResult;
     try {
-      let mac = CryptoJS.HmacSHA256(dataStr, this.client.key2).toString();
+      let mac = createHmac("sha256", this.client.key2)
+        .update(dataStr)
+        .digest("hex");
 
       if (reqMac !== mac) {
         result = {

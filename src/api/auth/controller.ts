@@ -128,7 +128,7 @@ const updateUserCredentials: RequestHandler = async (
     return;
   }
 
-  res.status(204);
+  res.status(204).send();
 };
 
 const signOut: RequestHandler = async (req: Request, res: Response) => {
@@ -139,7 +139,7 @@ const signOut: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  res.status(204);
+  res.status(204).send();
 };
 
 export default {

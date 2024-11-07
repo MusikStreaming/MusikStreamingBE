@@ -241,7 +241,6 @@ const followArtist: RequestHandler = async (req: Request, res: Response) => {
   }
 
   res.status(204).send();
-  return;
 };
 
 const unfollowArtist: RequestHandler = async (req: Request, res: Response) => {

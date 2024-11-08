@@ -2,6 +2,7 @@ import express, { Request } from "express";
 import "dotenv/config";
 import cors from "cors";
 import helmet from "helmet";
+import morgan from "morgan";
 import compression from "compression";
 import { IPRateLimiter } from "@/middlewares/rate-limit.config";
 import { authRoutes } from "@/api/auth/routes";
@@ -37,10 +38,7 @@ app.use(cors<Request>());
 app.use(helmet());
 
 // Logging
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  next();
-});
+app.use(morgan(":method :url :status - :response-time ms"));
 
 // End-points
 app.get("/", (req, res) => {

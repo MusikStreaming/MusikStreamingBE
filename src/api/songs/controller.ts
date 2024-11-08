@@ -144,7 +144,7 @@ const updateSong: RequestHandler = async (req: Request, res: Response) => {
 
   if (req.file) {
     cloudinary.upload(req.file, "songs", id);
-    thumbnailurl = `${process.env.CLOUDNIARY_PREFIX}/songs/i-${id}.jpg`;
+    thumbnailurl = `${process.env.CLOUDINARY_PREFIX}/songs/i-${id}.jpg`;
   }
 
   const response = {

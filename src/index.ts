@@ -15,10 +15,22 @@ import { paymentRoutes } from "@/api/payments/routes";
 const app = express();
 const port = process.env.PORT || 7554;
 
+// Compression
+app.use(
+  compression({
+    level: 6,
+    filter: (req, res) => {
+      if (req.headers["x-no-compression"]) {
+        return false;
+      }
+      return compression.filter(req, res);
+    },
+  }),
+);
+
 // Content-type
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(compression());
 
 // Security
 app.use(cors<Request>());

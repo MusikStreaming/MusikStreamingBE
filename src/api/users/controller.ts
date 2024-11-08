@@ -18,7 +18,7 @@ const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
   });
   const key = `users?page=${page}&limit=${limit}`;
 
-  const role = req.user!.role || "Anonymous";
+  const role = enforceRole(req.headers["authorization"]);
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -49,7 +49,7 @@ const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
 
 const getUserByID: RequestHandler = async (req: Request, res: Response) => {
   const key = `users?id=${req.params.id}`;
-  const role = req.user!.role || "Anonymous";
+  const role = enforceRole(req.headers["authorization"]);
 
   if (role !== "Admin") {
     const cache = await redis.get(key);

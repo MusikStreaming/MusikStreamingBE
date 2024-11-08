@@ -23,5 +23,7 @@ RUN npm install --only=production
 
 EXPOSE 7554
 
+ENV NODE_ENV production
+
 CMD ["node", "dist/index.js"]
 

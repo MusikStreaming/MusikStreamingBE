@@ -2,17 +2,31 @@ import express, { Request } from "express";
 import "dotenv/config";
 import cors from "cors";
 import helmet from "helmet";
+import compression from "compression";
+import { IPRateLimiter } from "@/middlewares/rate-limit.config";
 import { authRoutes } from "@/api/auth/routes";
 import { userRoutes } from "@/api/users/routes";
 import { songRoutes } from "@/api/songs/routes";
 import { collectionRoutes } from "@/api/collections/routes";
 import { artistRoutes } from "@/api/artists/routes";
 import { searchRoutes } from "@/api/search/routes";
-import { IPRateLimiter } from "@/middlewares/rate-limit.config";
 import { paymentRoutes } from "@/api/payments/routes";
 
 const app = express();
 const port = process.env.PORT || 7554;
+
+// Compression
+app.use(
+  compression({
+    level: 6,
+    filter: (req, res) => {
+      if (req.headers["x-no-compression"]) {
+        return false;
+      }
+      return compression.filter(req, res);
+    },
+  }),
+);
 
 // Content-type
 app.use(express.json());

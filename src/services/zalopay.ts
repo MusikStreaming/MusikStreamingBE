@@ -1,3 +1,4 @@
+import env from "@/env";
 import {
   ZaloResult,
   ZaloClient,
@@ -14,9 +15,9 @@ class Zalo {
 
   constructor() {
     this.client = {
-      app_id: process.env.ZALO_APP_ID!,
-      key1: process.env.ZALO_KEY1!,
-      key2: process.env.ZALO_KEY2!,
+      app_id: env.ZALO_APP_ID,
+      key1: env.ZALO_KEY1,
+      key2: env.ZALO_KEY2,
       embed_data: {
         redirecturl: "https://open.hustmusik.live",
       },

@@ -1,13 +1,13 @@
 import redis from "@/services/redis";
 import supabase from "@/services/supabase";
-import { enforceRole, sanitize } from "@/utils";
+import { sanitize } from "@/utils";
 import { Request, RequestHandler, Response } from "express";
 
 const searchDefault: RequestHandler = async (req: Request, res: Response) => {
   const term = decodeURIComponent(req.params.term);
   const key = `searches?term=${encodeURIComponent(term)}`;
 
-  const role = enforceRole(req.headers["authorization"]);
+  const role = req.user.role;
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -100,7 +100,7 @@ const searchSongs: RequestHandler = async (req: Request, res: Response) => {
   });
   const key = `searches?cat=songs&term=${encodeURIComponent(term)}&page=${page}&limit=${limit}`;
 
-  const role = enforceRole(req.headers["authorization"]);
+  const role = req.user.role;
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -145,7 +145,7 @@ const searchArtists: RequestHandler = async (req: Request, res: Response) => {
 
   const key = `searches?cat=artists&term=${encodeURIComponent(term)}&page=${page}&limit=${limit}`;
 
-  const role = enforceRole(req.headers["authorization"]);
+  const role = req.user.role;
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -190,7 +190,7 @@ const searchUsers: RequestHandler = async (req: Request, res: Response) => {
 
   const key = `searches?cat=users&term=${encodeURIComponent(term)}&page=${page}&limit=${limit}`;
 
-  const role = enforceRole(req.headers["authorization"]);
+  const role = req.user.role;
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -235,7 +235,7 @@ const searchPlaylists: RequestHandler = async (req: Request, res: Response) => {
 
   const key = `searches?cat=playlists&term=${encodeURIComponent(term)}&page=${page}&limit=${limit}`;
 
-  const role = enforceRole(req.headers["authorization"]);
+  const role = req.user.role;
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -280,7 +280,7 @@ const searchAlbums: RequestHandler = async (req: Request, res: Response) => {
   });
   const key = `searches?cat=albums&term=${encodeURIComponent(term)}&page=${page}&limit=${limit}`;
 
-  const role = enforceRole(req.headers["authorization"]);
+  const role = req.user.role;
 
   if (role !== "Admin") {
     const cache = await redis.get(key);

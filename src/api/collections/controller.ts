@@ -1,7 +1,8 @@
+import env from "@/env";
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
 import supabase from "@/services/supabase";
-import { enforceRole, sanitize } from "@/utils";
+import { sanitize } from "@/utils";
 import { Request, RequestHandler, Response } from "express";
 
 const getAllCollections: RequestHandler = async (
@@ -21,7 +22,7 @@ const getAllCollections: RequestHandler = async (
   });
   const key = `collections?page=${page}&limit=${limit}`;
 
-  const role = enforceRole(req.headers["authorization"]);
+  const role = req.user.role;
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -64,7 +65,7 @@ const getAllPlaylists: RequestHandler = async (req: Request, res: Response) => {
   });
   const key = `playlists?page=${page}&limit=${limit}`;
 
-  const role = enforceRole(req.headers["authorization"]);
+  const role = req.user.role;
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -109,7 +110,7 @@ const getAllAlbums: RequestHandler = async (req: Request, res: Response) => {
 
   const key = `albums?page=${page}&limit=${limit}`;
 
-  const role = enforceRole(req.headers["authorization"]);
+  const role = req.user.role;
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -146,7 +147,7 @@ const getCollectionByID: RequestHandler = async (
   const id = req.params.id;
   const key = `collections?id=${id}`;
 
-  const role = enforceRole(req.headers["authorization"]);
+  const role = req.user.role;
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -218,7 +219,7 @@ const updateCollection: RequestHandler = async (
 
   if (req.file) {
     cloudinary.upload(req.file, "collections", id);
-    thumbnailurl = `${process.env.CLOUDINARY_PREFIX}/collections/i-${id}.jpg`;
+    thumbnailurl = `${env.CLOUDINARY_PREFIX}/collections/i-${id}.jpg`;
   }
 
   const response = {

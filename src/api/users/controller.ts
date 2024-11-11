@@ -1,8 +1,9 @@
+import env from "@/env";
 import { Request, RequestHandler, Response } from "express";
 import supabase from "@/services/supabase";
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
-import { enforceRole, sanitize } from "@/utils";
+import { sanitize } from "@/utils";
 
 const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
   const page: number = sanitize(req.query.page, {
@@ -18,7 +19,7 @@ const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
   });
   const key = `users?page=${page}&limit=${limit}`;
 
-  const role = enforceRole(req.headers["authorization"]);
+  const role = req.user.role;
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -49,7 +50,7 @@ const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
 
 const getUserByID: RequestHandler = async (req: Request, res: Response) => {
   const key = `users?id=${req.params.id}`;
-  const role = enforceRole(req.headers["authorization"]);
+  const role = req.user.role;
 
   if (role !== "Admin") {
     const cache = await redis.get(key);
@@ -113,7 +114,7 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
 
   if (req.file) {
     cloudinary.upload(req.file, "users", id);
-    avatarurl = `${process.env.CLOUDINARY_PREFIX}/users/i-${id}.jpg`;
+    avatarurl = `${env.CLOUDINARY_PREFIX}/users/i-${id}.jpg`;
   }
 
   const response = {

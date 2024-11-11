@@ -27,38 +27,23 @@ const parseJWTPayload = (
   }
 };
 
-const enforceRole = (header: string | undefined): string => {
-  const [payload, status] = parseJWTPayload(header);
-
-  if ("error" in payload || status !== 200) {
-    return "Anonymous";
-  }
-
-  const userRole = sanitize(payload.user_metadata.role, {
-    type: "string",
-    defaultValue: "Anonymous",
-    allowedValues: ["Admin", "User", "Artist Manager"],
-  });
-  return userRole;
-};
+const entityMap = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+  "/": "&#x2F;",
+  "`": "&#x60;",
+  "=": "&#x3D;",
+} as const;
 
 const escapeHtml = (input: string): string => {
-  const entityMap = {
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;",
-    "/": "&#x2F;",
-    "`": "&#x60;",
-    "=": "&#x3D;",
-  };
   return String(input).replace(
     /[&<>"'`=\/]/g,
     (s) => entityMap[s as keyof typeof entityMap] || s,
   );
 };
-
 const sanitize = (value: any, options: SanitizeOptions) => {
   if (value == null || value === "") {
     return options.defaultValue;
@@ -94,4 +79,4 @@ const sanitize = (value: any, options: SanitizeOptions) => {
   }
 };
 
-export { parseJWTPayload, enforceRole, sanitize, escapeHtml };
+export { parseJWTPayload, sanitize, escapeHtml };

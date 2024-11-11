@@ -1,3 +1,4 @@
+import env from "@/env";
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
 import supabase from "@/services/supabase";
@@ -70,7 +71,7 @@ const updateArtist: RequestHandler = async (req: Request, res: Response) => {
 
   if (req.file) {
     cloudinary.upload(req.file, "artists", id);
-    avatarurl = `${process.env.CLOUDINARY_PREFIX}/artists/i-${id}.jpg`;
+    avatarurl = `${env.CLOUDINARY_PREFIX}/artists/i-${id}.jpg`;
   }
 
   const response = {

@@ -1,3 +1,4 @@
+import env from "@/env";
 import backblaze from "@/services/backblaze";
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
@@ -144,7 +145,7 @@ const updateSong: RequestHandler = async (req: Request, res: Response) => {
 
   if (req.file) {
     cloudinary.upload(req.file, "songs", id);
-    thumbnailurl = `${process.env.CLOUDINARY_PREFIX}/songs/i-${id}.jpg`;
+    thumbnailurl = `${env.CLOUDINARY_PREFIX}/songs/i-${id}.jpg`;
   }
 
   const response = {

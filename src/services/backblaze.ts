@@ -1,3 +1,4 @@
+import env from "@/env";
 import {
   DeleteObjectCommand,
   GetObjectCommand,
@@ -11,11 +12,11 @@ class Backblaze {
 
   constructor() {
     this.client = new S3Client({
-      endpoint: process.env.AWS_ENDPOINT!,
-      region: process.env.AWS_REGION!,
+      endpoint: env.AWS_ENDPOINT,
+      region: env.AWS_REGION,
       credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+        accessKeyId: env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
       },
     });
   }
@@ -25,7 +26,7 @@ class Backblaze {
     expiresIn: number,
   ): Promise<string> {
     const command = new GetObjectCommand({
-      Bucket: process.env.AWS_BUCKET,
+      Bucket: env.AWS_BUCKET,
       Key: fileName,
       ResponseContentType: "audio/mpeg",
       ResponseContentDisposition: "inline",
@@ -40,7 +41,7 @@ class Backblaze {
     expiresIn: number,
   ): Promise<string> {
     const command = new PutObjectCommand({
-      Bucket: process.env.AWS_BUCKET,
+      Bucket: env.AWS_BUCKET,
       Key: fileName,
       ContentType: "audio/mpeg",
     });
@@ -51,7 +52,7 @@ class Backblaze {
 
   public async deleteObject(fileName: string): Promise<void> {
     const command = new DeleteObjectCommand({
-      Bucket: process.env.AWS_BUCKET,
+      Bucket: env.AWS_BUCKET,
       Key: fileName,
     });
     try {

@@ -20,6 +20,21 @@ const schema = z.object({
   ZALO_KEY2: z.string(),
 });
 
-const env = schema.parse(process.env);
+export type Env = z.infer<typeof schema>;
+
+let env: Env;
+try {
+  env = schema.parse(process.env);
+} catch (error) {
+  if (error instanceof z.ZodError) {
+    console.error(
+      "❌ Invalid environment variables:",
+      JSON.stringify(error.errors, null, 2),
+    );
+  } else {
+    console.error("❌ Error parsing environment variables:", error);
+  }
+  process.exit(1);
+}
 
 export default env;

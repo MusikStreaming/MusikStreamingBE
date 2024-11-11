@@ -1,5 +1,6 @@
-import express, { Request } from "express";
 import "dotenv/config";
+import env from "./env";
+import express, { Request } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -12,9 +13,10 @@ import { collectionRoutes } from "@/api/collections/routes";
 import { artistRoutes } from "@/api/artists/routes";
 import { searchRoutes } from "@/api/search/routes";
 import { paymentRoutes } from "@/api/payments/routes";
+import { userMiddleware } from "./middlewares/user.config";
 
 const app = express();
-const port = process.env.PORT || 7554;
+const port = env.PORT || 7554;
 
 // Compression
 app.use(
@@ -49,11 +51,11 @@ app.get("/", (req, res) => {
 });
 
 app.use("/v1/auth", IPRateLimiter, authRoutes);
-app.use("/v1/user", userRoutes);
+app.use("/v1/user", userMiddleware, userRoutes);
 app.use("/v1/song", songRoutes);
-app.use("/v1/collection", collectionRoutes);
+app.use("/v1/collection", userMiddleware, collectionRoutes);
 app.use("/v1/artist", artistRoutes);
-app.use("/v1/search", searchRoutes);
+app.use("/v1/search", userMiddleware, searchRoutes);
 app.use("/v1/order", IPRateLimiter, paymentRoutes);
 
 // Server start

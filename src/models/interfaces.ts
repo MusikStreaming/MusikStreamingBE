@@ -1,9 +1,11 @@
+export interface User {
+  id: string;
+  role: "Anonymous" | "User" | "Artist Manager" | "Admin";
+}
+
 export interface JWTPayload {
   sub: string;
   exp: number;
-  iat?: number;
-  iss?: string;
-  aud?: string;
   user_metadata: {
     role: string;
   };

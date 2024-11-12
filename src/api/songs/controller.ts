@@ -2,7 +2,7 @@ import env from "@/env";
 import backblaze from "@/services/backblaze";
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
-import supabase from "@/services/supabase";
+import { supabase } from "@/services/supabase";
 import { sanitize } from "@/utils";
 import { Request, RequestHandler, Response } from "express";
 

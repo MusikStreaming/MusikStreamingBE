@@ -1,8 +1,9 @@
 import { User } from "@/models/interfaces";
+import { supabase } from "@/services/supabase";
 import { parseJWTPayload, sanitize } from "@/utils";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 
-export const userMiddleware: RequestHandler = (
+export const userMiddleware: RequestHandler = async (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -20,15 +21,20 @@ export const userMiddleware: RequestHandler = (
   const [payload, status] = parseJWTPayload(req.headers["authorization"]);
 
   if (!("error" in payload) && status === 200 && payload.sub) {
-    const role = sanitize(payload.user_metadata.role, {
-      type: "string",
-      defaultValue: "Anonymous",
-      allowedValues: ["Admin", "User", "Artist Manager"],
-    });
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", payload.sub)
+      .single();
+
+    if (error) {
+      req.user = user;
+      return next();
+    }
 
     user = {
       id: payload.sub,
-      role,
+      role: data.role || "Anonymous",
     };
   }
 

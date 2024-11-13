@@ -1,5 +1,5 @@
 import { cloudinary } from "@/services/cloudinary";
-import supabase from "@/services/supabase";
+import { supabase, supabasePro } from "@/services/supabase";
 import { Request, RequestHandler, Response } from "express";
 
 const signUpWithEmail: RequestHandler = async (req: Request, res: Response) => {
@@ -32,8 +32,22 @@ const signUpWithEmail: RequestHandler = async (req: Request, res: Response) => {
       cloudinary.upload(req.file, "users", data.user!.id);
     }
 
+    const { data: roleData, error: roleError } = await supabasePro
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user!.id)
+      .single();
+
+    if (!roleData || roleError) {
+      res.status(502).json({
+        error:
+          "User created successfully but failed to fetch metadata, please direct users to sign in endpoint",
+      });
+      return;
+    }
+
     res.status(200).json({
-      user: { id: data.user?.id, aud: data.user?.aud },
+      user: { id: data.user?.id, aud: data.user?.aud, role: roleData?.role },
       session: {
         access_token: data.session?.access_token,
         expires_in: data.session?.expires_in,
@@ -70,8 +84,23 @@ const signInWithEmail: RequestHandler = async (req: Request, res: Response) => {
       return;
     }
 
+    const { data: roleData, error: roleError } = await supabasePro
+      .from("profiles")
+      .select("role")
+      .eq("id", data.user!.id)
+      .single();
+
+    if (!roleData || roleError) {
+      res.setHeader("Retry-After", "3");
+      res.status(503).json({
+        error:
+          "User signed in successfully but failed to fetch metadata, please try again",
+      });
+      return;
+    }
+
     res.status(200).json({
-      user: { id: data.user?.id, aud: data.user?.aud },
+      user: { id: data.user?.id, aud: data.user?.aud, role: roleData?.role },
       session: {
         access_token: data.session?.access_token,
         expires_in: data.session?.expires_in,

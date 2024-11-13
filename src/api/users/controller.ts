@@ -1,6 +1,6 @@
 import env from "@/env";
 import { Request, RequestHandler, Response } from "express";
-import supabase from "@/services/supabase";
+import { supabase } from "@/services/supabase";
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
 import { sanitize } from "@/utils";

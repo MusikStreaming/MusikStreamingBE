@@ -8,7 +8,12 @@ const schema = z.object({
   SUPABASE_URL: z
     .string({ required_error: "SUPABASE_URL is required" })
     .url("Exprected SUPABASE_URL to be url"),
-  SUPABASE_KEY: z.string({ required_error: "SUPABASE_KEY is required" }),
+  SUPABASE_ANON_KEY: z.string({
+    required_error: "SUPABASE_ANON_KEY is required",
+  }),
+  SUPABASE_SERVICE_KEY: z.string({
+    required_error: "SUPABASE_SERVICE_KEY is required",
+  }),
   AWS_ENDPOINT: z
     .string({ required_error: "AWS_ENDPOINT is required" })
     .url("Expected AWS_ENDPOINT to be url"),

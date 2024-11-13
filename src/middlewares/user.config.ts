@@ -27,7 +27,7 @@ export const userMiddleware: RequestHandler = async (
       .eq("id", payload.sub)
       .single();
 
-    if (error) {
+    if (error || !data) {
       req.user = user;
       return next();
     }

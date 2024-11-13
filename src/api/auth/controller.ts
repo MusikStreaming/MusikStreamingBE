@@ -38,11 +38,12 @@ const signUpWithEmail: RequestHandler = async (req: Request, res: Response) => {
       .eq("id", data.user!.id)
       .single();
 
-    if (!roleData) {
+    if (!roleData || roleError) {
       res.status(502).json({
         error:
           "User created successfully but failed to fetch metadata, please direct users to sign in endpoint",
       });
+      return;
     }
 
     res.status(200).json({
@@ -83,18 +84,19 @@ const signInWithEmail: RequestHandler = async (req: Request, res: Response) => {
       return;
     }
 
-    const { data: roleData } = await supabasePro
+    const { data: roleData, error: roleError } = await supabasePro
       .from("profiles")
       .select("role")
       .eq("id", data.user!.id)
       .single();
 
-    if (!roleData) {
+    if (!roleData || roleError) {
       res.setHeader("Retry-After", "3");
       res.status(503).json({
         error:
           "User signed in successfully but failed to fetch metadata, please try again",
       });
+      return;
     }
 
     res.status(200).json({

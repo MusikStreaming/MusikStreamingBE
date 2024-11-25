@@ -55,8 +55,17 @@ const getSongByID: RequestHandler = async (req: Request, res: Response) => {
 
   const { data, error } = await supabase
     .from("songs")
-    .select()
+    .select(
+      `
+      *,
+      artists:artists(id, name, avatarurl),
+      albums:playlistssongs(
+        album:playlists(id, title, type, thumbnailurl)
+      )
+    `,
+    )
     .eq("id", req.params.id)
+    .eq("playlistssongs.playlists.type", "Album")
     .single();
 
   if (error) {

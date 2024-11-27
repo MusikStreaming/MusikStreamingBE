@@ -29,7 +29,7 @@ const getAllSongs: RequestHandler = async (req: Request, res: Response) => {
 
   const { data, error } = await supabase
     .from("songs")
-    .select()
+    .select("*, artists: artistssongs(artist: artists(id, name))")
     .range((page - 1) * limit, page * limit - 1);
 
   if (error) {

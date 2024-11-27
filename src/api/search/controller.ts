@@ -28,7 +28,9 @@ const searchDefault: RequestHandler = async (req: Request, res: Response) => {
     ] = await Promise.all([
       supabase
         .from("songs")
-        .select("id, title, thumbnailurl, duration")
+        .select(
+          "id, title, thumbnailurl, duration, artists: artistssongs(artist: artists(id, name))",
+        )
         .textSearch("title", term)
         .range(0, 19),
       supabase
@@ -113,7 +115,9 @@ const searchSongs: RequestHandler = async (req: Request, res: Response) => {
 
   const { data, error } = await supabase
     .from("songs")
-    .select("id, title, thumbnailurl, duration")
+    .select(
+      "id, title, thumbnailurl, duration, artists: artistssongs(artist: artists(id, name))",
+    )
     .textSearch("title", term)
     .range((page - 1) * limit, page * limit - 1);
 

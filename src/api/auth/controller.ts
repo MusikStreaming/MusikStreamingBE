@@ -34,7 +34,7 @@ const signUpWithEmail: RequestHandler = async (req: Request, res: Response) => {
 
     const { data: roleData, error: roleError } = await supabasePro
       .from("profiles")
-      .select("role")
+      .select("username, role")
       .eq("id", data.user!.id)
       .single();
 
@@ -47,7 +47,12 @@ const signUpWithEmail: RequestHandler = async (req: Request, res: Response) => {
     }
 
     res.status(200).json({
-      user: { id: data.user?.id, aud: data.user?.aud, role: roleData?.role },
+      user: {
+        id: data.user?.id,
+        aud: data.user?.aud,
+        username: roleData.username,
+        role: roleData.role,
+      },
       session: {
         access_token: data.session?.access_token,
         expires_in: data.session?.expires_in,
@@ -86,7 +91,7 @@ const signInWithEmail: RequestHandler = async (req: Request, res: Response) => {
 
     const { data: roleData, error: roleError } = await supabasePro
       .from("profiles")
-      .select("role")
+      .select("username, role")
       .eq("id", data.user!.id)
       .single();
 
@@ -100,7 +105,12 @@ const signInWithEmail: RequestHandler = async (req: Request, res: Response) => {
     }
 
     res.status(200).json({
-      user: { id: data.user?.id, aud: data.user?.aud, role: roleData?.role },
+      user: {
+        id: data.user?.id,
+        aud: data.user?.aud,
+        username: roleData.username,
+        role: roleData.role,
+      },
       session: {
         access_token: data.session?.access_token,
         expires_in: data.session?.expires_in,

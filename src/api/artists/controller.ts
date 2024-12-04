@@ -18,7 +18,9 @@ const getAllArtists: RequestHandler = async (req: Request, res: Response) => {
     max: 50,
   });
 
-  const cache = await redis.get(`artists?page=${page}&limit=${limit}`);
+  const key = `artists?page=${page}&limit=${limit}`;
+
+  const cache = await redis.get(key);
   if (cache) {
     console.log("Fetch data from cache");
     res.status(200).json(cache);
@@ -36,14 +38,15 @@ const getAllArtists: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  redis.set(`artists?page=${page}&limit=${limit}`, JSON.stringify({ data }), {
+  redis.set(key, JSON.stringify({ data }), {
     ex: 300,
   });
   res.status(200).json({ data });
 };
 
 const getArtistByID: RequestHandler = async (req: Request, res: Response) => {
-  const cache = await redis.get(`artists?id=${req.params.id}`);
+  const key = `artists?id=${req.params.id}`;
+  const cache = await redis.get(key);
   if (cache) {
     console.log("Fetch data from cache");
     res.status(200).json(cache);
@@ -60,7 +63,80 @@ const getArtistByID: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  redis.set(`artists?id=${req.params.id}`, JSON.stringify(data), { ex: 300 });
+  redis.set(key, JSON.stringify(data), { ex: 300 });
+  res.status(200).json({ data });
+};
+
+const getArtistSongsByID: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  const key = `artists?id=${req.params.id}&show_songs=true`;
+  const cache = await redis.get(key);
+  if (cache) {
+    console.log("Fetch data from cache");
+    res.status(200).json(cache);
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("artistssongs")
+    .select("song: songs(id, title, thumbnailurl)")
+    .eq("artistid", req.params.id)
+    .limit(10);
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  redis.set(key, JSON.stringify(data), { ex: 300 });
+  res.status(200).json({ data });
+};
+
+const getArtistAlbumsByID: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  const key = `artists?id=${req.params.id}&show_albums=true`;
+  const cache = await redis.get(key);
+  if (cache) {
+    console.log("Fetch data from cache");
+    res.status(200).json(cache);
+    return;
+  }
+
+  const { data: managerData, error: managerError } = await supabase
+    .from("artists")
+    .select("managerid")
+    .eq("id", req.params.id)
+    .single();
+
+  if (managerError) {
+    res.status(500).json({ error: managerError.message });
+    return;
+  }
+
+  if (!managerData) {
+    res.status(404).json({
+      error: "Artist not found or found but unable to link to an album",
+    });
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("playlists")
+    .select("id, title, thumbnailurl")
+    .in("type", ["Album", "Single", "EP"])
+    .eq("userid", managerData.managerid)
+    .limit(10);
+
+  if (error) {
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  redis.set(key, JSON.stringify(data), { ex: 300 });
   res.status(200).json({ data });
 };
 
@@ -147,6 +223,8 @@ const deleteArtist: RequestHandler = async (req: Request, res: Response) => {
 export default {
   getAllArtists,
   getArtistByID,
+  getArtistSongsByID,
+  getArtistAlbumsByID,
   addArtist,
   updateArtist,
   deleteArtist,

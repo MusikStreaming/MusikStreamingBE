@@ -12,8 +12,6 @@ router.get("/:id/songs", controller.getArtistSongsByID);
 
 router.get("/:id/albums", controller.getArtistAlbumsByID);
 
-router.get(":/id/");
-
 router.post("/", storage.single("file"), controller.addArtist);
 
 router.post("/:id", storage.single("file"), controller.updateArtist);

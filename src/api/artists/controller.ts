@@ -117,6 +117,13 @@ const getArtistAlbumsByID: RequestHandler = async (
     return;
   }
 
+  if (!managerData) {
+    res.status(404).json({
+      error: "Artist not found or found but unable to link to an album",
+    });
+    return;
+  }
+
   const { data, error } = await supabase
     .from("playlists")
     .select("id, title, thumbnailurl")

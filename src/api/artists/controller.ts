@@ -126,7 +126,7 @@ const getArtistAlbumsByID: RequestHandler = async (
 
   const { data, error } = await supabase
     .from("playlists")
-    .select("id, title, thumbnailurl")
+    .select("id, title, thumbnailurl, created_at")
     .in("type", ["Album", "Single", "EP"])
     .eq("userid", managerData.managerid)
     .limit(10);

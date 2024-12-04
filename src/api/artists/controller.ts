@@ -128,7 +128,8 @@ const getArtistAlbumsByID: RequestHandler = async (
     .from("playlists")
     .select("id, title, thumbnailurl")
     .in("type", ["Album", "Single", "EP"])
-    .eq("userid", managerData.managerid);
+    .eq("userid", managerData.managerid)
+    .limit(10);
 
   if (error) {
     res.status(500).json({ error: error.message });

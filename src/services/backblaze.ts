@@ -7,9 +7,24 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
+/**
+ * A service that provides Blob storage, needed to store files like music or video and supports streaming.
+ *
+ * The `Backblaze` class provides methods to manage files such as adding, deleting and download/streaming.
+ *
+ * @class
+ */
 class Backblaze {
+  /**
+   * A S3 client to interact with.
+   */
   private readonly client: S3Client;
 
+  /**
+   * Creates a new connection to Backblaze (please only do this once when running the app and do connection polling).
+   *
+   * @constructor
+   */
   constructor() {
     this.client = new S3Client({
       endpoint: env.AWS_ENDPOINT,
@@ -21,6 +36,15 @@ class Backblaze {
     });
   }
 
+  /**
+   * Generates a presigned url that only works in the time frame of choice.
+   * Used for downloading/streaming.
+   * @async
+   * @function generatePresignedDownloadURL
+   * @param {string} fileName - The name of the file after urlencoded.
+   * @param {number} expiresIn - The time of link expiration, in seconds.
+   * @returns {Promise<string>} A promise that contains the signed url
+   */
   public async generatePresignedDownloadURL(
     fileName: string,
     expiresIn: number,
@@ -36,6 +60,15 @@ class Backblaze {
     return signedUrl;
   }
 
+  /**
+   * Generates a presigned url that only works in the time frame of choice.
+   * Used for uploading.
+   * @async
+   * @function generatePresignedUploadURL
+   * @param {string} fileName - The name of the file after urlencoded.
+   * @param {number} expiresIn - The time of link expiration, in seconds.
+   * @returns {Promise<string>} A promise that contains the signed url
+   */
   public async generatePresignedUploadURL(
     fileName: string,
     expiresIn: number,
@@ -50,6 +83,13 @@ class Backblaze {
     return signedUrl;
   }
 
+  /**
+   * Deletes a file in the storage
+   * @async
+   * @function deleteObject
+   * @param {string} fileName - The name of the file after urlencoded.
+   * @returns {Promise<void>} Must have been the wind...
+   */
   public async deleteObject(fileName: string): Promise<void> {
     const command = new DeleteObjectCommand({
       Bucket: env.AWS_BUCKET,

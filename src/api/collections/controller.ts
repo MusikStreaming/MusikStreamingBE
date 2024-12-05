@@ -161,7 +161,7 @@ const getCollectionByID: RequestHandler = async (
   const { data, error } = await supabase
     .from("playlists")
     .select(
-      "id, title, description, type, thumbnailurl, profiles (id, username, avatarurl), songs: playlistssongs (song: songs (id, title, thumbnailurl, duration))",
+      "id, title, description, type, thumbnailurl, owner: profiles(id, username, avatarurl), songs: playlistssongs (song: songs (id, title, thumbnailurl, duration, artists(id, name)))",
     )
     .eq("id", id)
     .single();

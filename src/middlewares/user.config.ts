@@ -3,6 +3,13 @@ import { supabase } from "@/services/supabase";
 import { parseJWTPayload, sanitize } from "@/utils";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 
+/**
+ * Extracts the user information and validate from JWT authentication
+ *
+ * This middleware extracts info from JWT payload, then validate if the user exist and have the correct role.
+ *
+ * If the cannot be found in database (anonymous or error), the role will be defaulted to "Anonymous"
+ */
 export const userMiddleware: RequestHandler = async (
   req: Request,
   res: Response,

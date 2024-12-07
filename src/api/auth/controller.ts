@@ -158,11 +158,11 @@ const handleOAuthCallback: RequestHandler = async (
 ) => {
   const callbackAddr = new URL(
     "/api/auth/callback",
-    env.BASE_URL.replace("*", "open"),
+    env.BASE_URL.replace(/\*/g, "open"),
   ).toString();
   const redirectAddr = new URL(
     "/auth/callback",
-    env.BASE_URL.replace("*", "open"),
+    env.BASE_URL.replace(/\*/g, "open"),
   ).toString();
 
   const { code } = req.query;

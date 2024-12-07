@@ -1,12 +1,12 @@
 import { Router } from "express";
-import controller from "./controller";
+import { PaymentController } from "./controller";
 
 const router = Router();
 
-router.post("/checkout", controller.createZaloOrder);
+router.post("/checkout", PaymentController.createZaloOrder);
 
-router.post("/checkout/callback", controller.receiveZaloCallback);
+router.post("/checkout/callback", PaymentController.receiveZaloCallback);
 
-router.post("/:id", controller.getZaloOrderStatus);
+router.post("/:id", PaymentController.getZaloOrderStatus);
 
 export { router as paymentRoutes };

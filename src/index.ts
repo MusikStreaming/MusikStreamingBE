@@ -5,15 +5,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import compression from "compression";
-import { IPRateLimiter } from "@/middlewares/rate-limit.config";
-import { authRoutes } from "@/api/auth/routes";
-import { userRoutes } from "@/api/users/routes";
-import { songRoutes } from "@/api/songs/routes";
-import { collectionRoutes } from "@/api/collections/routes";
-import { artistRoutes } from "@/api/artists/routes";
-import { searchRoutes } from "@/api/search/routes";
-import { paymentRoutes } from "@/api/payments/routes";
-import { userMiddleware } from "./middlewares/user.config";
+import { apiRoutes } from "./api/routes";
 
 const app = express();
 const port = env.PORT || 7554;
@@ -43,20 +35,7 @@ app.use(helmet());
 app.use(morgan(":method :url :status - :response-time ms"));
 
 // End-points
-app.get("/", (req, res) => {
-  res.status(200).json({
-    msg: "Server is healthy",
-    last_checked: new Date().toISOString(),
-  });
-});
-
-app.use("/v1/auth", IPRateLimiter, authRoutes);
-app.use("/v1/user", userMiddleware, userRoutes);
-app.use("/v1/song", songRoutes);
-app.use("/v1/collection", userMiddleware, collectionRoutes);
-app.use("/v1/artist", artistRoutes);
-app.use("/v1/search", userMiddleware, searchRoutes);
-app.use("/v1/order", IPRateLimiter, paymentRoutes);
+app.use("/", apiRoutes);
 
 // Server start
 app.listen(port, () => {

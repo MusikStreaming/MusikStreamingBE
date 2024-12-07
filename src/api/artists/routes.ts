@@ -1,21 +1,21 @@
 import { Router } from "express";
-import controller from "./controller";
 import { storage } from "@/middlewares/multer.config";
+import { ArtistController } from "./controller";
 
 const router = Router();
 
-router.get("/", controller.getAllArtists);
+router.get("/", ArtistController.getAllArtists);
 
-router.get("/:id", controller.getArtistByID);
+router.get("/:id", ArtistController.getArtistByID);
 
-router.get("/:id/songs", controller.getArtistSongsByID);
+router.get("/:id/songs", ArtistController.getArtistSongsByID);
 
-router.get("/:id/albums", controller.getArtistAlbumsByID);
+router.get("/:id/albums", ArtistController.getArtistAlbumsByID);
 
-router.post("/", storage.single("file"), controller.addArtist);
+router.post("/", storage.single("file"), ArtistController.addArtist);
 
-router.post("/:id", storage.single("file"), controller.updateArtist);
+router.post("/:id", storage.single("file"), ArtistController.updateArtist);
 
-router.delete("/:id", controller.deleteArtist);
+router.delete("/:id", ArtistController.deleteArtist);
 
 export { router as artistRoutes };

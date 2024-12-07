@@ -42,7 +42,10 @@ const receiveZaloCallback: RequestHandler = (req: Request, res: Response) => {
   res.json(result);
 };
 
-const getZaloOrderStatus: RequestHandler = async (req: Request, res: Response) => {
+const getZaloOrderStatus: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
   const id = req.params.id;
   try {
     const result = await zalo.getOrderStatus(id);
@@ -52,4 +55,10 @@ const getZaloOrderStatus: RequestHandler = async (req: Request, res: Response) =
   }
 };
 
-export default { createZaloOrder, receiveZaloCallback, getZaloOrderStatus };
+const PaymentController = {
+  createZaloOrder,
+  receiveZaloCallback,
+  getZaloOrderStatus,
+};
+
+export { PaymentController };

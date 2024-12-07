@@ -1,22 +1,26 @@
 import { Router } from "express";
-import controller from "./controller";
 import { storage } from "@/middlewares/multer.config";
+import { CollectionController } from "./controller";
 
 const router = Router();
 
 // Query collections
-router.get("/", controller.getAllCollections);
-router.get("/playlists", controller.getAllPlaylists);
-router.get("/albums", controller.getAllAlbums);
-router.get("/:id", controller.getCollectionByID);
+router.get("/", CollectionController.getAllCollections);
+router.get("/playlists", CollectionController.getAllPlaylists);
+router.get("/albums", CollectionController.getAllAlbums);
+router.get("/:id", CollectionController.getCollectionByID);
 
 // Add/Remove collection
-router.post("/", storage.single("file"), controller.addCollection);
-router.post("/:id", storage.single("file"), controller.updateCollection);
-router.delete("/:id", controller.deleteCollection);
+router.post("/", storage.single("file"), CollectionController.addCollection);
+router.post(
+  "/:id",
+  storage.single("file"),
+  CollectionController.updateCollection,
+);
+router.delete("/:id", CollectionController.deleteCollection);
 
 // Add/Remove songs from collection
-router.post("/:id/songs/:songid", controller.addCollectionSong);
-router.delete("/:id/songs/:songid", controller.deleteCollectionSong);
+router.post("/:id/songs/:songid", CollectionController.addCollectionSong);
+router.delete("/:id/songs/:songid", CollectionController.deleteCollectionSong);
 
 export { router as collectionRoutes };

@@ -1,17 +1,17 @@
 import express from "express";
-import controller from "./controller";
 import { storage } from "@/middlewares/multer.config";
+import { AuthController } from "./controller";
 
 const router = express.Router();
 
-router.post("/signup", storage.single("file"), controller.signUpWithEmail);
+router.post("/signup", storage.single("file"), AuthController.signUpWithEmail);
 
-router.post("/signin", controller.signInWithEmail);
+router.post("/signin", AuthController.signInWithEmail);
 
-router.get("/oauth/", controller.signInWithGoogle);
+router.get("/oauth/", AuthController.signInWithGoogle);
 
-router.post("/credentials", controller.updateUserCredentials);
+router.post("/credentials", AuthController.updateUserCredentials);
 
-router.get("/signout", controller.signOut);
+router.get("/signout", AuthController.signOut);
 
 export { router as authRoutes };

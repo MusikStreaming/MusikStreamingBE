@@ -313,7 +313,7 @@ const searchAlbums: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
-export default {
+const SearchController = {
   searchDefault,
   searchSongs,
   searchUsers,
@@ -321,3 +321,5 @@ export default {
   searchPlaylists,
   searchArtists,
 };
+
+export { SearchController };

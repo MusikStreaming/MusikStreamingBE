@@ -261,7 +261,7 @@ const unfollowArtist: RequestHandler = async (req: Request, res: Response) => {
   res.status(204).send();
 };
 
-export default {
+const UserController = {
   getAllUsers,
   getUserByID,
   getProfile,
@@ -273,3 +273,5 @@ export default {
   followArtist,
   unfollowArtist,
 };
+
+export { UserController };

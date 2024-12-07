@@ -156,19 +156,20 @@ const handleOAuthCallback: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
+  const callbackAddr = `${env.BASE_URL.replace(/\*/g, "open")}/api/auth/callback`;
+  const redirectAddr = `${env.BASE_URL.replace(/\*/g, "open")}/auth/callback`;
+
   const { code } = req.query;
 
   if (!code) {
-    res.status(400).json({ error: "Missing authorization code" });
-    return;
+    return res.status(400).redirect(redirectAddr);
   }
 
   const { data: tokenData, error: tokenError } =
     await supabase.auth.exchangeCodeForSession(code as string);
 
   if (tokenError) {
-    res.status(500).json({ error: tokenError.message });
-    return;
+    return res.status(500).redirect(redirectAddr);
   }
 
   const { access_token, refresh_token, expires_in, user } = tokenData.session;
@@ -184,13 +185,12 @@ const handleOAuthCallback: RequestHandler = async (
     .single();
 
   if (userError) {
-    res.status(status ?? 500).json({ error: userError.message });
-    return;
+    return res.status(status ?? 500).redirect(redirectAddr);
   }
 
   try {
     await axios.post(
-      `${env.BASE_URL.replace(/\*/g, "open")}/auth/callback`,
+      callbackAddr,
       {
         user: {
           id: user.id,
@@ -211,11 +211,9 @@ const handleOAuthCallback: RequestHandler = async (
       },
     );
 
-    res.status(200).json({ message: "OAuth callback success" });
-    return;
+    return res.redirect(redirectAddr);
   } catch (error) {
-    res.status(500).json({ error });
-    return;
+    return res.status(500).redirect(redirectAddr);
   }
 };
 

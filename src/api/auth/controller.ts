@@ -135,7 +135,7 @@ const signInWithGoogle: RequestHandler = async (
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${env.BASE_URL.replace("*", "api")}/v1/auth/oauth/callback`,
+      redirectTo: `${env.BASE_URL.replace(/\*/g, "api")}/v1/auth/oauth/callback`,
     },
   });
 
@@ -190,7 +190,7 @@ const handleOAuthCallback: RequestHandler = async (
 
   try {
     await axios.post(
-      `${env.BASE_URL.replace("*", "open")}/auth/callback`,
+      `${env.BASE_URL.replace(/\*/g, "open")}/auth/callback`,
       {
         user: {
           id: user.id,

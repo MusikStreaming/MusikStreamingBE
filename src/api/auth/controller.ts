@@ -156,19 +156,32 @@ const handleOAuthCallback: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
+  const callbackAddr = new URL(
+    "/api/auth/callback",
+    env.BASE_URL.replace(/\*/g, "open"),
+  ).toString();
+  const redirectAddr = new URL(
+    "/auth/callback",
+    env.BASE_URL.replace(/\*/g, "open"),
+  ).toString();
+
   const { code } = req.query;
 
   if (!code) {
-    res.status(400).json({ error: "Missing authorization code" });
-    return;
+    const codeErrorParams = new URLSearchParams({
+      error: "code missing",
+    });
+    return res.status(400).redirect(`${redirectAddr}?${codeErrorParams}`);
   }
 
   const { data: tokenData, error: tokenError } =
     await supabase.auth.exchangeCodeForSession(code as string);
 
   if (tokenError) {
-    res.status(500).json({ error: tokenError.message });
-    return;
+    const tokenErrorParams = new URLSearchParams({
+      error: "token exchange failed",
+    });
+    return res.status(500).redirect(`${redirectAddr}?${tokenErrorParams}`);
   }
 
   const { access_token, refresh_token, expires_in, user } = tokenData.session;
@@ -184,13 +197,17 @@ const handleOAuthCallback: RequestHandler = async (
     .single();
 
   if (userError) {
-    res.status(status ?? 500).json({ error: userError.message });
-    return;
+    const userErrorParams = new URLSearchParams({
+      error: "user fetch failed",
+    });
+    return res
+      .status(status ?? 500)
+      .redirect(`${redirectAddr}?${userErrorParams}`);
   }
 
   try {
     await axios.post(
-      `${env.BASE_URL.replace(/\*/g, "open")}/auth/callback`,
+      callbackAddr,
       {
         user: {
           id: user.id,
@@ -211,11 +228,13 @@ const handleOAuthCallback: RequestHandler = async (
       },
     );
 
-    res.status(200).json({ message: "OAuth callback success" });
-    return;
+    return res.redirect(redirectAddr);
   } catch (error) {
-    res.status(500).json({ error });
-    return;
+    console.error(error);
+    const unknownErrorParams = new URLSearchParams({
+      error: "Unhandled exception",
+    });
+    return res.status(500).redirect(`${redirectAddr}?${unknownErrorParams}`);
   }
 };
 

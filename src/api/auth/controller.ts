@@ -149,7 +149,7 @@ const signInWithGoogle: RequestHandler = async (
     return;
   }
 
-  res.redirect(data.url);
+  res.status(200).json({ url: data.url });
 };
 
 const handleOAuthCallback: RequestHandler = async (

@@ -156,20 +156,32 @@ const handleOAuthCallback: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
-  const callbackAddr = `${env.BASE_URL.replace(/\*/g, "open")}/api/auth/callback`;
-  const redirectAddr = `${env.BASE_URL.replace(/\*/g, "open")}/auth/callback`;
+  const callbackAddr = new URL(
+    "/api/auth/callback",
+    env.BASE_URL.replace("*", "open"),
+  ).toString();
+  const redirectAddr = new URL(
+    "/auth/callback",
+    env.BASE_URL.replace("*", "open"),
+  ).toString();
 
   const { code } = req.query;
 
   if (!code) {
-    return res.status(400).redirect(redirectAddr);
+    const codeErrorParams = new URLSearchParams({
+      error: "code missing",
+    });
+    return res.status(400).redirect(`${redirectAddr}?${codeErrorParams}`);
   }
 
   const { data: tokenData, error: tokenError } =
     await supabase.auth.exchangeCodeForSession(code as string);
 
   if (tokenError) {
-    return res.status(500).redirect(redirectAddr);
+    const tokenErrorParams = new URLSearchParams({
+      error: "token exchange failed",
+    });
+    return res.status(500).redirect(`${redirectAddr}?${tokenErrorParams}`);
   }
 
   const { access_token, refresh_token, expires_in, user } = tokenData.session;
@@ -185,7 +197,12 @@ const handleOAuthCallback: RequestHandler = async (
     .single();
 
   if (userError) {
-    return res.status(status ?? 500).redirect(redirectAddr);
+    const userErrorParams = new URLSearchParams({
+      error: "user fetch failed",
+    });
+    return res
+      .status(status ?? 500)
+      .redirect(`${redirectAddr}?${userErrorParams}`);
   }
 
   try {
@@ -213,7 +230,11 @@ const handleOAuthCallback: RequestHandler = async (
 
     return res.redirect(redirectAddr);
   } catch (error) {
-    return res.status(500).redirect(redirectAddr);
+    console.error(error);
+    const unknownErrorParams = new URLSearchParams({
+      error: "Unhandled exception",
+    });
+    return res.status(500).redirect(`${redirectAddr}?${unknownErrorParams}`);
   }
 };
 

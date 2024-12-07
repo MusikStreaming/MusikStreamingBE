@@ -104,52 +104,13 @@ const generatePresignedDownloadURL: RequestHandler = async (
   const fileName: string = `${data.artist.name}/${data.song.title.replace(/\s+/g, "_")}.mp3`;
   let url: string;
   try {
-    url = await backblaze.generatePresignedDownloadURL(fileName, 1800);
+    url = await backblaze.generatePresignedDownloadURL(fileName, 3600);
   } catch (err) {
     res.status(500).json({ error: `Error generating pre-signed URL: ${err}` });
     return;
   }
 
   res.status(200).json({ url });
-};
-
-const generatePresignedDownloadURLv2: RequestHandler = async (
-  req: Request,
-  res: Response,
-) => {
-  const id = req.params.id;
-
-  const { data, error } = await supabase
-    .from("artistssongs")
-    .select("artist: artists (name), song: songs (title)")
-    .match({ relation: "Primary", songid: id })
-    .single();
-
-  if (error) {
-    res.status(500).json({ error: error.message });
-    return;
-  }
-
-  if (!data.song || !data.artist) {
-    res.status(404).json({ error: "Artist or Song does not exist" });
-    return;
-  }
-
-  const fileName: string = `${data.artist.name}/${data.song.title.replace(/\s+/g, "_")}.mp3`;
-  let url: string;
-  try {
-    url = await backblaze.generatePresignedDownloadURL(fileName, 1800);
-  } catch (err) {
-    res.status(500).json({ error: `Error generating pre-signed URL: ${err}` });
-    return;
-  }
-
-  res.set({
-    "Content-Type": "audio/mpeg",
-    "Cache-Control": "public, max-age=2592000, immutable",
-  });
-
-  return res.redirect(url);
 };
 
 const generatePresignedUploadURL: RequestHandler = async (
@@ -310,7 +271,6 @@ const SongController = {
   getSongByID,
   addSong,
   generatePresignedDownloadURL,
-  generatePresignedDownloadURLv2,
   generatePresignedUploadURL,
   updateSong,
   deleteSong,

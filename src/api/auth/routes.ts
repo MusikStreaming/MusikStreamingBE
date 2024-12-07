@@ -10,6 +10,8 @@ router.post("/signin", AuthController.signInWithEmail);
 
 router.get("/oauth/", AuthController.signInWithGoogle);
 
+router.get("/oauth/callback", AuthController.handleOAuthCallback);
+
 router.post("/credentials", AuthController.updateUserCredentials);
 
 router.get("/signout", AuthController.signOut);

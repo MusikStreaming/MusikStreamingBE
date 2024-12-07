@@ -181,10 +181,12 @@ const signOut: RequestHandler = async (req: Request, res: Response) => {
   res.status(204).send();
 };
 
-export default {
+const AuthController = {
   signInWithEmail,
   signUpWithEmail,
   signInWithGoogle,
   updateUserCredentials,
   signOut,
 };
+
+export { AuthController };

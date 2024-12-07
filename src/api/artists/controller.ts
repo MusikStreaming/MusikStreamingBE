@@ -220,7 +220,7 @@ const deleteArtist: RequestHandler = async (req: Request, res: Response) => {
   res.status(204).send();
 };
 
-export default {
+const ArtistController = {
   getAllArtists,
   getArtistByID,
   getArtistSongsByID,
@@ -229,3 +229,5 @@ export default {
   updateArtist,
   deleteArtist,
 };
+
+export { ArtistController };

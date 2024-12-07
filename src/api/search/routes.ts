@@ -1,18 +1,18 @@
 import { Router } from "express";
-import controller from "./controller";
+import { SearchController } from "./controller";
 
 const router = Router();
 
-router.get("/:term", controller.searchDefault);
+router.get("/:term", SearchController.searchDefault);
 
-router.get("/:term/songs", controller.searchSongs);
+router.get("/:term/songs", SearchController.searchSongs);
 
-router.get("/:term/artists", controller.searchArtists);
+router.get("/:term/artists", SearchController.searchArtists);
 
-router.get("/:term/albums", controller.searchAlbums);
+router.get("/:term/albums", SearchController.searchAlbums);
 
-router.get("/:term/playlists", controller.searchPlaylists);
+router.get("/:term/playlists", SearchController.searchPlaylists);
 
-router.get("/:term/users", controller.searchUsers);
+router.get("/:term/users", SearchController.searchUsers);
 
 export { router as searchRoutes };

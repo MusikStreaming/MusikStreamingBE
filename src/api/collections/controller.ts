@@ -303,7 +303,7 @@ const deleteCollectionSong: RequestHandler = async (
   res.status(204).send();
 };
 
-export default {
+const CollectionController = {
   getAllCollections,
   getAllPlaylists,
   getAllAlbums,
@@ -314,3 +314,5 @@ export default {
   deleteCollection,
   deleteCollectionSong,
 };
+
+export { CollectionController };

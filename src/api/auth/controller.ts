@@ -1,5 +1,7 @@
+import env from "@/env";
 import { cloudinary } from "@/services/cloudinary";
 import { supabase, supabasePro } from "@/services/supabase";
+import axios from "axios";
 import { Request, RequestHandler, Response } from "express";
 
 const signUpWithEmail: RequestHandler = async (req: Request, res: Response) => {
@@ -132,7 +134,11 @@ const signInWithGoogle: RequestHandler = async (
 ) => {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
+    options: {
+      redirectTo: `${env.BASE_URL.replace(/\*/g, "api")}/v1/auth/oauth/callback`,
+    },
   });
+
   if (error) {
     res.status(error.status ?? 500).json({ error: error.message });
     return;
@@ -144,6 +150,73 @@ const signInWithGoogle: RequestHandler = async (
   }
 
   res.redirect(data.url);
+};
+
+const handleOAuthCallback: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  const { code } = req.query;
+
+  if (!code) {
+    res.status(400).json({ error: "Missing authorization code" });
+    return;
+  }
+
+  const { data: tokenData, error: tokenError } =
+    await supabase.auth.exchangeCodeForSession(code as string);
+
+  if (tokenError) {
+    res.status(500).json({ error: tokenError.message });
+    return;
+  }
+
+  const { access_token, refresh_token, expires_in, user } = tokenData.session;
+
+  const {
+    data: userData,
+    error: userError,
+    status,
+  } = await supabasePro
+    .from("profiles")
+    .select("username, role")
+    .eq("id", user.id)
+    .single();
+
+  if (userError) {
+    res.status(status ?? 500).json({ error: userError.message });
+    return;
+  }
+
+  try {
+    await axios.post(
+      `${env.BASE_URL.replace(/\*/g, "open")}/auth/callback`,
+      {
+        user: {
+          id: user.id,
+          aud: user.aud,
+          username: userData.username,
+          role: userData.role,
+        },
+        session: {
+          access_token,
+          expires_in,
+          refresh_token,
+        },
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    res.status(200).json({ message: "OAuth callback success" });
+    return;
+  } catch (error) {
+    res.status(500).json({ error });
+    return;
+  }
 };
 
 const updateUserCredentials: RequestHandler = async (
@@ -183,6 +256,7 @@ const AuthController = {
   signInWithEmail,
   signUpWithEmail,
   signInWithGoogle,
+  handleOAuthCallback,
   updateUserCredentials,
   signOut,
 };

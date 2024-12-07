@@ -104,7 +104,7 @@ const generatePresignedDownloadURL: RequestHandler = async (
   const fileName: string = `${data.artist.name}/${data.song.title.replace(/\s+/g, "_")}.mp3`;
   let url: string;
   try {
-    url = await backblaze.generatePresignedDownloadURL(fileName, 1800);
+    url = await backblaze.generatePresignedDownloadURL(fileName, 3600);
   } catch (err) {
     res.status(500).json({ error: `Error generating pre-signed URL: ${err}` });
     return;
@@ -138,7 +138,7 @@ const generatePresignedDownloadURLv2: RequestHandler = async (
   const fileName: string = `${data.artist.name}/${data.song.title.replace(/\s+/g, "_")}.mp3`;
   let url: string;
   try {
-    url = await backblaze.generatePresignedDownloadURL(fileName, 1800);
+    url = await backblaze.generatePresignedDownloadURL(fileName, 3600);
   } catch (err) {
     res.status(500).json({ error: `Error generating pre-signed URL: ${err}` });
     return;
@@ -146,7 +146,7 @@ const generatePresignedDownloadURLv2: RequestHandler = async (
 
   res.set({
     "Content-Type": "audio/mpeg",
-    "Cache-Control": "public, max-age=2592000, immutable",
+    "Cache-Control": "public, max-age=3600, immutable",
   });
 
   return res.redirect(url);

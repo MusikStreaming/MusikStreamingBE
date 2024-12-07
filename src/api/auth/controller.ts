@@ -132,16 +132,14 @@ const signInWithGoogle: RequestHandler = async (
 ) => {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: {
-      queryParams: {
-        access_type: "offline",
-        prompt: "consent",
-      },
-      redirectTo: `localhost:7554/api/v1/auth/callback`,
-    },
   });
   if (error) {
     res.status(error.status ?? 500).json({ error: error.message });
+    return;
+  }
+
+  if (!data.url) {
+    res.status(500).json({ error: "Failed to fetch oauth url" });
     return;
   }
 

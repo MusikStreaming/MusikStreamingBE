@@ -1,7 +1,6 @@
 import env from "@/env";
 import { cloudinary } from "@/services/cloudinary";
 import { supabase, supabasePro } from "@/services/supabase";
-import axios from "axios";
 import { Request, RequestHandler, Response } from "express";
 
 const signUpWithEmail: RequestHandler = async (req: Request, res: Response) => {
@@ -156,17 +155,9 @@ const handleOAuthCallback: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
-  const callbackAddr = new URL(
-    "/api/auth/callback",
-    env.BASE_URL.replace(/\*/g, "open"),
-  ).toString();
-  const redirectAddr = new URL(
-    "/login",
-    env.BASE_URL.replace(/\*/g, "open"),
-  ).toString();
-
-  console.log(callbackAddr);
-  console.log(redirectAddr);
+  const baseUrl = env.BASE_URL.replace(/\*/g, "open");
+  const callbackAddr = new URL("/api/auth/callback", baseUrl).toString();
+  const redirectAddr = new URL("/login", baseUrl).toString();
 
   const { code } = req.query;
 
@@ -209,9 +200,12 @@ const handleOAuthCallback: RequestHandler = async (
   }
 
   try {
-    await axios.post(
-      callbackAddr,
-      {
+    await fetch(callbackAddr, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
         user: {
           id: user.id,
           aud: user.aud,
@@ -223,20 +217,14 @@ const handleOAuthCallback: RequestHandler = async (
           expires_in,
           refresh_token,
         },
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "User-Agent": "Axios",
-        },
-      },
-    );
+      }),
+    });
 
     return res.redirect(redirectAddr);
   } catch (error) {
     console.error(error);
     const unknownErrorParams = new URLSearchParams({
-      error: "axios unhandled exception",
+      error: "unhandled fetch exception",
     });
     return res.status(500).redirect(`${redirectAddr}?${unknownErrorParams}`);
   }

@@ -135,7 +135,7 @@ const signInWithGoogle: RequestHandler = async (
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${env.BASE_URL.replace(/\*/g, "api")}/v1/auth/oauth/callback`,
+      redirectTo: `${env.BASE_URL.replace(/\*/g, "open")}/v1/auth/oauth/callback`,
     },
   });
 
@@ -161,9 +161,12 @@ const handleOAuthCallback: RequestHandler = async (
     env.BASE_URL.replace(/\*/g, "open"),
   ).toString();
   const redirectAddr = new URL(
-    "/auth/callback",
+    "/login",
     env.BASE_URL.replace(/\*/g, "open"),
   ).toString();
+
+  console.log(callbackAddr);
+  console.log(redirectAddr);
 
   const { code } = req.query;
 
@@ -224,6 +227,7 @@ const handleOAuthCallback: RequestHandler = async (
       {
         headers: {
           "Content-Type": "application/json",
+          "User-Agent": "Axios",
         },
       },
     );
@@ -232,7 +236,7 @@ const handleOAuthCallback: RequestHandler = async (
   } catch (error) {
     console.error(error);
     const unknownErrorParams = new URLSearchParams({
-      error: "Unhandled exception",
+      error: "axios unhandled exception",
     });
     return res.status(500).redirect(`${redirectAddr}?${unknownErrorParams}`);
   }

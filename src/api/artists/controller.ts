@@ -106,29 +106,10 @@ const getArtistAlbumsByID: RequestHandler = async (
     return;
   }
 
-  const { data: managerData, error: managerError } = await supabase
-    .from("artists")
-    .select("managerid")
-    .eq("id", req.params.id)
-    .single();
-
-  if (managerError) {
-    res.status(500).json({ error: managerError.message });
-    return;
-  }
-
-  if (!managerData) {
-    res.status(404).json({
-      error: "Artist not found or found but unable to link to an album",
-    });
-    return;
-  }
-
   const { data, error } = await supabase
-    .from("playlists")
-    .select("id, title, thumbnailurl, created_at")
-    .in("type", ["Album", "Single", "EP"])
-    .eq("userid", managerData.managerid)
+    .from("artist_playlist")
+    .select("id, title, thumbnailurl, created_at, type")
+    .eq("artist_id", req.params.id)
     .limit(10);
 
   if (error) {

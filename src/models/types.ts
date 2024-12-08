@@ -65,6 +65,13 @@ export type Database = {
             foreignKeyName: "artistssongs_artistid_fkey"
             columns: ["artistid"]
             isOneToOne: false
+            referencedRelation: "artist_playlist"
+            referencedColumns: ["artist_id"]
+          },
+          {
+            foreignKeyName: "artistssongs_artistid_fkey"
+            columns: ["artistid"]
+            isOneToOne: false
             referencedRelation: "artists"
             referencedColumns: ["id"]
           },
@@ -91,6 +98,13 @@ export type Database = {
           userid?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "follows_artistid_fkey"
+            columns: ["artistid"]
+            isOneToOne: false
+            referencedRelation: "artist_playlist"
+            referencedColumns: ["artist_id"]
+          },
           {
             foreignKeyName: "follows_artistid_fkey"
             columns: ["artistid"]
@@ -206,6 +220,13 @@ export type Database = {
             foreignKeyName: "playlistssongs_playlistid_fkey"
             columns: ["playlistid"]
             isOneToOne: false
+            referencedRelation: "artist_playlist"
+            referencedColumns: ["playlist_id"]
+          },
+          {
+            foreignKeyName: "playlistssongs_playlistid_fkey"
+            columns: ["playlistid"]
+            isOneToOne: false
             referencedRelation: "playlists"
             referencedColumns: ["id"]
           },
@@ -267,7 +288,16 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      artist_playlist: {
+        Row: {
+          artist_id: string | null
+          created_at: string | null
+          playlist_id: string | null
+          playlist_title: string | null
+          thumbnailurl: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       cleanup_old_history: {

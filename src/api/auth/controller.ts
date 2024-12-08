@@ -47,12 +47,18 @@ const signUpWithEmail: RequestHandler = async (req: Request, res: Response) => {
       return;
     }
 
+    let email_verified = true;
+    if (!data.user?.email_confirmed_at) {
+      email_verified = false;
+    }
+
     res.status(200).json({
       user: {
         id: data.user?.id,
         aud: data.user?.aud,
         username: roleData.username,
         role: roleData.role,
+        email_verified,
       },
       session: {
         access_token: data.session?.access_token,
@@ -105,12 +111,18 @@ const signInWithEmail: RequestHandler = async (req: Request, res: Response) => {
       return;
     }
 
+    let email_verified = true;
+    if (!data.user?.email_confirmed_at) {
+      email_verified = false;
+    }
+
     res.status(200).json({
       user: {
         id: data.user?.id,
         aud: data.user?.aud,
         username: roleData.username,
         role: roleData.role,
+        email_verified,
       },
       session: {
         access_token: data.session?.access_token,

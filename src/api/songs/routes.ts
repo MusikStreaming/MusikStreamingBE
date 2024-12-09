@@ -23,4 +23,4 @@ router.get(
   SongController.generatePresignedUploadURL,
 );
 
-export { router as songRoutes };
+export { router as SongRoutes };

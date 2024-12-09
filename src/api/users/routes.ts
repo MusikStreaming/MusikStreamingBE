@@ -24,4 +24,4 @@ router.delete("/me/following/:artistid", UserController.unfollowArtist);
 router.get("/", UserController.getAllUsers);
 router.get("/:id", UserController.getUserByID);
 
-export { router as userRoutes };
+export { router as UserRoutes };

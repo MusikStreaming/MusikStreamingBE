@@ -23,4 +23,4 @@ router.delete("/:id", CollectionController.deleteCollection);
 router.post("/:id/songs/:songid", CollectionController.addCollectionSong);
 router.delete("/:id/songs/:songid", CollectionController.deleteCollectionSong);
 
-export { router as collectionRoutes };
+export { router as CollectionRoutes };

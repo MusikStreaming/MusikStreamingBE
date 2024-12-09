@@ -1,13 +1,13 @@
 import { IPRateLimiter } from "@/middlewares/rate-limit.config";
 import { Router } from "express";
-import { authRoutes } from "./auth/routes";
-import { userRoutes } from "./users/routes";
+import { AuthRoutes } from "./auth/routes";
+import { UserRoutes } from "./users/routes";
 import { userMiddleware } from "@/middlewares/user.config";
-import { songRoutes } from "./songs/routes";
-import { collectionRoutes } from "./collections/routes";
-import { artistRoutes } from "./artists/routes";
-import { searchRoutes } from "./search/routes";
-import { paymentRoutes } from "./payments/routes";
+import { SongRoutes } from "./songs/routes";
+import { CollectionRoutes } from "./collections/routes";
+import { ArtistRoutes } from "./artists/routes";
+import { SearchRoutes } from "./searches/routes";
+import { PaymentRoutes } from "./payments/routes";
 
 const router = Router();
 
@@ -18,18 +18,18 @@ router.get("/", (req, res) => {
   });
 });
 
-router.use("/v1/auth", IPRateLimiter, authRoutes);
+router.use("/v1/auth", IPRateLimiter, AuthRoutes);
 
-router.use("/v1/user", userMiddleware, userRoutes);
+router.use("/v1/user", userMiddleware, UserRoutes);
 
-router.use("/v1/song", songRoutes);
+router.use("/v1/song", SongRoutes);
 
-router.use("/v1/collection", userMiddleware, collectionRoutes);
+router.use("/v1/collection", userMiddleware, CollectionRoutes);
 
-router.use("/v1/artist", artistRoutes);
+router.use("/v1/artist", ArtistRoutes);
 
-router.use("/v1/search", userMiddleware, searchRoutes);
+router.use("/v1/search", userMiddleware, SearchRoutes);
 
-router.use("/v1/order", IPRateLimiter, paymentRoutes);
+router.use("/v1/order", IPRateLimiter, PaymentRoutes);
 
 export { router as apiRoutes };

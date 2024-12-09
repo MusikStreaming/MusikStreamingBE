@@ -9,4 +9,4 @@ router.post("/checkout/callback", PaymentController.receiveZaloCallback);
 
 router.post("/:id", PaymentController.getZaloOrderStatus);
 
-export { router as paymentRoutes };
+export { router as PaymentRoutes };

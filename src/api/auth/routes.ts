@@ -16,4 +16,4 @@ router.post("/credentials", AuthController.updateUserCredentials);
 
 router.get("/signout", AuthController.signOut);
 
-export { router as authRoutes };
+export { router as AuthRoutes };

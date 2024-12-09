@@ -18,4 +18,4 @@ router.post("/:id", storage.single("file"), ArtistController.updateArtist);
 
 router.delete("/:id", ArtistController.deleteArtist);
 
-export { router as artistRoutes };
+export { router as ArtistRoutes };

@@ -1,6 +1,6 @@
 import express from "express";
 import { storage } from "@/middlewares/multer.config";
-import { AuthController } from "./controller";
+import { AuthController } from "@/controllers/auth.controller";
 
 const router = express.Router();
 

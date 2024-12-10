@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { storage } from "@/middlewares/multer.config";
-import { ArtistController } from "./controller";
+import { ArtistController } from "@/controllers/artist.controller";
 
 const router = Router();
 

@@ -305,19 +305,26 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
-      increment_song_views:
-        | {
-            Args: {
-              song_id: number
-            }
-            Returns: undefined
-          }
-        | {
-            Args: {
-              song_id: string
-            }
-            Returns: undefined
-          }
+      increment_song_views: {
+        Args: {
+          songid: string
+        }
+        Returns: undefined
+      }
+      search_songs: {
+        Args: {
+          keyword: string
+        }
+        Returns: {
+          duration: number | null
+          genre: string | null
+          id: string
+          releasedate: string
+          thumbnailurl: string | null
+          title: string
+          views: number
+        }[]
+      }
     }
     Enums: {
       playlist_option: "Album" | "Single" | "EP" | "Playlist" | "Mix"

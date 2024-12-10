@@ -5,6 +5,13 @@ import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
 import { sanitize } from "@/utils";
 
+/**
+ * Get all users with pagination
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/user?page=1&limit=10
+ */
 const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
   const page: number = sanitize(req.query.page, {
     type: "number",
@@ -48,6 +55,13 @@ const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
+/**
+ * Get user by ID
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/user/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca
+ */
 const getUserByID: RequestHandler = async (req: Request, res: Response) => {
   const key = `users?id=${req.params.id}`;
   const role = req.user.role;
@@ -84,6 +98,13 @@ const getUserByID: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
+/**
+ * Get user profile
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/user/me
+ */
 const getProfile: RequestHandler = async (req: Request, res: Response) => {
   const id = req.user!.id;
 
@@ -101,6 +122,13 @@ const getProfile: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
+/**
+ * Update user profile
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example POST /api/user/me
+ */
 const updateProfile: RequestHandler = async (req: Request, res: Response) => {
   const id = req.user!.id;
 
@@ -139,6 +167,13 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
+/**
+ * Get user playlists
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/user/me/playlists
+ */
 const getPlaylists: RequestHandler = async (req: Request, res: Response) => {
   const id = req.user!.id;
 
@@ -155,6 +190,13 @@ const getPlaylists: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
+/**
+ * Get user listen history
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/user/me/history
+ */
 const getListenHistory: RequestHandler = async (
   req: Request,
   res: Response,
@@ -184,6 +226,13 @@ const getListenHistory: RequestHandler = async (
   res.status(200).json({ data });
 };
 
+/**
+ * Upsert user listen history
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example POST /api/user/me/history/:songid
+ */
 const upsertListenHistory: RequestHandler = async (
   req: Request,
   res: Response,
@@ -209,6 +258,13 @@ const upsertListenHistory: RequestHandler = async (
   res.status(204).send();
 };
 
+/**
+ * Get user followed artists
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/user/me/following
+ */
 const getFollowedArtists: RequestHandler = async (
   req: Request,
   res: Response,
@@ -228,6 +284,13 @@ const getFollowedArtists: RequestHandler = async (
   res.status(200).json({ data });
 };
 
+/**
+ * Follow artist
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example POST /api/user/me/following/:artistid
+ */
 const followArtist: RequestHandler = async (req: Request, res: Response) => {
   const artistid = req.params.artistid;
   const userid = req.user!.id;
@@ -244,6 +307,13 @@ const followArtist: RequestHandler = async (req: Request, res: Response) => {
   res.status(204).send();
 };
 
+/**
+ * Unfollow artist
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example DELETE /api/user/me/following/:artistid
+ */
 const unfollowArtist: RequestHandler = async (req: Request, res: Response) => {
   const artistid = req.params.artistid;
   const userid = req.user!.id;

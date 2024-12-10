@@ -5,7 +5,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import compression from "compression";
-import { apiRoutes } from "./api/routes";
+import { ApiRoutes } from "./routes";
 
 const app = express();
 const port = env.PORT || 7554;
@@ -35,7 +35,7 @@ app.use(helmet());
 app.use(morgan(":method :url :status - :response-time ms"));
 
 // End-points
-app.use("/", apiRoutes);
+app.use("/", ApiRoutes);
 
 // Server start
 app.listen(port, () => {

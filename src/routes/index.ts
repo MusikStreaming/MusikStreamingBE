@@ -1,13 +1,13 @@
 import { IPRateLimiter } from "@/middlewares/rate-limit.config";
 import { Router } from "express";
-import { AuthRoutes } from "./auth/routes";
-import { UserRoutes } from "./users/routes";
 import { userMiddleware } from "@/middlewares/user.config";
-import { SongRoutes } from "./songs/routes";
-import { CollectionRoutes } from "./collections/routes";
-import { ArtistRoutes } from "./artists/routes";
-import { SearchRoutes } from "./searches/routes";
-import { PaymentRoutes } from "./payments/routes";
+import { AuthRoutes } from "./auth.routes";
+import { UserRoutes } from "./user.routes";
+import { SongRoutes } from "./song.routes";
+import { CollectionRoutes } from "./collection.routes";
+import { ArtistRoutes } from "./artist.routes";
+import { SearchRoutes } from "./search.routes";
+import { PaymentRoutes } from "./payment.routes";
 
 const router = Router();
 
@@ -32,4 +32,4 @@ router.use("/v1/search", userMiddleware, SearchRoutes);
 
 router.use("/v1/order", IPRateLimiter, PaymentRoutes);
 
-export { router as apiRoutes };
+export { router as ApiRoutes };

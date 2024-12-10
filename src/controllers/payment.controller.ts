@@ -1,6 +1,13 @@
 import zalo from "@/services/zalopay";
 import { Request, RequestHandler, Response } from "express";
 
+/**
+ * Create Zalo order
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example POST /api/payment/checkout
+ */
 const createZaloOrder: RequestHandler = async (req: Request, res: Response) => {
   const { userid, items } = req.body;
 
@@ -36,12 +43,30 @@ const createZaloOrder: RequestHandler = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Receive Zalo order callback
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example POST /api/payment/checkkout/callback
+ */
 const receiveZaloCallback: RequestHandler = (req: Request, res: Response) => {
   const { data, mac } = req.body;
-  const result = zalo.receiveOrderCallback(data, mac);
-  res.json(result);
+  try {
+    const result = zalo.receiveOrderCallback(data, mac);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
 };
 
+/**
+ * Get Zalo order status
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example POST /api/payment/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca
+ */
 const getZaloOrderStatus: RequestHandler = async (
   req: Request,
   res: Response,

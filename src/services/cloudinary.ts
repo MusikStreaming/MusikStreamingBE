@@ -1,6 +1,10 @@
 import env from "@/env";
 import { v2 as cloudinary } from "cloudinary";
 
+/**
+ * @class Cloudinary
+ * @description Cloudinary class to handle image upload and delete
+ */
 class Cloudinary {
   constructor() {
     cloudinary.config({
@@ -11,6 +15,15 @@ class Cloudinary {
     });
   }
 
+  /**
+   * Upload image to Cloudinary
+   * @param file File
+   * @param folder Folder
+   * @param id ID
+   * @returns Promise<string>
+   * @example
+   * const uploadResult = await cloudinary.upload(req.file, "users", id);
+   */
   public async upload(
     file: Express.Multer.File,
     folder: string,
@@ -35,6 +48,14 @@ class Cloudinary {
     return uploadResult.secure_url;
   }
 
+  /**
+   * Delete image from Cloudinary
+   * @param folder Folder
+   * @param fileName File name
+   * @returns Promise<void>
+   * @example
+   * await cloudinary.delete("users", `i-${id}`);
+   */
   public async delete(folder: string, fileName: string): Promise<void> {
     const response = await cloudinary.uploader.destroy(
       `${folder}/${fileName}`,

@@ -3,6 +3,13 @@ import { cloudinary } from "@/services/cloudinary";
 import { supabase, supabasePro } from "@/services/supabase";
 import { Request, RequestHandler, Response } from "express";
 
+/**
+ * Sign up with email
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example POST /api/auth/signup
+ */
 const signUpWithEmail: RequestHandler = async (req: Request, res: Response) => {
   const { email, password, avatarurl, country, username } = req.body;
 
@@ -75,6 +82,13 @@ const signUpWithEmail: RequestHandler = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Sign in with email
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example POST /api/auth/signin
+ */
 const signInWithEmail: RequestHandler = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
@@ -139,6 +153,13 @@ const signInWithEmail: RequestHandler = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Sign in with Google
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/auth/oauth
+ */
 const signInWithGoogle: RequestHandler = async (
   req: Request,
   res: Response,
@@ -163,6 +184,13 @@ const signInWithGoogle: RequestHandler = async (
   res.status(200).json({ url: data.url });
 };
 
+/**
+ * Handle OAuth callback
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example POST /api/auth/oauth/callback
+ */
 const handleOAuthCallback: RequestHandler = async (
   req: Request,
   res: Response,
@@ -242,6 +270,13 @@ const handleOAuthCallback: RequestHandler = async (
   }
 };
 
+/**
+ * Update user credentials
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example POST /api/auth/credentials
+ */
 const updateUserCredentials: RequestHandler = async (
   req: Request,
   res: Response,
@@ -264,6 +299,13 @@ const updateUserCredentials: RequestHandler = async (
   res.status(204).send();
 };
 
+/**
+ * Sign out
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/auth/signout
+ */
 const signOut: RequestHandler = async (req: Request, res: Response) => {
   const { error } = await supabase.auth.signOut();
 

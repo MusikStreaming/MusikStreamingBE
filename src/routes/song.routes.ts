@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { uploadRateLimiter } from "@/middlewares/rate-limit.config";
 import { storage } from "@/middlewares/multer.config";
-import { SongController } from "./controller";
+import { SongController } from "@/controllers/song.controller";
 
 const router = Router();
 

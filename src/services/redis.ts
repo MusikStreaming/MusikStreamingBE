@@ -1,11 +1,11 @@
 import env from "@/env";
-import { Redis, SetCommandOptions } from "@upstash/redis";
+import { Redis as UpstashRedis, SetCommandOptions } from "@upstash/redis";
 
-class RedisUpstash {
-  private readonly client: Redis;
+class Redis {
+  private readonly client: UpstashRedis;
 
   constructor() {
-    this.client = new Redis({
+    this.client = new UpstashRedis({
       url: env.REDIS_URL,
       token: env.REDIS_TOKEN,
     });
@@ -36,5 +36,5 @@ class RedisUpstash {
   }
 }
 
-const redis = new RedisUpstash();
+const redis = new Redis();
 export default redis;

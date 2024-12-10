@@ -5,6 +5,13 @@ import { supabase } from "@/services/supabase";
 import { sanitize } from "@/utils";
 import { Request, RequestHandler, Response } from "express";
 
+/**
+ * Get all collections with pagination
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/collection?page=1&limit=10
+ */
 const getAllCollections: RequestHandler = async (
   req: Request,
   res: Response,
@@ -51,6 +58,13 @@ const getAllCollections: RequestHandler = async (
   res.status(200).json({ data });
 };
 
+/**
+ * Get all playlists with pagination
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/collection/playlists?page=1&limit=10
+ */
 const getAllPlaylists: RequestHandler = async (req: Request, res: Response) => {
   const page: number = sanitize(req.query.page, {
     type: "number",
@@ -95,6 +109,13 @@ const getAllPlaylists: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
+/**
+ * Get all albums with pagination
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/collection/albums?page=1&limit=10
+ */
 const getAllAlbums: RequestHandler = async (req: Request, res: Response) => {
   const page: number = sanitize(req.query.page, {
     type: "number",
@@ -140,6 +161,13 @@ const getAllAlbums: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
+/**
+ * Get collection by ID
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/collection/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca
+ */
 const getCollectionByID: RequestHandler = async (
   req: Request,
   res: Response,
@@ -179,6 +207,13 @@ const getCollectionByID: RequestHandler = async (
   res.status(200).json({ data });
 };
 
+/**
+ * Add collection
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example POST /api/collection
+ */
 const addCollection: RequestHandler = async (req: Request, res: Response) => {
   const { title, description, thumbnailurl, type, visibility } = req.body;
   const response = {
@@ -209,6 +244,13 @@ const addCollection: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
+/**
+ * Update collection
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example POST /api/collection/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca
+ */
 const updateCollection: RequestHandler = async (
   req: Request,
   res: Response,
@@ -247,6 +289,13 @@ const updateCollection: RequestHandler = async (
   res.status(200).json({ data });
 };
 
+/**
+ * Delete collection
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example DELETE /api/collection/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca
+ */
 const deleteCollection: RequestHandler = async (
   req: Request,
   res: Response,
@@ -264,6 +313,13 @@ const deleteCollection: RequestHandler = async (
   res.status(200).json({ message: `Collection ${id} is being deleted` });
 };
 
+/**
+ * Add song to collection
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example POST /api/collection/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca/songs/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca
+ */
 const addCollectionSong: RequestHandler = async (
   req: Request,
   res: Response,
@@ -283,6 +339,13 @@ const addCollectionSong: RequestHandler = async (
   res.status(204).send();
 };
 
+/**
+ * Delete song from collection
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example DELETE /api/collection/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca/songs/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca
+ */
 const deleteCollectionSong: RequestHandler = async (
   req: Request,
   res: Response,

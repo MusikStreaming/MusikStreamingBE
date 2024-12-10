@@ -2,6 +2,9 @@ import { createClient } from "@supabase/supabase-js";
 import { Database } from "@/models/types";
 import env from "@/env";
 
+/**
+ * Supabase client for public access
+ */
 export const supabase = createClient<Database>(
   env.SUPABASE_URL,
   env.SUPABASE_ANON_KEY,
@@ -12,6 +15,9 @@ export const supabase = createClient<Database>(
   },
 );
 
+/**
+ * Supabase client for protected access
+ */
 export const supabasePro = createClient<Database>(
   env.SUPABASE_URL,
   env.SUPABASE_SERVICE_KEY,

@@ -126,6 +126,14 @@ const generatePresignedDownloadURL: RequestHandler = async (
   let url: string;
   try {
     url = await backblaze.generatePresignedDownloadURL(fileName, 3600);
+
+    const { error } = await supabase.rpc("increment_song_views", {
+      song_id: id,
+    });
+
+    if (error) {
+      throw new Error("Failed to update song's views");
+    }
   } catch (err) {
     res.status(500).json({ error: `Error generating pre-signed URL: ${err}` });
     return;

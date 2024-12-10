@@ -6,6 +6,13 @@ import { supabase } from "@/services/supabase";
 import { sanitize } from "@/utils";
 import { Request, RequestHandler, Response } from "express";
 
+/**
+ * Get all songs with pagination
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/song?page=1&limit=10
+ */
 const getAllSongs: RequestHandler = async (req: Request, res: Response) => {
   const page: number = sanitize(req.query.page, {
     type: "number",
@@ -43,6 +50,13 @@ const getAllSongs: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
+/**
+ * Get song by ID
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/song/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca
+ */
 const getSongByID: RequestHandler = async (req: Request, res: Response) => {
   const key = `songs?id=${req.params.id}`;
 
@@ -79,6 +93,13 @@ const getSongByID: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
+/**
+ * Generate pre-signed URL for downloading song
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/song/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca/presigned/stream
+ */
 const generatePresignedDownloadURL: RequestHandler = async (
   req: Request,
   res: Response,
@@ -113,6 +134,13 @@ const generatePresignedDownloadURL: RequestHandler = async (
   res.status(200).json({ url });
 };
 
+/**
+ * Generate pre-signed URL for uploading song
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/song/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca/presigned/upload
+ */
 const generatePresignedUploadURL: RequestHandler = async (
   req: Request,
   res: Response,
@@ -147,6 +175,13 @@ const generatePresignedUploadURL: RequestHandler = async (
   res.status(200).json({ url });
 };
 
+/**
+ * Update song
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example POST /api/song/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca
+ */
 const updateSong: RequestHandler = async (req: Request, res: Response) => {
   const id = req.params.id;
   const { title, description, duration, releasedate, genre, views } = req.body;
@@ -182,6 +217,13 @@ const updateSong: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
+/**
+ * Add song
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example POST /api/song
+ */
 const addSong: RequestHandler = async (req: Request, res: Response) => {
   const { title, thumbnailurl, duration, releasedate, genre, artists } =
     req.body;
@@ -245,6 +287,13 @@ const addSong: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
+/**
+ * Delete song
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example DELETE /api/song/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca
+ */
 const deleteSong: RequestHandler = async (req: Request, res: Response) => {
   const id = req.params.id;
 

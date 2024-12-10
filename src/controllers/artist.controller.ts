@@ -5,6 +5,13 @@ import { supabase } from "@/services/supabase";
 import { sanitize } from "@/utils";
 import { Request, RequestHandler, Response } from "express";
 
+/**
+ *  Get all artists with pagination
+ *  @param req Request
+ *  @param res Response
+ *  @returns Promise<void>
+ *  @example GET /api/artists?page=1&limit=10
+ */
 const getAllArtists: RequestHandler = async (req: Request, res: Response) => {
   const page: number = sanitize(req.query.page, {
     type: "number",
@@ -44,6 +51,13 @@ const getAllArtists: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
+/**
+ *  Get artist by ID
+ *  @param req Request
+ *  @param res Response
+ *  @returns Promise<void>
+ *  @example GET /api/artists/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca
+ */
 const getArtistByID: RequestHandler = async (req: Request, res: Response) => {
   const key = `artists?id=${req.params.id}`;
   const cache = await redis.get(key);
@@ -67,6 +81,13 @@ const getArtistByID: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
+/**
+ *  Get artist songs by ID
+ *  @param req Request
+ *  @param res Response
+ *  @returns Promise<void>
+ *  @example GET /api/artists/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca/songs
+ */
 const getArtistSongsByID: RequestHandler = async (
   req: Request,
   res: Response,
@@ -121,6 +142,13 @@ const getArtistAlbumsByID: RequestHandler = async (
   res.status(200).json({ data });
 };
 
+/**
+ * Update artists by ID
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example PUT /api/artists/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca
+ */
 const updateArtist: RequestHandler = async (req: Request, res: Response) => {
   const id = req.params.id;
   const { name, description, country } = req.body;
@@ -153,6 +181,13 @@ const updateArtist: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
+/**
+ * Add artist
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example POST /api/artists
+ */
 const addArtist: RequestHandler = async (req: Request, res: Response) => {
   const { name, description, avatarurl, country } = req.body;
 
@@ -186,6 +221,13 @@ const addArtist: RequestHandler = async (req: Request, res: Response) => {
   res.status(200).json({ data });
 };
 
+/**
+ * Delete artist by ID
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example DELETE /api/artists/1b26c1ea-6d6d-43eb-8b3c-4faf828050ca
+ */
 const deleteArtist: RequestHandler = async (req: Request, res: Response) => {
   const id = req.params.id;
 

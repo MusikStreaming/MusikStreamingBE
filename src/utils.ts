@@ -1,5 +1,16 @@
 import { JWTPayload, SanitizeOptions } from "./models/interfaces";
 
+/**
+ * Parse JWT payload from the Authorization header
+ * @param header Authorization header
+ * @returns JWTPayload or error message
+ * @example
+ * const [payload, status] = parseJWTPayload(req.headers.authorization);
+ * if ("error" in payload) {
+ *  res.status(status).json({ error: payload.error });
+ *  return;
+ *  }
+ */
 const parseJWTPayload = (
   header: string | undefined,
 ): [JWTPayload | { error: string }, number] => {
@@ -38,12 +49,34 @@ const entityMap = {
   "=": "&#x3D;",
 } as const;
 
+/**
+ * Escape HTML entities
+ * @param input Input string
+ * @returns Escaped string
+ * @example
+ * const escaped = escapeHtml("<script>alert('XSS')</script>");
+ * console.log(escaped); // &lt;script&gt;alert(&#39;XSS&#39;)&lt;/script&gt;
+ */
 const escapeHtml = (input: string): string => {
   return String(input).replace(
     /[&<>"'`=\/]/g,
     (s) => entityMap[s as keyof typeof entityMap] || s,
   );
 };
+
+/**
+ * Sanitize input value
+ * @param value Input value
+ * @param options Sanitize options
+ * @returns Sanitized value
+ * @example
+ * const sanitized = sanitize(req.query.page, {
+ *  type: "number",
+ *  defaultValue: 10,
+ *  min: 10,
+ *  max: 50,
+ * });
+ */
 const sanitize = (value: any, options: SanitizeOptions) => {
   if (value == null || value === "") {
     return options.defaultValue;

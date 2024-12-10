@@ -3,6 +3,13 @@ import { supabase } from "@/services/supabase";
 import { sanitize } from "@/utils";
 import { Request, RequestHandler, Response } from "express";
 
+/**
+ * Search default
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/search/:term
+ */
 const searchDefault: RequestHandler = async (req: Request, res: Response) => {
   const term = decodeURIComponent(req.params.term);
   const key = `searches?term=${encodeURIComponent(term)}`;
@@ -87,6 +94,13 @@ const searchDefault: RequestHandler = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Search songs
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/search/:term/songs
+ */
 const searchSongs: RequestHandler = async (req: Request, res: Response) => {
   const term = decodeURIComponent(req.params.term);
   const page: number = sanitize(req.query.page, {
@@ -133,6 +147,13 @@ const searchSongs: RequestHandler = async (req: Request, res: Response) => {
   return;
 };
 
+/**
+ * Search artists
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/search/:term/artists
+ */
 const searchArtists: RequestHandler = async (req: Request, res: Response) => {
   const term = decodeURIComponent(req.params.term);
   const page: number = sanitize(req.query.page, {
@@ -178,6 +199,13 @@ const searchArtists: RequestHandler = async (req: Request, res: Response) => {
   return;
 };
 
+/**
+ * Search users
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/search/:term/users
+ */
 const searchUsers: RequestHandler = async (req: Request, res: Response) => {
   const term = decodeURIComponent(req.params.term);
   const page: number = sanitize(req.query.page, {
@@ -223,6 +251,13 @@ const searchUsers: RequestHandler = async (req: Request, res: Response) => {
   return;
 };
 
+/**
+ * Search playlists
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/search/:term/playlists
+ */
 const searchPlaylists: RequestHandler = async (req: Request, res: Response) => {
   const term = decodeURIComponent(req.params.term);
   const page: number = sanitize(req.query.page, {
@@ -269,6 +304,13 @@ const searchPlaylists: RequestHandler = async (req: Request, res: Response) => {
   return;
 };
 
+/**
+ * Search albums
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example GET /api/search/:term/albums
+ */
 const searchAlbums: RequestHandler = async (req: Request, res: Response) => {
   const term = decodeURIComponent(req.params.term);
   const page: number = sanitize(req.query.page, {

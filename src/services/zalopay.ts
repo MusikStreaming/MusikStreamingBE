@@ -9,7 +9,7 @@ import axios from "axios";
 import { createHmac } from "crypto";
 
 // Sandbox env
-class Zalo {
+class ZaloPay {
   private readonly client: ZaloClient;
   private orderID: number;
 
@@ -128,6 +128,6 @@ class Zalo {
   };
 }
 
-const zalo = new Zalo();
+const zalo = new ZaloPay();
 
 export default zalo;

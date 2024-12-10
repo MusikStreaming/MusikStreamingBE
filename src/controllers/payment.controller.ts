@@ -52,8 +52,12 @@ const createZaloOrder: RequestHandler = async (req: Request, res: Response) => {
  */
 const receiveZaloCallback: RequestHandler = (req: Request, res: Response) => {
   const { data, mac } = req.body;
-  const result = zalo.receiveOrderCallback(data, mac);
-  res.json(result);
+  try {
+    const result = zalo.receiveOrderCallback(data, mac);
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
 };
 
 /**

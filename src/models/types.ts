@@ -221,7 +221,7 @@ export type Database = {
             columns: ["playlistid"]
             isOneToOne: false
             referencedRelation: "artist_playlist"
-            referencedColumns: ["playlist_id"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "playlistssongs_playlistid_fkey"
@@ -292,9 +292,10 @@ export type Database = {
         Row: {
           artist_id: string | null
           created_at: string | null
-          playlist_id: string | null
-          playlist_title: string | null
+          id: string | null
           thumbnailurl: string | null
+          title: string | null
+          type: Database["public"]["Enums"]["playlist_option"] | null
         }
         Relationships: []
       }
@@ -304,6 +305,19 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      increment_song_views:
+        | {
+            Args: {
+              song_id: number
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              song_id: string
+            }
+            Returns: undefined
+          }
     }
     Enums: {
       playlist_option: "Album" | "Single" | "EP" | "Playlist" | "Mix"

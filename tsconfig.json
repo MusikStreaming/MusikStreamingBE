@@ -13,6 +13,8 @@
     },
     "outDir": "./dist"
   },
-  "include": ["src/**/*.ts","src/models/**/*.d.ts"],
+  "include": ["src/**/*.ts",
+    "src/types/**/*.d.ts"
+  ],
   "exclude": ["node_modules", "dist", "test"]
 }

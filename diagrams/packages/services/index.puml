@@ -22,4 +22,22 @@ package services {
     }
 }
 
+package types {
+    interface ZaloClient {
+        app_id: string;
+        key1: string;
+        key2: string;
+        embed_data?: {
+            redirecturl?: string;
+        };
+    }
+    interface ZaloResult {
+      return_code: number;
+      return_message: string;
+    }
+}
+
+ZaloPay ..> ZaloResult
+ZaloPay *.. ZaloClient
+
 @enduml

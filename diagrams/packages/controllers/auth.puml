@@ -3,12 +3,12 @@
 set separator none
 package auth.controller {
     class AuthController <<Function Group>> {
-        + signUpWithEmail(req: Request, res: Response): RequestHandler
-        + signInWithEmail(req: Request, res: Response): RequestHandler
-        + signInWithGoogle(req: Request, res: Response): RequestHandler
-        + handleOAuthCallback(req: Request, res: Response): RequestHandler
-        + updateUserCredentials(req: Request, res: Response): RequestHandler
-        + signOut(req: Request, res: Response): RequestHandler
+        + {static} signUpWithEmail(req: Request, res: Response): RequestHandler
+        + {static} signInWithEmail(req: Request, res: Response): RequestHandler
+        + {static} signInWithGoogle(req: Request, res: Response): RequestHandler
+        + {static} handleOAuthCallback(req: Request, res: Response): RequestHandler
+        + {static} updateUserCredentials(req: Request, res: Response): RequestHandler
+        + {static} signOut(req: Request, res: Response): RequestHandler
     }
 }
 

@@ -1,0 +1,18 @@
+@startuml
+
+set separator none
+package collection.controller {
+    class CollectionController <<Function Group>> {
+        + {static} addCollection(req: Request, res: Response): RequestHandler
+        + {static} addCollectionSong(req: Request, res: Response): RequestHandler
+        + {static} getAllCollections(req: Request, res: Response): RequestHandler
+        + {static} getAllPlaylists(req: Request, res: Response): RequestHandler
+        + {static} getAllAlbums(req: Request, res: Response): RequestHandler
+        + {static} getCollectionByID(req: Request, res: Response): RequestHandler
+        + {static} updateCollection(req: Request, res: Response): RequestHandler
+        + {static} deleteCollection(req: Request, res: Response): RequestHandler
+        + {static} deleteCollectionSong(req: Request, res: Response): RequestHandler
+    }
+}
+
+@enduml

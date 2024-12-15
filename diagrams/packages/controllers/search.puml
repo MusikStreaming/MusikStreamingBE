@@ -1,0 +1,15 @@
+@startuml
+
+set separator none
+package search.controller {
+    class SearchController <<Function Group>> {
+        + {static} searchDefault(req: Request, res: Response): RequestHandler
+        + {static} searchSongs(req: Request, res: Response): RequestHandler
+        + {static} searchArtists(req: Request, res: Response): RequestHandler
+        + {static} searchUsers(req: Request, res: Response): RequestHandler
+        + {static} searchPlaylists(req: Request, res: Response): RequestHandler
+        + {static} searchAlbums(req: Request, res: Response): RequestHandler
+    }
+}
+
+@enduml

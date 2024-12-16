@@ -1,0 +1,24 @@
+@startuml
+
+skinparam packageStyle frame
+package "Use case: Manage own account"  {
+    left to right direction
+
+    :Authenticated User: as Auth
+
+    rectangle "Music Streaming App" {
+        usecase "View profile" as UC1
+        usecase "Update profile, credentials" as UC2
+        usecase "Manage playlists" as UC3
+        usecase "Manage followed artists" as UC4
+        usecase "View listen history" as UC5
+    }
+
+    Auth --> UC1
+    Auth --> UC2
+    Auth --> UC3
+    Auth --> UC4
+    Auth --> UC5
+}
+
+@enduml

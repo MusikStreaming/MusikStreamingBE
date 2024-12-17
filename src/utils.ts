@@ -1,4 +1,4 @@
-import { JWTPayload, SanitizeOptions } from "./models/interfaces";
+import { JWTPayload, SanitizeOptions } from "@/types/interfaces";
 
 /**
  * Parse JWT payload from the Authorization header
@@ -104,7 +104,7 @@ const sanitize = (value: any, options: SanitizeOptions) => {
     }
 
     case "boolean": {
-      return value === "true" || value === true;
+      return value === "true" || value === true ? true : options.defaultValue;
     }
 
     default:

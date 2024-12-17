@@ -1,0 +1,16 @@
+@startuml
+
+set separator none
+package artist.controller {
+    class ArtistController <<Function Group>> {
+        + {static} addArtist(req: Request, res: Response): RequestHandler
+        + {static} getAllArtists(req: Request, res: Response): RequestHandler
+        + {static} getArtistByID(req: Request, res: Response): RequestHandler
+        + {static} getArtistSongsByID(req: Request, res: Response): RequestHandler
+        + {static} getArtistAlbumsByID(req: Request, res: Response): RequestHandler
+        + {static} updateArtist(req: Request, res: Response): RequestHandler
+        + {static} deleteArtist(req: Request, res: Response): RequestHandler
+    }
+}
+
+@enduml

@@ -1,0 +1,16 @@
+@startuml
+
+set separator none
+package song.controller {
+    class SongController <<Function Group>> {
+        + {static} addSong(req: Request, res: Response): RequestHandler
+        + {static} getAllSongs(req: Request, res: Response): RequestHandler
+        + {static} getSongByID(req: Request, res: Response): RequestHandler
+        + {static} generatePresignedDownloadURL(req: Request, res: Response): RequestHandler
+        + {static} generatePresignedUploadURL(req: Request, res: Response): RequestHandler
+        + {static} updateSong(req: Request, res: Response): RequestHandler
+        + {static} deleteSong(req: Request, res: Response): RequestHandler
+    }
+}
+
+@enduml

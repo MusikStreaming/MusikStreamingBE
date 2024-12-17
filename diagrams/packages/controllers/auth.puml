@@ -1,0 +1,15 @@
+@startuml
+
+set separator none
+package auth.controller {
+    class AuthController <<Function Group>> {
+        + {static} signUpWithEmail(req: Request, res: Response): RequestHandler
+        + {static} signInWithEmail(req: Request, res: Response): RequestHandler
+        + {static} signInWithGoogle(req: Request, res: Response): RequestHandler
+        + {static} handleOAuthCallback(req: Request, res: Response): RequestHandler
+        + {static} updateUserCredentials(req: Request, res: Response): RequestHandler
+        + {static} signOut(req: Request, res: Response): RequestHandler
+    }
+}
+
+@enduml

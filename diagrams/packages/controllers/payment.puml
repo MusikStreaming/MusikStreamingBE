@@ -1,0 +1,12 @@
+@startuml
+
+set separator none
+package payment.controller {
+    class PaymentController <<Function Group>> {
+        + {static} createZaloOrder(req: Request, res: Response): RequestHandler
+        + {static} receiveZaloCallback(req: Request, res: Response): RequestHandler
+        + {static} getZaloOrderStatus(req: Request, res: Response): RequestHandler
+    }
+}
+
+@enduml

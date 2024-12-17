@@ -1,0 +1,30 @@
+@startuml
+
+skinparam packageStyle frame
+package "Use case: Overview"  {
+    left to right direction
+
+    :Anonymous User: as Anon
+    :Authenticated User: as Auth
+    :Artist Manager: as AM
+
+    rectangle "Music Streaming App" {
+        usecase "View songs, artists, playlists and users" as UC1
+        usecase "Manage own account" as UC2
+        usecase "Manage own artists" as UC3
+        usecase "Manage all artists and users" as UC4
+    }
+
+    Anon --> UC1
+
+    Auth --|> Anon
+    Auth --> UC2
+
+    Admin --|> Auth
+    Admin --> UC4
+
+    AM --|> Auth
+    AM --> UC3
+}
+
+@enduml

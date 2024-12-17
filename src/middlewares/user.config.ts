@@ -1,4 +1,4 @@
-import { User } from "@/models/interfaces";
+import { User } from "@/types/interfaces";
 import { supabase } from "@/services/supabase";
 import { parseJWTPayload, sanitize } from "@/utils";
 import { NextFunction, Request, RequestHandler, Response } from "express";

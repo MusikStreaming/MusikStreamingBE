@@ -1,10 +1,11 @@
 import { Router } from "express";
 import { storage } from "@/middlewares/multer.config";
 import { ArtistController } from "@/controllers/artist.controller";
+import {userMiddleware} from "@/middlewares/user.config";
 
 const router = Router();
 
-router.get("/", ArtistController.getAllArtists);
+router.get("/", userMiddleware, ArtistController.getAllArtists);
 
 router.get("/:id", ArtistController.getArtistByID);
 

@@ -1,0 +1,17 @@
+@startuml
+
+package src {
+    package controllers
+    package middlewares
+    package types
+    package routes
+    package services
+
+    controllers ..> services
+    controllers ..> types
+
+    routes ..> controllers
+    routes ..> middlewares
+}
+
+@enduml

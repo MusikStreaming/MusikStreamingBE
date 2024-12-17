@@ -1,0 +1,43 @@
+@startuml
+
+package services {
+    class Backblaze {
+        - client: S3Client {readOnly}
+        + generatePresignedDownloadURL(): Promise<string>
+        + generatePresignedUploadURL(): Promise<string>
+    }
+    class Redis {
+        - client: UpstashRedis {readOnly}
+        + set<T>(): \nPromise<"OK" | T | null>
+        + get<T>(): Promise<T | null>
+    }
+    class Cloudinary {
+        + upload(): Promise<string>
+        + delete(): Promise<void>
+    }
+    class ZaloPay {
+        - client: ZaloClient {readOnly}
+        + createOrder(): Promise<any>
+        + receiveOrderCallback(): ZaloResult
+    }
+}
+
+package types {
+    interface ZaloClient {
+        app_id: string;
+        key1: string;
+        key2: string;
+        embed_data?: {
+            redirecturl?: string;
+        };
+    }
+    interface ZaloResult {
+      return_code: number;
+      return_message: string;
+    }
+}
+
+ZaloPay ..> ZaloResult
+ZaloPay *.. ZaloClient
+
+@enduml

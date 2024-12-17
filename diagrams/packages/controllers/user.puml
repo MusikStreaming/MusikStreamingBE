@@ -1,0 +1,19 @@
+@startuml
+
+set separator none
+package user.controller {
+    class UserController <<Function Group>> {
+        + {static} getProfile(req: Request, res: Response): RequestHandler
+        + {static} getAllUsers(req: Request, res: Response): RequestHandler
+        + {static} getUserByID(req: Request, res: Response): RequestHandler
+        + {static} getPlaylists(req: Request, res: Response): RequestHandler
+        + {static} getListenHistory(req: Request, res: Response): RequestHandler
+        + {static} getFollowedArtists(req: Request, res: Response): RequestHandler
+        + {static} updateProfile(req: Request, res: Response): RequestHandler
+        + {static} upsertListenHistory(req: Request, res: Response): RequestHandler
+        + {static} followArtist(req: Request, res: Response): RequestHandler
+        + {static} unfollowArtist(req: Request, res: Response): RequestHandler
+    }
+}
+
+@enduml

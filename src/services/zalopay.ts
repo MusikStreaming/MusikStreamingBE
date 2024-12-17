@@ -4,7 +4,7 @@ import {
   ZaloClient,
   ZaloOrder,
   OrderItem,
-} from "@/models/interfaces";
+} from "@/types/interfaces";
 import axios from "axios";
 import { createHmac } from "crypto";
 

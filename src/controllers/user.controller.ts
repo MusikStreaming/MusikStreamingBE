@@ -216,7 +216,9 @@ const getListenHistory: RequestHandler = async (
       )
     )
   `,
-    );
+    )
+    .order("last_listened", { ascending: false })
+    .limit(20);
 
   if (historyError) {
     res.status(500).json({ error: historyError.message });

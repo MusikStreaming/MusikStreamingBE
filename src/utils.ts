@@ -104,7 +104,7 @@ const sanitize = (value: any, options: SanitizeOptions) => {
     }
 
     case "boolean": {
-      return value === "true" || value === true;
+      return value === "true" || value === true ? true : options.defaultValue;
     }
 
     default:

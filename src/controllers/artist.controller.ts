@@ -24,19 +24,17 @@ const getAllArtists: RequestHandler = async (req: Request, res: Response) => {
     min: 10,
     max: 50,
   });
-  const managed: boolean =
-    sanitize(req.query.managed, {
-      type: "boolean",
-      defaultValue: false,
-    }) && req.user.role === "Artist Manager";
-
-  console.log(managed);
+  const isManaged: boolean = sanitize(req.query.managed, {
+    type: "boolean",
+    defaultValue: false,
+  });
+  const managed = isManaged && req.user.role === "Artist Manager";
 
   let key = `artists?page=${page}&limit=${limit}`;
-  if (managed) {
+
+  if (managed && req.user.id) {
     key = `artists?page=${page}&limit=${limit}&manager_id=${req.user.id}`;
   }
-  console.log(key);
 
   const cache = await redis.get(key);
   if (cache) {
@@ -50,7 +48,6 @@ const getAllArtists: RequestHandler = async (req: Request, res: Response) => {
   // Query builder
   let builder = supabase.from("artists").select("id, name, avatarurl");
   if (managed) {
-    console.log(req.user);
     builder = builder.eq("managerid", req.user.id);
   }
 

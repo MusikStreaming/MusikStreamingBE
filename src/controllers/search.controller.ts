@@ -17,15 +17,46 @@ const searchDefault: RequestHandler = async (req: Request, res: Response) => {
   const role = req.user.role;
 
   if (role !== "Admin") {
-    const cache = await redis.get(key);
+    const cache: { data: { songs: any, artists: any, albums: any, playlists: any, users: any } } | null = await redis.get(key);
     if (cache) {
       console.log("Fetch data from cache");
-      res.status(200).json(cache);
+      if (cache.data.songs.songs !== null) {
+        cache.data.songs.songs.forEach((item: any) => delete item.distance);
+      }
+      else {
+        cache.data.songs.songs = [];
+      }
+      if (cache.data.artists.artists !== null) {
+        cache.data.artists.artists.forEach((item: any) => delete item.distance);
+      }
+      else {
+        cache.data.artists.artists = [];
+      }
+      if (cache.data.albums !== null) {
+        cache.data.albums.albums.forEach((item: any) => delete item.similarity_score);
+      }
+      else {
+        cache.data.albums.albums = [];
+      }
+      if (cache.data.playlists.playlists !== null) {
+        cache.data.playlists.playlists.forEach((item: any) => delete item.similarity_score);
+      }
+      else {
+        cache.data.playlists.playlists = [];
+      }
+      if (cache.data.users.users !== null) {
+        cache.data.users.users.forEach((item: any) => delete item.similarity_score);
+      }
+      else {
+        cache.data.users.users = [];
+      }
+      res.status(200).json({ data: { songs: cache.data.songs.songs, artists: cache.data.artists.artists, albums: cache.data.albums.albums, playlists: cache.data.playlists.playlists, users: cache.data.users.users } });
       return;
     }
   }
 
   try {
+    console.log("task 1");
     const [
       { data: songs, error: songError },
       { data: artists, error: artistError },
@@ -33,37 +64,13 @@ const searchDefault: RequestHandler = async (req: Request, res: Response) => {
       { data: playlists, error: playlistError },
       { data: users, error: userError },
     ] = await Promise.all([
-      supabase
-        .from("songs")
-        .select(
-          "id, title, thumbnailurl, duration, artists: artistssongs(artist: artists(id, name))",
-        )
-        .textSearch("title", term)
-        .range(0, 19),
-      supabase
-        .from("artists")
-        .select("id, name, avatarurl")
-        .textSearch("name", term)
-        .range(0, 29),
-      supabase
-        .from("playlists")
-        .select("id, title, thumbnailurl, user: profiles (username)")
-        .in("type", ["Album", "EP", "Single"])
-        .textSearch("title", term)
-        .range(0, 29),
-      supabase
-        .from("playlists")
-        .select("id, title, thumbnailurl, user: profiles (username)")
-        .eq("type", "Playlist")
-        .textSearch("title", term)
-        .range(0, 29),
-      supabase
-        .from("profiles")
-        .select("id, username, avatarurl")
-        .textSearch("username", term)
-        .range(0, 29),
+      supabase.rpc("search_songs", { term: term }),
+      supabase.rpc("search_artists", { term: term }),
+      supabase.rpc("search_albums", { term: term }),
+      supabase.rpc("search_playlists", { term: term }),
+      supabase.rpc("search_users", { term: term }),
     ]);
-
+    console.log("task 2");
     const errors = [
       songError,
       artistError,
@@ -84,12 +91,40 @@ const searchDefault: RequestHandler = async (req: Request, res: Response) => {
         { ex: 300 },
       );
     }
+    console.log("task 3");
+    if (songs?.songs) {
+      songs.songs.forEach((item: any) => delete item.distance);
+    } else {
+      songs.songs = [];
+    }
+    artists.artists.forEach((item: any) => delete item.distance);
+    if (albums?.albums) {
+      albums.albums.forEach((item: any) => delete item.similarity_score);
+    } else {
+      albums.albums = [];
+    }
+    if (playlists !== null && playlists.playlists !== null) {
+      playlists.playlists.forEach((item) => delete item.similarity_score);
+    }
+    else {
+      if (playlists !== null) {
+        playlists.playlists = [];
+      }
+    }
+    users.users.forEach((item) => delete item.similarity_score);
+    console.log("task 4");
     res
-      .status(200)
-      .json({ data: { songs, artists, albums, playlists, users } });
+    .status(200)
+    .json( {data: { songs: songs?.songs ?? [],
+            artists: artists?.artists ?? [],
+            albums: albums?.albums ?? [],
+            playlists: playlists?.playlists ?? [],
+            users: users?.users ?? []
+     }} );  
+    console.log(res.json);
     return;
   } catch (error) {
-    res.status(500).json({ error: error });
+    res.status(500).json({ error: 'Me may' });
     return;
   }
 };
@@ -122,18 +157,13 @@ const searchSongs: RequestHandler = async (req: Request, res: Response) => {
     const cache = await redis.get(key);
     if (cache) {
       console.log("Fetch data from cache");
+      cache.songs.forEach((item) => delete item.distance);
       res.status(200).json(cache);
       return;
     }
   }
 
-  const { data, error } = await supabase
-    .from("songs")
-    .select(
-      "id, title, thumbnailurl, duration, artists: artistssongs(artist: artists(id, name))",
-    )
-    .textSearch("title", term)
-    .range((page - 1) * limit, page * limit - 1);
+  const { data, error } = await supabase.rpc("search_songs", { term: term, }); 
 
   if (error) {
     res.status(500).json({ error: error.message });
@@ -143,6 +173,7 @@ const searchSongs: RequestHandler = async (req: Request, res: Response) => {
   if (role !== "Admin") {
     redis.set(key, data, { ex: 300 });
   }
+  data.songs.forEach((item) => delete item.distance);
   res.status(200).json({ data });
   return;
 };
@@ -176,16 +207,13 @@ const searchArtists: RequestHandler = async (req: Request, res: Response) => {
     const cache = await redis.get(key);
     if (cache) {
       console.log("Fetch data from cache");
+      cache.artists.forEach((item) => delete item.distance);
       res.status(200).json(cache);
       return;
     }
   }
 
-  const { data, error } = await supabase
-    .from("artists")
-    .select("id, name, avatarurl")
-    .textSearch("name", term)
-    .range((page - 1) * limit, page * limit - 1);
+  const { data, error } = await supabase.rpc("search_artists", { term: term, });
 
   if (error) {
     res.status(500).json({ error: error.message });
@@ -195,6 +223,7 @@ const searchArtists: RequestHandler = async (req: Request, res: Response) => {
   if (role !== "Admin") {
     redis.set(key, data, { ex: 300 });
   }
+  data.artists.forEach((item) => delete item.distance);
   res.status(200).json({ data });
   return;
 };
@@ -228,16 +257,13 @@ const searchUsers: RequestHandler = async (req: Request, res: Response) => {
     const cache = await redis.get(key);
     if (cache) {
       console.log("Fetch data from cache");
+      cache.users.forEach((item) => delete item.similarity_score);
       res.status(200).json(cache);
       return;
     }
   }
 
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("id, username, avatarurl")
-    .textSearch("username", term)
-    .range((page - 1) * limit, page * limit - 1);
+  const { data, error } = await supabase.rpc('search_users', { term: term });
 
   if (error) {
     res.status(500).json({ error: error.message });
@@ -247,6 +273,7 @@ const searchUsers: RequestHandler = async (req: Request, res: Response) => {
   if (role !== "Admin") {
     redis.set(key, data, { ex: 300 });
   }
+  data.users.forEach((item) => delete item.similarity_score);
   res.status(200).json({ data });
   return;
 };
@@ -280,17 +307,18 @@ const searchPlaylists: RequestHandler = async (req: Request, res: Response) => {
     const cache = await redis.get(key);
     if (cache) {
       console.log("Fetch data from cache");
+      if (cache.playlists !== null) {
+        cache.playlists.forEach((item) => delete item.similarity_score);
+      }
+      else {
+        cache.playlists = [];
+      }
       res.status(200).json(cache);
       return;
     }
   }
 
-  const { data, error } = await supabase
-    .from("playlists")
-    .select("id, title, thumbnailurl, user: profiles (username)")
-    .eq("type", "Playlist")
-    .textSearch("title", term)
-    .range((page - 1) * limit, page * limit - 1);
+  const { data, error } = await supabase.rpc('search_playlists', { term: term });
 
   if (error) {
     res.status(500).json({ error: error.message });
@@ -299,6 +327,12 @@ const searchPlaylists: RequestHandler = async (req: Request, res: Response) => {
 
   if (role !== "Admin") {
     redis.set(key, data, { ex: 300 });
+  }
+  if (data.playlists !== null) {
+    data.playlists.forEach((item) => delete item.similarity_score);
+  }
+  else {
+    data.playlists = [];
   }
   res.status(200).json({ data });
   return;
@@ -313,6 +347,7 @@ const searchPlaylists: RequestHandler = async (req: Request, res: Response) => {
  */
 const searchAlbums: RequestHandler = async (req: Request, res: Response) => {
   const term = decodeURIComponent(req.params.term);
+  console.log(term);
   const page: number = sanitize(req.query.page, {
     type: "number",
     defaultValue: 1,
@@ -332,17 +367,22 @@ const searchAlbums: RequestHandler = async (req: Request, res: Response) => {
     const cache = await redis.get(key);
     if (cache) {
       console.log("Fetch data from cache");
+      cache.albums.forEach((item: any) => delete item.similarity_score);
       res.status(200).json(cache);
       return;
     }
   }
 
-  const { data, error } = await supabase
-    .from("playlists")
-    .select("id, title, thumbnailurl, user: profiles (username)")
-    .in("type", ["Album", "EP", "Single"])
-    .textSearch("title", term)
-    .range((page - 1) * limit, page * limit - 1);
+  const { data, error } = await supabase.rpc('search_albums', { term: term });
+  if (error) {
+    console.error('Error calling RPC:', error);
+  } else {
+    console.log('Search results:', data);
+  }
+
+  if (!Array.isArray(data)) {
+    console.error("Data is not an array:", data);
+  }
 
   if (error) {
     res.status(500).json({ error: error.message });
@@ -352,6 +392,7 @@ const searchAlbums: RequestHandler = async (req: Request, res: Response) => {
   if (role !== "Admin") {
     redis.set(key, data, { ex: 300 });
   }
+  data.albums.forEach((item: any) => delete item.similarity_score);
   res.status(200).json({ data });
 };
 

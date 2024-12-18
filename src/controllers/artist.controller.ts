@@ -46,12 +46,14 @@ const getAllArtists: RequestHandler = async (req: Request, res: Response) => {
   console.log("Fetch data from database");
 
   // Query builder
-  let builder = supabase.from("artists").select("id, name, avatarurl");
+  let builder = supabase
+    .from("artists")
+    .select("id, name, avatarurl", { count: "estimated" });
   if (managed) {
     builder = builder.eq("managerid", req.user.id);
   }
 
-  const { data, error } = await builder.range(
+  const { data, error, count } = await builder.range(
     (page - 1) * limit,
     page * limit - 1,
   );
@@ -61,10 +63,10 @@ const getAllArtists: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  redis.set(key, JSON.stringify({ data }), {
+  redis.set(key, JSON.stringify({ count, data }), {
     ex: 300,
   });
-  res.status(200).json({ data });
+  res.status(200).json({ count, data });
 };
 
 /**
@@ -116,9 +118,9 @@ const getArtistSongsByID: RequestHandler = async (
     return;
   }
 
-  const { data, error } = await supabase
+  const { data, count, error } = await supabase
     .from("artistssongs")
-    .select("song: songs(id, title, thumbnailurl)")
+    .select("song: songs(id, title, thumbnailurl)", { count: "estimated" })
     .eq("artistid", req.params.id)
     .limit(10);
 
@@ -127,8 +129,8 @@ const getArtistSongsByID: RequestHandler = async (
     return;
   }
 
-  redis.set(key, JSON.stringify(data), { ex: 300 });
-  res.status(200).json({ data });
+  redis.set(key, JSON.stringify({ count, data }), { ex: 300 });
+  res.status(200).json({ count, data });
 };
 
 const getArtistAlbumsByID: RequestHandler = async (
@@ -143,9 +145,9 @@ const getArtistAlbumsByID: RequestHandler = async (
     return;
   }
 
-  const { data, error } = await supabase
+  const { data, count, error } = await supabase
     .from("artist_playlist")
-    .select("id, title, thumbnailurl, created_at, type")
+    .select("id, title, thumbnailurl, created_at, type", { count: "estimated" })
     .eq("artist_id", req.params.id)
     .limit(10);
 
@@ -154,8 +156,8 @@ const getArtistAlbumsByID: RequestHandler = async (
     return;
   }
 
-  redis.set(key, JSON.stringify(data), { ex: 300 });
-  res.status(200).json({ data });
+  redis.set(key, JSON.stringify({ count, data }), { ex: 300 });
+  res.status(200).json({ count, data });
 };
 
 /**

@@ -24,7 +24,7 @@ const getAllCollections: RequestHandler = async (
   const limit: number = sanitize(req.query.limit, {
     type: "number",
     defaultValue: 10,
-    min: 10,
+    min: 2,
     max: 50,
   });
   const key = `collections?page=${page}&limit=${limit}`;
@@ -40,9 +40,11 @@ const getAllCollections: RequestHandler = async (
     }
   }
 
-  const { data, error } = await supabase
+  const { data, error, count } = await supabase
     .from("playlists")
-    .select("id,title, type, thumbnailurl, owner: profiles (id, username)")
+    .select("id,title, type, thumbnailurl, owner: profiles (id, username)", {
+      count: "estimated",
+    })
     .range((page - 1) * limit, page * limit - 1);
 
   if (error) {
@@ -51,11 +53,11 @@ const getAllCollections: RequestHandler = async (
   }
 
   if (role !== "Admin") {
-    redis.set(key, data, {
+    redis.set(key, JSON.stringify({ count, data }), {
       ex: 300,
     });
   }
-  res.status(200).json({ data });
+  res.status(200).json({ count, data });
 };
 
 /**
@@ -90,9 +92,11 @@ const getAllPlaylists: RequestHandler = async (req: Request, res: Response) => {
     }
   }
 
-  const { data, error } = await supabase
+  const { data, count, error } = await supabase
     .from("playlists")
-    .select("id,title, type, thumbnailurl, owner: profiles (id, username)")
+    .select("id,title, type, thumbnailurl, owner: profiles (id, username)", {
+      count: "estimated",
+    })
     .eq("type", "Playlist")
     .range((page - 1) * limit, page * limit - 1);
 
@@ -102,11 +106,11 @@ const getAllPlaylists: RequestHandler = async (req: Request, res: Response) => {
   }
 
   if (role !== "Admin") {
-    redis.set(key, data, {
+    redis.set(key, JSON.stringify({ count, data }), {
       ex: 300,
     });
   }
-  res.status(200).json({ data });
+  res.status(200).json({ count, data });
 };
 
 /**
@@ -142,9 +146,11 @@ const getAllAlbums: RequestHandler = async (req: Request, res: Response) => {
     }
   }
 
-  const { data, error } = await supabase
+  const { data, count, error } = await supabase
     .from("playlists")
-    .select("id,title, type, thumbnailurl, owner: profiles (id, username)")
+    .select("id,title, type, thumbnailurl, owner: profiles (id, username)", {
+      count: "estimated",
+    })
     .in("type", ["Album", "EP", "Single"])
     .range((page - 1) * limit, page * limit - 1);
 
@@ -154,11 +160,11 @@ const getAllAlbums: RequestHandler = async (req: Request, res: Response) => {
   }
 
   if (role !== "Admin") {
-    redis.set(key, data, {
+    redis.set(key, JSON.stringify({ count, data }), {
       ex: 300,
     });
   }
-  res.status(200).json({ data });
+  res.status(200).json({ count, data });
 };
 
 /**
@@ -200,7 +206,7 @@ const getCollectionByID: RequestHandler = async (
   }
 
   if (role !== "Admin") {
-    redis.set(key, data, {
+    redis.set(key, JSON.stringify({ data }), {
       ex: 300,
     });
   }

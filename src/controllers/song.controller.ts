@@ -34,9 +34,11 @@ const getAllSongs: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  const { data, error } = await supabase
+  const { data, count, error } = await supabase
     .from("songs")
-    .select("*, artists: artistssongs(artist: artists(id, name))")
+    .select("*, artists: artistssongs(artist: artists(id, name))", {
+      count: "estimated",
+    })
     .range((page - 1) * limit, page * limit - 1);
 
   if (error) {
@@ -44,10 +46,10 @@ const getAllSongs: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  redis.set(key, data, {
+  redis.set(key, JSON.stringify({ count, data }), {
     ex: 300,
   });
-  res.status(200).json({ data });
+  res.status(200).json({ count, data });
 };
 
 /**

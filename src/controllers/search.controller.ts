@@ -124,7 +124,7 @@ const searchDefault: RequestHandler = async (req: Request, res: Response) => {
     console.log(res.json);
     return;
   } catch (error) {
-    res.status(500).json({ error: 'Me may' });
+    res.status(500).json({ error: error });
     return;
   }
 };

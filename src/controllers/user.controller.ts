@@ -37,9 +37,9 @@ const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
     }
   }
 
-  const { data, error } = await supabase
+  const { data, count, error } = await supabase
     .from("profiles")
-    .select("id, username, role, avatarurl")
+    .select("id, username, role, avatarurl", { count: "estimated" })
     .range((page - 1) * limit, page * limit - 1);
 
   if (error) {
@@ -48,11 +48,11 @@ const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
   }
 
   if (role !== "Admin") {
-    redis.set(key, data, {
+    redis.set(key, JSON.stringify({ count, data }), {
       ex: 300,
     });
   }
-  res.status(200).json({ data });
+  res.status(200).json({ count, data });
 };
 
 /**

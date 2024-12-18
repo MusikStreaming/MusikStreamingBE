@@ -2,7 +2,7 @@ import env from "@/env";
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
 import { supabase } from "@/services/supabase";
-import { sanitize } from "@/utils";
+import { sanitize, skipCache } from "@/utils";
 import { Request, RequestHandler, Response } from "express";
 
 /**
@@ -31,7 +31,7 @@ const getAllCollections: RequestHandler = async (
 
   const role = req.user.role;
 
-  if (role !== "Admin") {
+  if (role !== "Admin" && !skipCache(req.headers["cache-control"])) {
     const cache = await redis.get(key);
     if (cache) {
       console.log("Fetch data from cache");
@@ -83,7 +83,7 @@ const getAllPlaylists: RequestHandler = async (req: Request, res: Response) => {
 
   const role = req.user.role;
 
-  if (role !== "Admin") {
+  if (role !== "Admin" && !skipCache(req.headers["cache-control"])) {
     const cache = await redis.get(key);
     if (cache) {
       console.log("Fetch data from cache");
@@ -137,7 +137,7 @@ const getAllAlbums: RequestHandler = async (req: Request, res: Response) => {
 
   const role = req.user.role;
 
-  if (role !== "Admin") {
+  if (role !== "Admin" && !skipCache(req.headers["cache-control"])) {
     const cache = await redis.get(key);
     if (cache) {
       console.log("Fetch data from cache");
@@ -183,7 +183,7 @@ const getCollectionByID: RequestHandler = async (
 
   const role = req.user.role;
 
-  if (role !== "Admin") {
+  if (role !== "Admin" && !skipCache(req.headers["cache-control"])) {
     const cache = await redis.get(key);
     if (cache) {
       console.log("Fetch data from cache");
@@ -247,7 +247,6 @@ const addCollection: RequestHandler = async (req: Request, res: Response) => {
     cloudinary.upload(req.file, "collections", data.id);
   }
 
-  redis.del("collections", { exclude: "collections?id=" });
   res.status(200).json({ data });
 };
 
@@ -293,7 +292,6 @@ const updateCollection: RequestHandler = async (
     return;
   }
 
-  redis.del(`collections?id=${id}`);
   res.status(200).json({ data });
 };
 
@@ -318,7 +316,6 @@ const deleteCollection: RequestHandler = async (
 
   cloudinary.delete("collections", `i-${id}`);
 
-  redis.del("collections");
   res.status(200).json({ message: `Collection ${id} is being deleted` });
 };
 
@@ -345,7 +342,6 @@ const addCollectionSong: RequestHandler = async (
     return;
   }
 
-  redis.del(`collections?id=${id}`);
   res.status(204).send();
 };
 
@@ -373,7 +369,6 @@ const deleteCollectionSong: RequestHandler = async (
     return;
   }
 
-  redis.del(`collections?id=${id}`);
   res.status(204).send();
 };
 

@@ -3,7 +3,7 @@ import backblaze from "@/services/backblaze";
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
 import { supabase } from "@/services/supabase";
-import { sanitize } from "@/utils";
+import { sanitize, skipCache } from "@/utils";
 import { Request, RequestHandler, Response } from "express";
 
 /**
@@ -27,11 +27,14 @@ const getAllSongs: RequestHandler = async (req: Request, res: Response) => {
   });
 
   const key = `songs?page=${page}&limit=${limit}`;
-  const cache = await redis.get(key);
-  if (cache) {
-    console.log("Fetch data from cache");
-    res.status(200).json(cache);
-    return;
+
+  if (!skipCache(req.headers["cache-control"])) {
+    const cache = await redis.get(key);
+    if (cache) {
+      console.log("Fetch data from cache");
+      res.status(200).json(cache);
+      return;
+    }
   }
 
   const { data, count, error } = await supabase
@@ -62,11 +65,13 @@ const getAllSongs: RequestHandler = async (req: Request, res: Response) => {
 const getSongByID: RequestHandler = async (req: Request, res: Response) => {
   const key = `songs?id=${req.params.id}`;
 
-  const cache = await redis.get(key);
-  if (cache) {
-    console.log("Fetch data from cache");
-    res.status(200).json(cache);
-    return;
+  if (!skipCache(req.headers["cache-control"])) {
+    const cache = await redis.get(key);
+    if (cache) {
+      console.log("Fetch data from cache");
+      res.status(200).json(cache);
+      return;
+    }
   }
 
   const { data, error } = await supabase
@@ -224,7 +229,6 @@ const updateSong: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  redis.del(`songs?id=${id}`);
   res.status(200).json({ data });
 };
 
@@ -295,7 +299,6 @@ const addSong: RequestHandler = async (req: Request, res: Response) => {
     cloudinary.upload(req.file, "songs", data.id);
   }
 
-  redis.del("songs", { exclude: "songs?id=" });
   res.status(200).json({ data });
 };
 
@@ -324,7 +327,6 @@ const deleteSong: RequestHandler = async (req: Request, res: Response) => {
   backblaze.deleteObject(data.title + ".mp3");
   cloudinary.delete("songs", `i-${id}`);
 
-  redis.del("songs");
   res.status(204).send();
 };
 

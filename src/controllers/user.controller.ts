@@ -3,7 +3,7 @@ import { Request, RequestHandler, Response } from "express";
 import { supabase } from "@/services/supabase";
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
-import { sanitize } from "@/utils";
+import { sanitize, skipCache } from "@/utils";
 
 /**
  * Get all users with pagination
@@ -28,7 +28,7 @@ const getAllUsers: RequestHandler = async (req: Request, res: Response) => {
 
   const role = req.user.role;
 
-  if (role !== "Admin") {
+  if (role !== "Admin" && !skipCache(req.headers["cache-control"])) {
     const cache = await redis.get(key);
     if (cache) {
       console.log("Fetch data from cache");
@@ -66,7 +66,7 @@ const getUserByID: RequestHandler = async (req: Request, res: Response) => {
   const key = `users?id=${req.params.id}`;
   const role = req.user.role;
 
-  if (role !== "Admin") {
+  if (role !== "Admin" && !skipCache(req.headers["cache-control"])) {
     const cache = await redis.get(key);
     if (cache) {
       console.log("Fetch data from cache");
@@ -164,7 +164,6 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  redis.del(`users?id=${id}`);
   res.status(200).json({ data });
 };
 

@@ -18,7 +18,6 @@ class Redis {
   ): Promise<"OK" | TData | null> {
     try {
       const res = await this.client.set(key, data, options);
-      await this.client.sadd(key.split("?")[0], key);
       return res;
     } catch (err) {
       console.log("Cache request limit reached...");
@@ -36,33 +35,38 @@ class Redis {
     }
   }
 
-  public async del(key: string, opts?: { exclude: string }): Promise<void> {
+  public async del(keys: string[]): Promise<void> {
     try {
-      const isGroupKey = !key.includes("?");
+      for (const key of keys) {
+        // Check if the key contains a wildcard
+        if (key.includes("*")) {
+          console.log(`Deleting all keys matching pattern: ${key}`);
 
-      if (isGroupKey) {
-        console.log(`Deleting all keys for group: ${key}`);
+          let cursor = "0";
+          do {
+            const [nextCursor, matchedKeys] = await this.client.scan(cursor, {
+              match: key,
+              count: 100,
+            });
+            cursor = nextCursor;
 
-        const groupKeys = await this.client.smembers(key);
-
-        const keysToDelete = opts?.exclude
-          ? groupKeys.filter((groupKey) => !groupKey.includes(opts.exclude))
-          : groupKeys;
-
-        if (keysToDelete.length > 0) {
-          await Promise.all(
-            keysToDelete.map((filteredKey) => this.client.del(filteredKey)),
-          );
-          console.log(`Deleted ${keysToDelete.length} keys for group: ${key}`);
+            if (matchedKeys.length > 0) {
+              await Promise.all(
+                matchedKeys.map((matchedKey) => this.client.del(matchedKey)),
+              );
+              console.log(
+                `Deleted ${matchedKeys.length} keys matching pattern: ${key}`,
+              );
+            }
+          } while (cursor !== "0");
+        } else {
+          // Handle exact key deletion
+          console.log(`Deleting exact key: ${key}`);
+          await this.client.del(key);
         }
-
-        await this.client.del(key);
-      } else {
-        console.log(`Deleting individual key: ${key}`);
-        await this.client.del(key);
       }
     } catch (err) {
-      console.log(`Error during cache invalidation: ${err}`);
+      console.error(`Error during cache invalidation: ${err}`);
     }
   }
 }

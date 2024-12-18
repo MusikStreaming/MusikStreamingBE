@@ -112,4 +112,8 @@ const sanitize = (value: any, options: SanitizeOptions) => {
   }
 };
 
-export { parseJWTPayload, sanitize, escapeHtml };
+const skipCache = (value: string | undefined) => {
+  return value === "no-cache";
+};
+
+export { parseJWTPayload, sanitize, escapeHtml, skipCache };

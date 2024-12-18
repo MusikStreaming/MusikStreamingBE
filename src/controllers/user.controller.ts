@@ -84,6 +84,7 @@ const getUserByID: RequestHandler = async (req: Request, res: Response) => {
   if (error) {
     if (error.code === "PGRST116") {
       res.status(404).json({ error: "User does not exist" });
+      return;
     } else {
       res.status(500).json({ error: error.message });
       return;

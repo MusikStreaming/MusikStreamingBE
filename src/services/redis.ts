@@ -34,6 +34,41 @@ class Redis {
       return null;
     }
   }
+
+  public async del(keys: string[]): Promise<void> {
+    try {
+      for (const key of keys) {
+        // Check if the key contains a wildcard
+        if (key.includes("*")) {
+          console.log(`Deleting all keys matching pattern: ${key}`);
+
+          let cursor = "0";
+          do {
+            const [nextCursor, matchedKeys] = await this.client.scan(cursor, {
+              match: key,
+              count: 100,
+            });
+            cursor = nextCursor;
+
+            if (matchedKeys.length > 0) {
+              await Promise.all(
+                matchedKeys.map((matchedKey) => this.client.del(matchedKey)),
+              );
+              console.log(
+                `Deleted ${matchedKeys.length} keys matching pattern: ${key}`,
+              );
+            }
+          } while (cursor !== "0");
+        } else {
+          // Handle exact key deletion
+          console.log(`Deleting exact key: ${key}`);
+          await this.client.del(key);
+        }
+      }
+    } catch (err) {
+      console.error(`Error during cache invalidation: ${err}`);
+    }
+  }
 }
 
 const redis = new Redis();

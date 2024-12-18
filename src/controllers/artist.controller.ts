@@ -2,7 +2,7 @@ import env from "@/env";
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
 import { supabase } from "@/services/supabase";
-import { sanitize } from "@/utils";
+import { sanitize, skipCache } from "@/utils";
 import { Request, RequestHandler, Response } from "express";
 
 /**
@@ -36,11 +36,13 @@ const getAllArtists: RequestHandler = async (req: Request, res: Response) => {
     key = `artists?page=${page}&limit=${limit}&manager_id=${req.user.id}`;
   }
 
-  const cache = await redis.get(key);
-  if (cache) {
-    console.log("Fetch data from cache");
-    res.status(200).json(cache);
-    return;
+  if (!skipCache(req.headers["cache-control"])) {
+    const cache = await redis.get(key);
+    if (cache) {
+      console.log("Fetch data from cache");
+      res.status(200).json(cache);
+      return;
+    }
   }
 
   console.log("Fetch data from database");
@@ -78,11 +80,14 @@ const getAllArtists: RequestHandler = async (req: Request, res: Response) => {
  */
 const getArtistByID: RequestHandler = async (req: Request, res: Response) => {
   const key = `artists?id=${req.params.id}`;
-  const cache = await redis.get(key);
-  if (cache) {
-    console.log("Fetch data from cache");
-    res.status(200).json(cache);
-    return;
+
+  if (!skipCache(req.headers["cache-control"])) {
+    const cache = await redis.get(key);
+    if (cache) {
+      console.log("Fetch data from cache");
+      res.status(200).json(cache);
+      return;
+    }
   }
 
   const { data, error } = await supabase
@@ -111,11 +116,14 @@ const getArtistSongsByID: RequestHandler = async (
   res: Response,
 ) => {
   const key = `artists?id=${req.params.id}&show_songs=true`;
-  const cache = await redis.get(key);
-  if (cache) {
-    console.log("Fetch data from cache");
-    res.status(200).json(cache);
-    return;
+
+  if (!skipCache(req.headers["cache-control"])) {
+    const cache = await redis.get(key);
+    if (cache) {
+      console.log("Fetch data from cache");
+      res.status(200).json(cache);
+      return;
+    }
   }
 
   const { data, count, error } = await supabase
@@ -138,11 +146,14 @@ const getArtistAlbumsByID: RequestHandler = async (
   res: Response,
 ) => {
   const key = `artists?id=${req.params.id}&show_albums=true`;
-  const cache = await redis.get(key);
-  if (cache) {
-    console.log("Fetch data from cache");
-    res.status(200).json(cache);
-    return;
+
+  if (!skipCache(req.headers["cache-control"])) {
+    const cache = await redis.get(key);
+    if (cache) {
+      console.log("Fetch data from cache");
+      res.status(200).json(cache);
+      return;
+    }
   }
 
   const { data, count, error } = await supabase

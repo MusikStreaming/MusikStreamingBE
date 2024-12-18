@@ -112,8 +112,19 @@ const sanitize = (value: any, options: SanitizeOptions) => {
   }
 };
 
+/**
+ * Determines if cache should be skipped based on Cache-Control header
+ * @param value - The Cache-Control header value
+ * @returns boolean indicating if cache should be skipped
+ */
 const skipCache = (value: string | undefined) => {
-  return value === "no-cache";
+  if (!value) return false;
+  const normalized = value.toLowerCase();
+  return (
+    normalized.includes("no-cache") ||
+    normalized.includes("no-store") ||
+    normalized.includes("max-age=0")
+  );
 };
 
 export { parseJWTPayload, sanitize, escapeHtml, skipCache };

@@ -79,7 +79,7 @@ const getAllPlaylists: RequestHandler = async (req: Request, res: Response) => {
     min: 10,
     max: 50,
   });
-  const key = `playlists?page=${page}&limit=${limit}`;
+  const key = `collections?page=${page}&limit=${limit}&type=playlist`;
 
   const role = req.user.role;
 
@@ -133,7 +133,7 @@ const getAllAlbums: RequestHandler = async (req: Request, res: Response) => {
     max: 50,
   });
 
-  const key = `albums?page=${page}&limit=${limit}`;
+  const key = `collections?page=${page}&limit=${limit}&type=album`;
 
   const role = req.user.role;
 
@@ -247,6 +247,7 @@ const addCollection: RequestHandler = async (req: Request, res: Response) => {
     cloudinary.upload(req.file, "collections", data.id);
   }
 
+  redis.del("collections", { exclude: "collections?id=" });
   res.status(200).json({ data });
 };
 
@@ -292,6 +293,7 @@ const updateCollection: RequestHandler = async (
     return;
   }
 
+  redis.del(`collections?id=${id}`);
   res.status(200).json({ data });
 };
 
@@ -316,6 +318,7 @@ const deleteCollection: RequestHandler = async (
 
   cloudinary.delete("collections", `i-${id}`);
 
+  redis.del("collections");
   res.status(200).json({ message: `Collection ${id} is being deleted` });
 };
 
@@ -342,6 +345,7 @@ const addCollectionSong: RequestHandler = async (
     return;
   }
 
+  redis.del(`collections?id=${id}`);
   res.status(204).send();
 };
 
@@ -369,6 +373,7 @@ const deleteCollectionSong: RequestHandler = async (
     return;
   }
 
+  redis.del(`collections?id=${id}`);
   res.status(204).send();
 };
 

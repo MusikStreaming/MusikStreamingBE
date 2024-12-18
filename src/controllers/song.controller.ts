@@ -224,6 +224,7 @@ const updateSong: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
+  redis.del(`songs?id=${id}`);
   res.status(200).json({ data });
 };
 
@@ -294,6 +295,7 @@ const addSong: RequestHandler = async (req: Request, res: Response) => {
     cloudinary.upload(req.file, "songs", data.id);
   }
 
+  redis.del("songs", { exclude: "songs?id=" });
   res.status(200).json({ data });
 };
 
@@ -322,6 +324,7 @@ const deleteSong: RequestHandler = async (req: Request, res: Response) => {
   backblaze.deleteObject(data.title + ".mp3");
   cloudinary.delete("songs", `i-${id}`);
 
+  redis.del("songs");
   res.status(204).send();
 };
 

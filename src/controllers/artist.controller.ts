@@ -196,6 +196,7 @@ const updateArtist: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
+  redis.del(`artists?id=${id}`);
   res.status(200).json({ data });
 };
 
@@ -236,6 +237,7 @@ const addArtist: RequestHandler = async (req: Request, res: Response) => {
     cloudinary.upload(req.file, "artists", data.id);
   }
 
+  redis.del("artists", { exclude: "artists?id=" });
   res.status(200).json({ data });
 };
 
@@ -258,6 +260,7 @@ const deleteArtist: RequestHandler = async (req: Request, res: Response) => {
 
   cloudinary.delete("artists", `i-${id}`);
 
+  redis.del("artists");
   res.status(204).send();
 };
 

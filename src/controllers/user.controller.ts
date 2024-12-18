@@ -164,6 +164,7 @@ const updateProfile: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
+  redis.del(`users?id=${id}`);
   res.status(200).json({ data });
 };
 

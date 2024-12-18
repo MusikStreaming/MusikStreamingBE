@@ -24,7 +24,7 @@ const getAllCollections: RequestHandler = async (
   const limit: number = sanitize(req.query.limit, {
     type: "number",
     defaultValue: 10,
-    min: 2,
+    min: 10,
     max: 50,
   });
   const key = `collections?page=${page}&limit=${limit}`;

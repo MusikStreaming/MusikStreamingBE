@@ -12,4 +12,13 @@ package auth.controller {
     }
 }
 
+package services {
+    class Cloudinary <<Singleton>> {
+        + upload(file: Express.Multer.File,folder: string,id: string): Promise<string>
+        + delete(folder: string, fileName: string): Promise<void>
+    }
+}
+
+AuthController ..> Cloudinary
+
 @enduml

@@ -9,4 +9,40 @@ package payment.controller {
     }
 }
 
+package services {
+    class ZaloPay <<Singleton>> {
+        - client: ZaloClient {readOnly}
+        - orderID: number
+
+        + createOrder(user_id: string, items: OrderItem[]): Promise<any>
+        + receiveOrderCallback = (dataStr: string,reqMac: string): ZaloResult
+    }
+}
+
+package types {
+    interface ZaloClient {
+      app_id: string;
+      key1: string;
+      key2: string;
+      embed_data?: {
+        redirectUrl?: string;
+      };
+    }
+    interface ZaloResult {
+      return_code: number;
+      return_message: string;
+    }
+    interface OrderItem {
+      itemname: string;
+      itemprice: number;
+      itemquantity: number;
+    }
+}
+
+ZaloPay *-- ZaloClient
+ZaloPay ..> ZaloResult
+ZaloPay ..> OrderItem: 1..*
+
+PaymentController ..> ZaloPay
+
 @enduml

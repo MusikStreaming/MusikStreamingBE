@@ -2,7 +2,6 @@ import redis from "@/services/redis";
 import { supabase } from "@/services/supabase";
 import { sanitize } from "@/utils";
 import { Request, RequestHandler, Response } from "express";
-import { Database } from '../types/models';
 
 interface SongsSchema {
   songs: any;

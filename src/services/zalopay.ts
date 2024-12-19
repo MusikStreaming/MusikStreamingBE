@@ -19,7 +19,7 @@ class ZaloPay {
       key1: env.ZALO_KEY1,
       key2: env.ZALO_KEY2,
       embed_data: {
-        redirecturl: "https://open.hustmusik.live",
+        redirectUrl: "https://open.hustmusik.live",
       },
     };
     this.orderID = parseInt(Date.now().toString().slice(-6));

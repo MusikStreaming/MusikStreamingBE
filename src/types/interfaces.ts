@@ -38,7 +38,7 @@ export interface ZaloClient {
   key1: string;
   key2: string;
   embed_data?: {
-    redirecturl?: string;
+    redirectUrl?: string;
   };
 }
 

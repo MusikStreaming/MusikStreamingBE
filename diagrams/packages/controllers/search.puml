@@ -12,4 +12,16 @@ package search.controller {
     }
 }
 
+package services {
+    class Redis <<Singleton>> {
+        - client: UpstashRedis
+
+        + set<T>(key: string, data: T, options?: SetCommandOptions): Promise<"OK" | T | null>
+        + get<T>(key: string): Promise<T | null>
+        + del(keys: string[]): Promise<void>
+    }
+}
+
+SearchController ..> Redis
+
 @enduml

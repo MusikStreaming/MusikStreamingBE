@@ -2,6 +2,11 @@ import redis from "@/services/redis";
 import { supabase } from "@/services/supabase";
 import { sanitize } from "@/utils";
 import { Request, RequestHandler, Response } from "express";
+import { Database } from '../types/models';
+
+interface SongsSchema {
+  songs: any;
+}
 
 /**
  * Search default
@@ -34,11 +39,11 @@ const searchDefault: RequestHandler = async (req: Request, res: Response) => {
       { data: playlists, error: playlistError },
       { data: users, error: userError },
     ] = await Promise.all([
-      supabase.rpc("search_songs", { term: term }),
-      supabase.rpc("search_artists", { term: term }),
-      supabase.rpc("search_albums", { term: term }),
-      supabase.rpc("search_playlists", { term: term }),
-      supabase.rpc("search_users", { term: term }),
+      supabase.rpc<any, any>("search_songs", { term: term }),
+      supabase.rpc<any, any>("search_artists", { term: term }),
+      supabase.rpc<any, any>("search_albums", { term: term }),
+      supabase.rpc<any, any>("search_playlists", { term: term }),
+      supabase.rpc<any, any>("search_users", { term: term }),
     ]);
 
     const response = {
@@ -119,7 +124,7 @@ const searchSongs: RequestHandler = async (req: Request, res: Response) => {
     }
   }
 
-  const { data, error } = await supabase.rpc("search_songs", { term: term, }); 
+  const { data, error } = await supabase.rpc("search_songs", { term: term }); 
 
   if (error) {
     res.status(500).json({ error: error.message });
@@ -263,7 +268,7 @@ const searchPlaylists: RequestHandler = async (req: Request, res: Response) => {
     }
   }
 
-  const { data, error } = await supabase.rpc('search_playlists', { term: term });
+  const { data, error } = await supabase.rpc<any, any>('search_playlists', { term: term });
 
   const response = {
     data: {
@@ -316,7 +321,7 @@ const searchAlbums: RequestHandler = async (req: Request, res: Response) => {
     }
   }
 
-  const { data, error } = await supabase.rpc('search_albums', { term: term });
+  const { data, error } = await supabase.rpc<any, any>('search_albums', { term: term });
   const response = {
     data: {
       albums: data?.albums ?? [],

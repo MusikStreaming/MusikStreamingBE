@@ -20,43 +20,13 @@ const searchDefault: RequestHandler = async (req: Request, res: Response) => {
     const cache: { data: { songs: any, artists: any, albums: any, playlists: any, users: any } } | null = await redis.get(key);
     if (cache) {
       console.log("Fetch data from cache");
-      if (cache.data.songs.songs !== null) {
-        cache.data.songs.songs.forEach((item: any) => delete item.distance);
-      }
-      else {
-        cache.data.songs.songs = [];
-      }
-      if (cache.data.artists.artists !== null) {
-        cache.data.artists.artists.forEach((item: any) => delete item.distance);
-      }
-      else {
-        cache.data.artists.artists = [];
-      }
-      if (cache.data.albums !== null) {
-        cache.data.albums.albums.forEach((item: any) => delete item.similarity_score);
-      }
-      else {
-        cache.data.albums.albums = [];
-      }
-      if (cache.data.playlists.playlists !== null) {
-        cache.data.playlists.playlists.forEach((item: any) => delete item.similarity_score);
-      }
-      else {
-        cache.data.playlists.playlists = [];
-      }
-      if (cache.data.users.users !== null) {
-        cache.data.users.users.forEach((item: any) => delete item.similarity_score);
-      }
-      else {
-        cache.data.users.users = [];
-      }
-      res.status(200).json({ data: { songs: cache.data.songs.songs, artists: cache.data.artists.artists, albums: cache.data.albums.albums, playlists: cache.data.playlists.playlists, users: cache.data.users.users } });
+      res.status(200).json(cache);
       return;
     }
   }
 
   try {
-    console.log("task 1");
+    //console.log("task 1");
     const [
       { data: songs, error: songError },
       { data: artists, error: artistError },
@@ -70,7 +40,18 @@ const searchDefault: RequestHandler = async (req: Request, res: Response) => {
       supabase.rpc("search_playlists", { term: term }),
       supabase.rpc("search_users", { term: term }),
     ]);
-    console.log("task 2");
+
+    const response = {
+      data: {
+        songs: songs?.songs ?? [],
+        artists: artists?.artists ?? [],
+        albums: albums?.albums ?? [],
+        playlists: playlists?.playlists ?? [],
+        users: users?.users ?? [],
+      },
+    };
+
+    //console.log("task 2");
     const errors = [
       songError,
       artistError,
@@ -87,41 +68,17 @@ const searchDefault: RequestHandler = async (req: Request, res: Response) => {
     if (role !== "Admin") {
       redis.set(
         key,
-        { data: { songs, artists, albums, playlists, users } },
+        response,
         { ex: 300 },
       );
     }
-    console.log("task 3");
-    if (songs?.songs) {
-      songs.songs.forEach((item: any) => delete item.distance);
-    } else {
-      songs.songs = [];
-    }
-    artists.artists.forEach((item: any) => delete item.distance);
-    if (albums?.albums) {
-      albums.albums.forEach((item: any) => delete item.similarity_score);
-    } else {
-      albums.albums = [];
-    }
-    if (playlists !== null && playlists.playlists !== null) {
-      playlists.playlists.forEach((item) => delete item.similarity_score);
-    }
-    else {
-      if (playlists !== null) {
-        playlists.playlists = [];
-      }
-    }
-    users.users.forEach((item) => delete item.similarity_score);
-    console.log("task 4");
+    //console.log("task 3");
+
+    //console.log("task 4");
     res
     .status(200)
-    .json( {data: { songs: songs?.songs ?? [],
-            artists: artists?.artists ?? [],
-            albums: albums?.albums ?? [],
-            playlists: playlists?.playlists ?? [],
-            users: users?.users ?? []
-     }} );  
-    console.log(res.json);
+    .json( response );  
+    //console.log(res.json);
     return;
   } catch (error) {
     res.status(500).json({ error: error });
@@ -157,7 +114,6 @@ const searchSongs: RequestHandler = async (req: Request, res: Response) => {
     const cache = await redis.get(key);
     if (cache) {
       console.log("Fetch data from cache");
-      cache.songs.forEach((item) => delete item.distance);
       res.status(200).json(cache);
       return;
     }
@@ -173,7 +129,6 @@ const searchSongs: RequestHandler = async (req: Request, res: Response) => {
   if (role !== "Admin") {
     redis.set(key, data, { ex: 300 });
   }
-  data.songs.forEach((item) => delete item.distance);
   res.status(200).json({ data });
   return;
 };
@@ -207,7 +162,6 @@ const searchArtists: RequestHandler = async (req: Request, res: Response) => {
     const cache = await redis.get(key);
     if (cache) {
       console.log("Fetch data from cache");
-      cache.artists.forEach((item) => delete item.distance);
       res.status(200).json(cache);
       return;
     }
@@ -223,7 +177,6 @@ const searchArtists: RequestHandler = async (req: Request, res: Response) => {
   if (role !== "Admin") {
     redis.set(key, data, { ex: 300 });
   }
-  data.artists.forEach((item) => delete item.distance);
   res.status(200).json({ data });
   return;
 };
@@ -257,7 +210,6 @@ const searchUsers: RequestHandler = async (req: Request, res: Response) => {
     const cache = await redis.get(key);
     if (cache) {
       console.log("Fetch data from cache");
-      cache.users.forEach((item) => delete item.similarity_score);
       res.status(200).json(cache);
       return;
     }
@@ -273,7 +225,6 @@ const searchUsers: RequestHandler = async (req: Request, res: Response) => {
   if (role !== "Admin") {
     redis.set(key, data, { ex: 300 });
   }
-  data.users.forEach((item) => delete item.similarity_score);
   res.status(200).json({ data });
   return;
 };
@@ -307,12 +258,6 @@ const searchPlaylists: RequestHandler = async (req: Request, res: Response) => {
     const cache = await redis.get(key);
     if (cache) {
       console.log("Fetch data from cache");
-      if (cache.playlists !== null) {
-        cache.playlists.forEach((item) => delete item.similarity_score);
-      }
-      else {
-        cache.playlists = [];
-      }
       res.status(200).json(cache);
       return;
     }
@@ -320,21 +265,21 @@ const searchPlaylists: RequestHandler = async (req: Request, res: Response) => {
 
   const { data, error } = await supabase.rpc('search_playlists', { term: term });
 
+  const response = {
+    data: {
+      playlists: data?.playlists ?? [],
+    }
+  };
+
   if (error) {
     res.status(500).json({ error: error.message });
     return;
   }
 
   if (role !== "Admin") {
-    redis.set(key, data, { ex: 300 });
+    redis.set(key, response, { ex: 300 });
   }
-  if (data.playlists !== null) {
-    data.playlists.forEach((item) => delete item.similarity_score);
-  }
-  else {
-    data.playlists = [];
-  }
-  res.status(200).json({ data });
+  res.status(200).json( response );
   return;
 };
 
@@ -366,23 +311,17 @@ const searchAlbums: RequestHandler = async (req: Request, res: Response) => {
   if (role !== "Admin") {
     const cache = await redis.get(key);
     if (cache) {
-      console.log("Fetch data from cache");
-      cache.albums.forEach((item: any) => delete item.similarity_score);
       res.status(200).json(cache);
       return;
     }
   }
 
   const { data, error } = await supabase.rpc('search_albums', { term: term });
-  if (error) {
-    console.error('Error calling RPC:', error);
-  } else {
-    console.log('Search results:', data);
-  }
-
-  if (!Array.isArray(data)) {
-    console.error("Data is not an array:", data);
-  }
+  const response = {
+    data: {
+      playlists: data?.albums ?? [],
+    }
+  };
 
   if (error) {
     res.status(500).json({ error: error.message });
@@ -390,10 +329,9 @@ const searchAlbums: RequestHandler = async (req: Request, res: Response) => {
   }
 
   if (role !== "Admin") {
-    redis.set(key, data, { ex: 300 });
+    redis.set(key, response, { ex: 300 });
   }
-  data.albums.forEach((item: any) => delete item.similarity_score);
-  res.status(200).json({ data });
+  res.status(200).json( response );
 };
 
 const SearchController = {

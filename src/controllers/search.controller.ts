@@ -319,7 +319,7 @@ const searchAlbums: RequestHandler = async (req: Request, res: Response) => {
   const { data, error } = await supabase.rpc('search_albums', { term: term });
   const response = {
     data: {
-      playlists: data?.albums ?? [],
+      albums: data?.albums ?? [],
     }
   };
 

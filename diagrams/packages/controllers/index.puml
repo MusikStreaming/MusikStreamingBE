@@ -132,6 +132,27 @@ package types {
       itemprice: number;
       itemquantity: number;
     }
+    interface JWTPayload {
+      sub: string;
+      exp: number;
+      user_metadata: {
+        role: string;
+      };
+    }
+    interface SanitizeOptions {
+      type: "number" | "string" | "boolean";
+      defaultValue: any;
+      min?: number;
+      max?: number;
+      allowedValues?: any[];
+    }
+}
+
+class Utils <<Function Group>> {
+    + {static} parseJWTPayload(header: string | undefined): [JWTPayload | { error: string }, number]
+    + {static} escapeHtml(input: string): string
+    + {static} sanitize(value: any, options: SanitizeOptions): any
+    + {static} skipCache(value: string | undefined): boolean
 }
 
 ArtistController ..> Redis
@@ -156,5 +177,14 @@ SearchController ..> Redis
 
 UserController ..> Redis
 UserController ..> Cloudinary
+
+Utils ..> SanitizeOptions
+Utils ..> JWTPayload
+
+ArtistController ..> Utils
+SongController ..> Utils
+UserController ..> Utils
+SearchController ..> Utils
+CollectionController ..> Utils
 
 @enduml

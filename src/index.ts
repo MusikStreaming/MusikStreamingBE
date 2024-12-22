@@ -28,7 +28,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Security
-app.use(cors<Request>());
+app.use(
+  cors({
+    origin: ["http://localhost:3000", env.BASE_URL],
+  }),
+);
+
 app.use(helmet());
 
 // Logging

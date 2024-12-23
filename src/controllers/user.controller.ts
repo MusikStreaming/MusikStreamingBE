@@ -1,6 +1,6 @@
 import env from "@/env";
 import { Request, RequestHandler, Response } from "express";
-import { supabase } from "@/services/supabase";
+import { supabase, supabasePro } from "@/services/supabase";
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
 import { sanitize, skipCache } from "@/utils";
@@ -334,6 +334,45 @@ const unfollowArtist: RequestHandler = async (req: Request, res: Response) => {
   res.status(204).send();
 };
 
+/**
+ * Delete user by ID (Admin only)
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example DELETE /api/user/:id
+ */
+const deleteUser: RequestHandler = async (req: Request, res: Response) => {
+  try {
+    if (req.user.role !== "Admin") {
+      res.status(401).json({
+        error:
+          "Unauthorized access. You must be an Admin to perform this operation.",
+      });
+      return;
+    }
+
+    const { error } = await supabasePro.auth.admin.deleteUser(req.params.id);
+
+    if (error) {
+      console.error(
+        "Error deleting user with ID %s:",
+        req.params.id,
+        error.message,
+      );
+      res.status(500).json({
+        error: `Failed to delete user with ID ${req.params.id}. Please try again later.`,
+      });
+      return;
+    }
+
+    res.status(204).send();
+  } catch (err) {
+    console.error("Unexpected error during deleteUser operation:", err);
+    res.status(500).json({
+      error: "An unexpected error occurred. Please try again later.",
+    });
+  }
+};
 const UserController = {
   getAllUsers,
   getUserByID,
@@ -345,6 +384,7 @@ const UserController = {
   getFollowedArtists,
   followArtist,
   unfollowArtist,
+  deleteUser,
 };
 
 export { UserController };

@@ -334,6 +334,13 @@ const unfollowArtist: RequestHandler = async (req: Request, res: Response) => {
   res.status(204).send();
 };
 
+/**
+ * Delete user by ID (Admin only)
+ * @param req Request
+ * @param res Response
+ * @returns Promise<void>
+ * @example DELETE /api/user/:id
+ */
 const deleteUser: RequestHandler = async (req: Request, res: Response) => {
   try {
     if (req.user.role !== "Admin") {
@@ -348,7 +355,6 @@ const deleteUser: RequestHandler = async (req: Request, res: Response) => {
 
     if (error) {
       console.error(
-        `Error deleting user with ID ${req.params.id}:`,
         "Error deleting user with ID %s:",
         req.params.id,
         error.message,
@@ -360,13 +366,11 @@ const deleteUser: RequestHandler = async (req: Request, res: Response) => {
     }
 
     res.status(204).send();
-    return;
   } catch (err) {
     console.error("Unexpected error during deleteUser operation:", err);
     res.status(500).json({
       error: "An unexpected error occurred. Please try again later.",
     });
-    return;
   }
 };
 const UserController = {

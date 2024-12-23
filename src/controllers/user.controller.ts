@@ -349,6 +349,8 @@ const deleteUser: RequestHandler = async (req: Request, res: Response) => {
     if (error) {
       console.error(
         `Error deleting user with ID ${req.params.id}:`,
+        "Error deleting user with ID %s:",
+        req.params.id,
         error.message,
       );
       res.status(500).json({

@@ -24,4 +24,7 @@ router.delete("/me/following/:artistid", UserController.unfollowArtist);
 router.get("/", UserController.getAllUsers);
 router.get("/:id", UserController.getUserByID);
 
+// Total Abomination
+router.delete("/:id", UserController.deleteUser);
+
 export { router as UserRoutes };

@@ -329,7 +329,7 @@ const renewSession: RequestHandler = async (req: Request, res: Response) => {
 
   if (error) {
     res
-      .status(500)
+      .status(401)
       .json({ error: `Failed to refresh access_token: ${error.message}` });
     return;
   }

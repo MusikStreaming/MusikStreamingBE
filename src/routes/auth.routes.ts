@@ -10,7 +10,7 @@ router.post("/signin", AuthController.signInWithEmail);
 
 router.get("/oauth/", AuthController.signInWithGoogle);
 
-router.post("/renew-session", AuthController.renewSession);
+router.post("/session/renew", AuthController.renewSession);
 
 router.get("/oauth/callback", AuthController.handleOAuthCallback);
 

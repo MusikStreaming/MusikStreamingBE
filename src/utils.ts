@@ -127,4 +127,14 @@ const skipCache = (value: string | undefined) => {
   );
 };
 
-export { parseJWTPayload, sanitize, escapeHtml, skipCache };
+/**
+ * Capitalize the first letter of a string
+ * @param str - A string
+ * @ returns string that has the first letter capitalized from the original string
+ *
+ */
+const capitalize = (str: string): string => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+export { parseJWTPayload, sanitize, escapeHtml, skipCache, capitalize };

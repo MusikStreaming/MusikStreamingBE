@@ -2,7 +2,7 @@ import env from "@/env";
 import { cloudinary } from "@/services/cloudinary";
 import redis from "@/services/redis";
 import { supabase } from "@/services/supabase";
-import { sanitize, skipCache } from "@/utils";
+import { capitalize, sanitize, skipCache } from "@/utils";
 import { Request, RequestHandler, Response } from "express";
 
 /**
@@ -227,7 +227,7 @@ const addCollection: RequestHandler = async (req: Request, res: Response) => {
     ...(description && { description }),
     ...(thumbnailurl && { thumbnailurl }),
     ...(type && { type }),
-    ...(visibility && { visibility }),
+    ...(visibility && { visibility: capitalize(visibility) }),
   };
 
   const { data, error } = await supabase
@@ -275,7 +275,7 @@ const updateCollection: RequestHandler = async (
     ...(description && { description }),
     ...(thumbnailurl && { thumbnailurl }),
     ...(type && { type }),
-    ...(visibility && { visibility }),
+    ...(visibility && { visibility: capitalize(visibility) }),
   };
 
   const { data, error } = await supabase

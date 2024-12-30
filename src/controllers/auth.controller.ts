@@ -317,6 +317,36 @@ const signOut: RequestHandler = async (req: Request, res: Response) => {
   res.status(204).send();
 };
 
+const renewSession: RequestHandler = async (req: Request, res: Response) => {
+  const { refresh_token } = req.body;
+
+  if (!refresh_token) {
+    res.status(401).json({ error: "Missing refresh token" });
+    return;
+  }
+
+  const { data, error } = await supabase.auth.refreshSession({ refresh_token });
+
+  if (error) {
+    res
+      .status(401)
+      .json({ error: `Failed to refresh access_token: ${error.message}` });
+    return;
+  }
+
+  res.status(200).json({
+    user: {
+      id: data.user?.id,
+      aud: data.user?.aud,
+    },
+    session: {
+      access_token: data.session?.access_token,
+      expires_in: data.session?.expires_in,
+      refresh_token: data.session?.refresh_token,
+    },
+  });
+};
+
 const AuthController = {
   signInWithEmail,
   signUpWithEmail,
@@ -324,6 +354,7 @@ const AuthController = {
   handleOAuthCallback,
   updateUserCredentials,
   signOut,
+  renewSession,
 };
 
 export { AuthController };

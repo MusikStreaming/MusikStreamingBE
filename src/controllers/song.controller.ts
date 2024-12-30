@@ -312,6 +312,22 @@ const addSong: RequestHandler = async (req: Request, res: Response) => {
 const deleteSong: RequestHandler = async (req: Request, res: Response) => {
   const id = req.params.id;
 
+  const { data: artistData, error: artistError } = await supabase
+    .from("artistssongs")
+    .select("artist: artists(name)")
+    .match({ relation: "Primary", songid: id })
+    .single();
+
+  if (artistError) {
+    res.status(500).json({ error: artistError.message });
+    return;
+  }
+
+  if (!artistData.artist || !artistData.artist.name) {
+    res.status(404).json({ error: "artist does not exist!" });
+    return;
+  }
+
   const { data, error } = await supabase
     .from("songs")
     .delete()
@@ -324,7 +340,9 @@ const deleteSong: RequestHandler = async (req: Request, res: Response) => {
     return;
   }
 
-  backblaze.deleteObject(data.title + ".mp3");
+  backblaze.deleteObject(
+    `${artistData.artist.name}/${data.title.replace(/\s+/g, "_")}.mp3`,
+  );
   cloudinary.delete("songs", `i-${id}`);
 
   res.status(204).send();

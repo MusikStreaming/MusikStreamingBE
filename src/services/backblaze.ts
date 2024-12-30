@@ -97,6 +97,7 @@ class Backblaze {
     });
     try {
       await this.client.send(command);
+      console.log("[Backblaze] Log: File removed");
     } catch (error) {
       console.error(
         "\x1b[31m[Backblaze] Error: File not removed properly:",
